@@ -1,0 +1,21 @@
+{
+    "name": "bbtag",
+    "version": "1.0.0",
+    "description": "The engine behind blargbots custom commands",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://www.github.com/blargbot/bbtag"
+    },
+    "author": "blargbot",
+    "license": "AGPL-3.0",
+    "devDependencies": {
+        "typescript": "^2.9.2",
+        "mocha": "^5.2.0",
+        "chai": "^4.1.2"
+    }
+}
