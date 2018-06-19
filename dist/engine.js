@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Engine = /** @class */ (function () {
-    function Engine() {
+class Engine {
+    constructor(database) {
+        this.database = database;
     }
-    return Engine;
-}());
+}
 exports.Engine = Engine;
