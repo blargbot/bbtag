@@ -1,5 +1,5 @@
-import { Range, Location } from './selection';
-import { Cursor } from './cursor';
+import { Range, Location } from './structures/selection';
+import { Cursor } from './structures/cursor';
 
 export class BBString {
     public static parse(parent: BBSubTag | BBSource, cursor: Cursor): BBString {

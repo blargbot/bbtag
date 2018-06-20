@@ -1,6 +1,6 @@
 'use strict';
 let expect = require('chai').expect;
-let language = require('../dist/structures/language');
+let language = require('../dist/language');
 let { Range, Location } = require('../dist/structures/selection');
 
 describe('Language', () => {
