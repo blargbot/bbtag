@@ -4,8 +4,8 @@
     "description": "The engine behind blargbots custom commands",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc"
+        "build": "tsc",
+        "test": "mocha --reporter spec"
     },
     "repository": {
         "type": "git",

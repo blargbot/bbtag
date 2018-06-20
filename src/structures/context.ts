@@ -23,10 +23,6 @@ export class Context {
         this.runMode = options.runMode || RunMode.restricted;
         this.permission = options.permission || Permission.low;
     }
-
-    public serialize() {
-
-    }
 }
 
 export class DiscordContext extends Context {
