@@ -1,0 +1,11 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "es6",
+        "alwaysStrict": true,
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "rootDir": "./",
+        "strict": true
+    }
+}

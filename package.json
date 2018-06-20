@@ -4,8 +4,8 @@
     "description": "The engine behind blargbots custom commands",
     "main": "index.js",
     "scripts": {
-        "build": "tsc",
-        "test": "mocha --reporter spec"
+        "build": "cd ./src && tsc -w",
+        "test": "cd ./src && tsc && cd ../test && tsc && cd .. && mocha --reporter spec"
     },
     "repository": {
         "type": "git",
@@ -17,9 +17,11 @@
         "moment-timezone": "^0.5.20"
     },
     "devDependencies": {
-        "@types/moment-timezone": "0.5.4",
-        "typescript": "^2.9.2",
+        "@types/chai": "^4.1.4",
+        "@types/mocha": "^5.2.2",
+        "@types/moment-timezone": "^0.5.4",
+        "chai": "^4.1.2",
         "mocha": "^5.2.0",
-        "chai": "^4.1.2"
+        "typescript": "^2.9.2"
     }
 }
