@@ -1,6 +1,6 @@
-import { IDatabase } from "../interfaces/idatabase";
-import { Context } from "./context";
-import { Engine } from "../engine";
+import { IDatabase } from '../interfaces/idatabase';
+import { Context } from './context';
+import { Engine } from '../engine';
 
 export class VariableManager<TContext extends Context> {
     private readonly _map: { [key: string]: Promise<Variable> } = {};

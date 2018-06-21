@@ -1,4 +1,4 @@
-import { Context } from "../structures/context";
+import { Context } from '../structures/context';
 
 export interface IDatabase<TContext extends Context> {
     variables: {

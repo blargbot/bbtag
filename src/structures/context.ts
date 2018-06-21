@@ -1,8 +1,8 @@
-import { VariableManager } from "./variables";
-import { IMessage, IChannel, IGuildChannel, IUser, IMember, IGuild, Snowflake } from "../interfaces/iclient";
-import { Scope } from "./scope";
-import { StateManager } from "./state";
-import { Engine } from "../engine";
+import { VariableManager } from './variables';
+import { IMessage, IChannel, IGuildChannel, IUser, IMember, IGuild, Snowflake } from '../interfaces/iclient';
+import { Scope } from './scope';
+import { StateManager } from './state';
+import { Engine } from '../engine';
 
 export class Context {
     public readonly engine: Engine<this>;
