@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as language from '../dist/language';
 import { Range, Location } from '../dist/structures/selection';
+import { lang } from 'moment';
 
 describe('Language', () => {
     describe('#BBSource', () => {
@@ -146,42 +147,42 @@ describe('Language', () => {
             let input = '{this {is a test}';
 
             // act & assert
-            expect(language.parse.bind(null, input)).to.throw(language.ParseError);
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Unpaired \'{\'');
         });
         it('should fail when there is an unpaired { at the start', () => {
             // arrange
             let input = '{{this is a test}';
 
             // act & assert
-            expect(language.parse.bind(null, input)).to.throw(language.ParseError);
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Unpaired \'{\'');
         });
         it('should fail when there is an unpaired { at the end', () => {
             // arrange
             let input = '{this is a test}{';
 
             // act & assert
-            expect(language.parse.bind(null, input)).to.throw(language.ParseError);
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:17]: Unpaired \'{\'');
         });
         it('should fail when there is an unpaired }', () => {
             // arrange
             let input = '{this is} a test}';
 
             // act & assert
-            expect(language.parse.bind(null, input)).to.throw(language.ParseError);
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:17]: Unexpected \'}\'');
         });
         it('should fail when there is an unpaired } at the start', () => {
             // arrange
             let input = '}{this is a test}';
 
             // act & assert
-            expect(language.parse.bind(null, input)).to.throw(language.ParseError);
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Unexpected \'}\'');
         });
         it('should fail when there is an unpaired } at the end', () => {
             // arrange
             let input = '{this is a test}}';
 
             // act & assert
-            expect(language.parse.bind(null, input)).to.throw(language.ParseError);
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:17]: Unexpected \'}\'');
         });
     })
 });

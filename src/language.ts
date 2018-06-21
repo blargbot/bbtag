@@ -70,7 +70,7 @@ export class BBSubTag {
         }
 
         if (cursor.next != '}')
-            throw new ParseError(cursor.location, 'Missing \'}\'');
+            throw new ParseError(start, 'Unpaired \'{\'');
 
         cursor.moveNext();
 
@@ -119,7 +119,7 @@ export type BBPart = (BBSubTag | string);
 export class ParseError extends Error {
     public readonly location: Location;
     constructor(location: Location, message: string) {
-        super(`[${location.line}:${location.column}]: ${message}`);
+        super(`[${location.line + 1}:${location.column + 1}]: ${message}`);
         this.location = location;
     }
 }
