@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as language from '../dist/language';
 import { Range, Location } from '../dist/structures/selection';
-import { lang } from 'moment';
 
 describe('Language', () => {
     describe('#BBSource', () => {
