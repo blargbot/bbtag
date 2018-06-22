@@ -1,6 +1,6 @@
 import { Context } from '../structures/context';
 
-export interface IDatabase<TContext extends Context> {
-    getVariable(context: TContext, name: string): Promise<string>;
-    setVariable(context: TContext, ...values: Array<{ name: string, value: string }>): Promise<void>
+export interface IDatabase {
+    getVariable(context: Context, name: string): Promise<string>;
+    setVariable(context: Context, ...values: Array<{ name: string, value: string }>): Promise<void>
 }

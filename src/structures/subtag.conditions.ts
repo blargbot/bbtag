@@ -40,28 +40,28 @@ export function hasCounts(...count: Array<string | number>): SubTagCondition {
     return satisfiesAny(...count.map(hasCount));
 }
 
-export function hasCount(count: string | number): Condition {
+export function hasCount(count: string | number): SubTagCondition {
     if (typeof count === 'number')
-        return s => s.args.length === count;
+        return satisfies(s => s.args.length === count);
     let match: string[] | null = count.match(/^(\d+)$/);
     if (match) {
         count = parseInt(match[1])
-        return s => s.args.length === count;
+        return satisfies(s => s.args.length === count);
     }
 
     match = count.match(/^(<=|>=|<|>|==|=|!=|!)(\d+)$/);
     if (match) {
         count = parseInt(match[2]);
         switch (match[1]) {
-            case '<=': return s => s.args.length <= count;
-            case '>=': return s => s.args.length >= count;
-            case '>': return s => s.args.length > count;
-            case '<': return s => s.args.length < count;
+            case '<=': return satisfies(s => s.args.length <= count);
+            case '>=': return satisfies(s => s.args.length >= count);
+            case '>': return satisfies(s => s.args.length > count);
+            case '<': return satisfies(s => s.args.length < count);
             case '==':
-            case '=': return s => s.args.length === count;
+            case '=': return satisfies(s => s.args.length === count);
             case '!=':
-            case '!': return s => s.args.length !== count;
-            default: return () => false;
+            case '!': return satisfies(s => s.args.length !== count);
+            default: return satisfies(() => false);
         }
     }
 
@@ -70,8 +70,8 @@ export function hasCount(count: string | number): Condition {
         let from = parseInt(match[1]);
         let to = parseInt(match[2]);
         [from, to] = [Math.min(from, to), Math.max(from, to)];
-        return s => s.args.length >= from && s.args.length <= to;
+        return satisfies(s => s.args.length >= from && s.args.length <= to);
     }
 
-    return () => false;
+    return satisfies(() => false);
 }

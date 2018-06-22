@@ -3,16 +3,17 @@ import { IMessage, IChannel, IGuildChannel, IUser, IMember, IGuild, Snowflake } 
 import { Scope } from './scope';
 import { StateManager } from './state';
 import { Engine } from '../engine';
+import { BBString, BBSubTag } from '../language';
 
 export class Context {
-    public readonly engine: Engine<this>;
-    public readonly variables: VariableManager<this>;
+    public readonly engine: Engine;
+    public readonly variables: VariableManager;
     public readonly scope: Scope;
     public readonly state: StateManager;
     public readonly runMode: RunMode;
     public readonly permission: Permission;
 
-    constructor(engine: Engine<Context>, options?: ContextOptions) {
+    constructor(engine: Engine, options?: ContextOptions) {
         this.engine = engine;
         this.variables = new VariableManager(this, this.engine);
         this.scope = new Scope();
@@ -22,6 +23,13 @@ export class Context {
 
         this.runMode = options.runMode || RunMode.restricted;
         this.permission = options.permission || Permission.low;
+    }
+
+    public addError(code: string, part: BBString | BBSubTag, message: string): string {
+        let location = part.range.start;
+        this.state.errors.push({ code, location, message });
+
+        return `\`[${location.line}:${location.column}][${code}] ${message}\``;
     }
 }
 
@@ -37,7 +45,7 @@ export class DiscordContext extends Context {
 
     public get msg() { return this.message; }
 
-    constructor(engine: Engine<DiscordContext>, message: IMessage, author: Snowflake, options?: ContextOptions) {
+    constructor(engine: Engine, message: IMessage, author: Snowflake, options?: ContextOptions) {
         options = options || {};
 
         super(engine, options);
@@ -57,6 +65,7 @@ export enum RunMode {
     full = 1, // cc's
     restricted = 2 // tags
 }
+
 export enum Permission {
     admin = 1, // bot owner
     elevated = 2, // staff

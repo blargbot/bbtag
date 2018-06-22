@@ -2,13 +2,13 @@ import { IDatabase } from '../interfaces/idatabase';
 import { Context } from './context';
 import { Engine } from '../engine';
 
-export class VariableManager<TContext extends Context> {
+export class VariableManager {
     private readonly _map: { [key: string]: Promise<Variable> } = {};
-    private readonly _engine: Engine<TContext>;
+    private readonly _engine: Engine;
 
-    public readonly context: TContext;
+    public readonly context: Context;
 
-    constructor(context: TContext, engine: Engine<TContext>) {
+    constructor(context: Context, engine: Engine) {
         this._engine = engine;
         this.context = context;
     }
@@ -17,7 +17,7 @@ export class VariableManager<TContext extends Context> {
         let force = name.startsWith('!');
         if (force || !this._map.hasOwnProperty(name)) {
             if (force) name = name.substr(1);
-            let current = this._engine.database.variables.get(this.context, name);
+            let current = this._engine.database.getVariable(this.context, name);
             this._map[name] = current.then(value => new Variable(value));
         }
         return this._map[name];
@@ -46,7 +46,7 @@ export class VariableManager<TContext extends Context> {
             };
         })
 
-        await this._engine.database.variables.set(this.context, update);
+        await this._engine.database.setVariable(this.context, ...update);
     }
 }
 

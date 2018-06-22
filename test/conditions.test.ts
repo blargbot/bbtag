@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { hasCount, hasCounts } from '../dist/structures/subtagConditions';
+import { hasCount, hasCounts } from '../dist/structures/subtag.conditions';
 import { BBSubTag } from '../dist/language';
 
 function mockSubTagArgs(args: any[]): BBSubTag {
@@ -7,7 +7,7 @@ function mockSubTagArgs(args: any[]): BBSubTag {
 }
 
 describe('SubtagConditions', () => {
-    describe('#hasCount', () => {
+    describe('#hasCount()', () => {
         async function runTest(condition: number | string, cases: { args: any[], expect: boolean }[]) {
             // arrange
             let check = hasCount(condition);

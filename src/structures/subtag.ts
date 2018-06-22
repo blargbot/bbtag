@@ -1,33 +1,37 @@
 import { BBString, BBSubTag } from '../language';
 import { Context } from './context';
 import { Engine } from '../engine';
-import { Condition } from './subtagConditions';
-import * as conditions from './subtagConditions';
+import { Condition } from './subtag.conditions';
+import * as conditions from './subtag.conditions';
+import * as errors from './subtag.errors';
+import { IDatabase } from '../interfaces/idatabase';
 
-export abstract class SubTag<TContext extends Context> {
+export abstract class SubTag {
     public static readonly conditions = conditions;
-    protected readonly rules: SubTagRule<TContext>[] = [];
+    public static readonly errors = errors;
 
-    public readonly engine: Engine<TContext>;
+    protected readonly rules: SubTagRule[] = [];
+
+    public readonly engine: Engine;
+    public readonly database: IDatabase;
     public readonly name: string;
     public readonly aliases: string[];
 
-    constructor(engine: Engine<TContext>, name: string, options?: SubTagOptions) {
+    protected constructor(engine: Engine, name: string, options?: SubTagOptions) {
         options = options || {};
         this.engine = engine;
+        this.database = this.engine.database;
         this.name = name;
 
         this.aliases = options.aliases || [];
     }
 
-    protected abstract defaultHandler: SubTagHandler<TContext>;
-
-    protected whenArgs(condition: Condition, handler: SubTagHandler<TContext>): this {
-        this.rules.push({ condition, handler });
+    protected whenArgs(condition: Condition, handler: SubTagHandler): this {
+        this.rules.push({ condition: condition.bind(this), handler: handler.bind(this) });
         return this;
     }
 
-    protected async parseArgs(subtag: BBSubTag, context: TContext, positions?: number | number[]): Promise<string[]> {
+    protected async parseArgs(subtag: BBSubTag, context: Context, positions?: number | number[]): Promise<string[]> {
         if (positions === undefined)
             positions = [...new Array(subtag.args).keys()];
         else if (!Array.isArray(positions))
@@ -37,8 +41,8 @@ export abstract class SubTag<TContext extends Context> {
         return await Promise.all(promises);
     }
 
-    public async execute(subtag: BBSubTag, context: TContext): Promise<string> {
-        let handler: SubTagHandler<TContext> | undefined;
+    public async execute(subtag: BBSubTag, context: Context): Promise<string> {
+        let handler: SubTagHandler | undefined;
         for (const rule of this.rules) {
             if (await rule.condition(subtag)) {
                 handler = rule.handler.bind(this);
@@ -46,11 +50,11 @@ export abstract class SubTag<TContext extends Context> {
             }
         }
         if (handler === undefined)
-            handler = this.defaultHandler.bind(this) as SubTagHandler<TContext>;
+            throw new MissingHandlerError(this, subtag);
 
         let result = await handler(subtag, context);
         switch (typeof result) {
-            case 'function': return (<SubTagError<TContext>>result)(subtag, context);
+            case 'function': return await (<SubTagErrorFunc>result)(subtag, context);
             case 'string': return <string>result;
             case 'number': return String(result);
             case 'boolean': return String(result);
@@ -60,10 +64,21 @@ export abstract class SubTag<TContext extends Context> {
     }
 }
 
-export type SubTagHandler<TContext> = (subtag: BBSubTag, context: TContext) => SubTagResult<TContext>;
-export type SubTagRule<TContext> = { condition: Condition, handler: SubTagHandler<TContext> };
-export type SubTagError<TContext> = (part: BBString | BBSubTag, context: TContext) => string | Promise<string>;
-export type SubTagResult<TContext> = Promise<void | string | boolean | number | Array<string | number> | SubTagError<TContext>>;
+export class MissingHandlerError extends Error {
+    public subtag: SubTag;
+    public part: BBSubTag;
+
+    constructor(subtag: SubTag, part: BBSubTag) {
+        super(`Missing handler on ${subtag.name} for ${JSON.stringify(part.args)}`);
+        this.subtag = subtag;
+        this.part = part;
+    }
+}
+
+export type SubTagHandler = (subtag: BBSubTag, context: Context) => SubTagResult;
+export type SubTagRule = { condition: Condition, handler: SubTagHandler };
+export type SubTagErrorFunc = (part: BBString | BBSubTag, context: Context) => Promise<string>;
+export type SubTagResult = Promise<void | string | boolean | number | Array<string | number> | SubTagErrorFunc>;
 export interface SubTagOptions {
     aliases?: string[]
 }
