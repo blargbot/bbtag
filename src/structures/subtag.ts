@@ -6,19 +6,20 @@ import * as conditions from './subtag.conditions';
 import * as errors from './subtag.errors';
 import { IDatabase } from '../interfaces/idatabase';
 
-export abstract class SubTag {
+export abstract class SubTag<TContext extends Context> {
     public static readonly conditions = conditions;
     public static readonly errors = errors;
 
     protected readonly rules: SubTagRule[] = [];
 
+    public readonly context: new (...args: any[]) => TContext;
     public readonly engine: Engine;
     public readonly database: IDatabase;
     public readonly name: string;
     public readonly aliases: string[];
 
-    protected constructor(engine: Engine, name: string, options?: SubTagOptions) {
-        options = options || {};
+    protected constructor(engine: Engine, name: string, options: BaseSubtagOptions<TContext>) {
+        this.context = options.context;
         this.engine = engine;
         this.database = this.engine.database;
         this.name = name;
@@ -31,7 +32,7 @@ export abstract class SubTag {
         return this;
     }
 
-    protected async parseArgs(subtag: BBSubTag, context: Context, positions?: number | number[]): Promise<string[]> {
+    protected async parseArgs(subtag: BBSubTag, context: TContext, positions?: number | number[]): Promise<string[]> {
         if (positions === undefined)
             positions = [...new Array(subtag.args).keys()];
         else if (!Array.isArray(positions))
@@ -41,7 +42,7 @@ export abstract class SubTag {
         return await Promise.all(promises);
     }
 
-    public async execute(subtag: BBSubTag, context: Context): Promise<string> {
+    public async execute(subtag: BBSubTag, context: TContext): Promise<string> {
         let handler: SubTagHandler | undefined;
         for (const rule of this.rules) {
             if (await rule.condition(subtag)) {
@@ -64,17 +65,26 @@ export abstract class SubTag {
     }
 }
 
-export class MissingHandlerError extends Error {
-    public subtag: SubTag;
+export abstract class SystemSubTag extends SubTag<Context> {
+    constructor(engine: Engine, name: string, options?: SubTagOptions) {
+        let _options = <BaseSubtagOptions<Context>>options || {};
+        _options.context = Context;
+        super(engine, name, _options);
+    }
+}
+
+export class MissingHandlerError<TContext extends Context> extends Error {
+    public subtag: SubTag<TContext>;
     public part: BBSubTag;
 
-    constructor(subtag: SubTag, part: BBSubTag) {
+    constructor(subtag: SubTag<TContext>, part: BBSubTag) {
         super(`Missing handler on ${subtag.name} for ${JSON.stringify(part.args)}`);
         this.subtag = subtag;
         this.part = part;
     }
 }
 
+export type BaseSubtagOptions<TContext> = SubTagOptions & { context: new (...args: any[]) => TContext };
 export type SubTagHandler = (subtag: BBSubTag, context: Context) => SubTagResult;
 export type SubTagRule = { condition: Condition, handler: SubTagHandler };
 export type SubTagErrorFunc = (part: BBString | BBSubTag, context: Context) => Promise<string>;
