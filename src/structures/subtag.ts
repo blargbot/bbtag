@@ -10,7 +10,7 @@ export abstract class SubTag<TContext extends Context> {
     public static readonly conditions = conditions;
     public static readonly errors = errors;
 
-    protected readonly rules: SubTagRule[] = [];
+    protected readonly rules: SubTagRule<TContext>[] = [];
 
     public readonly context: new (...args: any[]) => TContext;
     public readonly engine: Engine;
@@ -27,7 +27,7 @@ export abstract class SubTag<TContext extends Context> {
         this.aliases = options.aliases || [];
     }
 
-    protected whenArgs(condition: Condition, handler: SubTagHandler): this {
+    protected whenArgs(condition: Condition, handler: SubTagHandler<TContext>): this {
         this.rules.push({ condition: condition.bind(this), handler: handler.bind(this) });
         return this;
     }
@@ -43,7 +43,7 @@ export abstract class SubTag<TContext extends Context> {
     }
 
     public async execute(subtag: BBSubTag, context: TContext): Promise<string> {
-        let handler: SubTagHandler | undefined;
+        let handler: SubTagHandler<TContext> | undefined;
         for (const rule of this.rules) {
             if (await rule.condition(subtag)) {
                 handler = rule.handler.bind(this);
@@ -55,7 +55,7 @@ export abstract class SubTag<TContext extends Context> {
 
         let result = await handler(subtag, context);
         switch (typeof result) {
-            case 'function': return await (<SubTagErrorFunc>result)(subtag, context);
+            case 'function': return await (<SubTagErrorFunc<TContext>>result)(subtag, context);
             case 'string': return <string>result;
             case 'number': return String(result);
             case 'boolean': return String(result);
@@ -85,10 +85,10 @@ export class MissingHandlerError<TContext extends Context> extends Error {
 }
 
 export type BaseSubtagOptions<TContext> = SubTagOptions & { context: new (...args: any[]) => TContext };
-export type SubTagHandler = (subtag: BBSubTag, context: Context) => SubTagResult;
-export type SubTagRule = { condition: Condition, handler: SubTagHandler };
-export type SubTagErrorFunc = (part: BBString | BBSubTag, context: Context) => Promise<string>;
-export type SubTagResult = Promise<void | string | boolean | number | Array<string | number> | SubTagErrorFunc>;
+export type SubTagHandler<TContext> = (subtag: BBSubTag, context: TContext) => SubTagResult<TContext>;
+export type SubTagRule<TContext> = { condition: Condition, handler: SubTagHandler<TContext> };
+export type SubTagErrorFunc<TContext> = (part: BBString | BBSubTag, context: TContext) => Promise<string>;
+export type SubTagResult<TContext> = Promise<void | string | boolean | number | Array<string | number> | SubTagErrorFunc<TContext>>;
 export interface SubTagOptions {
     aliases?: string[]
 }

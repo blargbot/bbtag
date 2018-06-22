@@ -12,7 +12,7 @@ export class Context {
     public readonly state: StateManager;
     public readonly runMode: RunMode;
     public readonly permission: Permission;
-    public readonly subtags: Set<SubTag<this>>;
+    public readonly subtags: Set<SubTag<any>>;
 
     constructor(engine: Engine, options?: ContextOptions) {
         this.engine = engine;

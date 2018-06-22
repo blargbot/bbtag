@@ -3,8 +3,8 @@ import { Context } from '../structures/context';
 import { SubTagErrorFunc } from './subtag';
 
 const error = {
-    custom: function (code: string, message: string): SubTagErrorFunc {
-        return (subtag: BBSubTag | BBString, context: Context) =>
+    custom: function <TContext extends Context>(code: string, message: string): SubTagErrorFunc<TContext> {
+        return (subtag: BBSubTag | BBString, context: TContext) =>
             Promise.resolve(context.addError(code, subtag, message));
     },
     arguments: {
