@@ -6,9 +6,18 @@ import * as conditions from './subtag.conditions';
 import * as errors from './subtag.errors';
 import { IDatabase } from '../interfaces/idatabase';
 
+function ensureArray(value?: string | string[]): string[] {
+    if (Array.isArray(value))
+        return value;
+    if (value)
+        return [value];
+    return [];
+}
+
 export abstract class SubTag<TContext extends Context> {
     public static readonly conditions = conditions;
     public static readonly errors = errors;
+    public static readonly defaultCategory = 'System';
 
     protected readonly rules: SubTagRule<TContext>[] = [];
 
@@ -16,7 +25,12 @@ export abstract class SubTag<TContext extends Context> {
     public readonly engine: Engine;
     public readonly database: IDatabase;
     public readonly name: string;
+    public readonly category: string;
+    public readonly globalNames?: string[];
     public readonly aliases: string[];
+
+    public readonly errors = SubTag.errors;
+    public readonly conditions = SubTag.conditions;
 
     protected constructor(engine: Engine, name: string, options: BaseSubtagOptions<TContext>) {
         this.context = options.context;
@@ -24,7 +38,9 @@ export abstract class SubTag<TContext extends Context> {
         this.database = this.engine.database;
         this.name = name;
 
-        this.aliases = options.aliases || [];
+        this.category = options.category || 'System';
+        this.aliases = ensureArray(options.alias);
+        this.globalNames = ensureArray(options.globalName);
     }
 
     protected whenArgs(condition: Condition, handler: SubTagHandler<TContext>): this {
@@ -55,7 +71,7 @@ export abstract class SubTag<TContext extends Context> {
 
         let result = await handler(subtag, context);
         switch (typeof result) {
-            case 'function': return await (<SubTagErrorFunc<TContext>>result)(subtag, context);
+            case 'function': return await (<SubTagError>result)(subtag, context);
             case 'string': return <string>result;
             case 'number': return String(result);
             case 'boolean': return String(result);
@@ -85,10 +101,12 @@ export class MissingHandlerError<TContext extends Context> extends Error {
 }
 
 export type BaseSubtagOptions<TContext> = SubTagOptions & { context: new (...args: any[]) => TContext };
-export type SubTagHandler<TContext> = (subtag: BBSubTag, context: TContext) => SubTagResult<TContext>;
+export type SubTagHandler<TContext> = (subtag: BBSubTag, context: TContext) => SubTagResult;
 export type SubTagRule<TContext> = { condition: Condition, handler: SubTagHandler<TContext> };
-export type SubTagErrorFunc<TContext> = (part: BBString | BBSubTag, context: TContext) => Promise<string>;
-export type SubTagResult<TContext> = Promise<void | string | boolean | number | Array<string | number> | SubTagErrorFunc<TContext>>;
+export type SubTagError = (part: BBString | BBSubTag, context: Context) => Promise<string>;
+export type SubTagResult = Promise<void | string | boolean | number | Array<string | number> | SubTagError>;
 export interface SubTagOptions {
-    aliases?: string[]
+    alias?: string | string[],
+    category?: string,
+    globalName?: string | string[]
 }

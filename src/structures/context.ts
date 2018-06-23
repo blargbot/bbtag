@@ -4,6 +4,7 @@ import { StateManager } from './state';
 import { Engine } from '../engine';
 import { BBString, BBSubTag } from '../language';
 import { SubTag } from './subtag';
+import { SubTagMap } from './subtag.map';
 
 export class Context {
     public readonly engine: Engine;
@@ -12,36 +13,21 @@ export class Context {
     public readonly state: StateManager;
     public readonly runMode: RunMode;
     public readonly permission: Permission;
-    public readonly subtags: Set<SubTag<any>>;
+    public readonly functions: SubTagMap;
+    public readonly arguments: string[];
 
     constructor(engine: Engine, options?: ContextOptions) {
         this.engine = engine;
         this.variables = new VariableManager(this, this.engine);
         this.scope = new Scope();
         this.state = new StateManager();
-
-        // TODO: Move to a grouping util method
-        let groups: SubTag<any>[][] = [];
-        let keys: any[] = [];
-        let result: SubTag<any>[] = [];
-        for (const subtag of this.engine.subtags) {
-            let index = keys.indexOf(subtag.context);
-            if (index = -1)
-                index = keys.push(subtag.context);
-            let group = groups[index] || (groups[index] = []);
-            group.push(subtag);
-        }
-        for (const index in keys) {
-            if (this instanceof keys[index]) {
-                result.push(...groups[index]);
-            }
-        }
-        this.subtags = new Set(result);
+        this.functions = new SubTagMap();
 
         options = options || {};
 
         this.runMode = options.runMode || RunMode.restricted;
         this.permission = options.permission || Permission.low;
+        this.arguments = options.arguments || [];
     }
 
     public addError(code: string, part: BBString | BBSubTag, message: string): string {
@@ -50,7 +36,16 @@ export class Context {
 
         return `\`[${location.line}:${location.column}][${code}] ${message}\``;
     }
+
+    public getSubTag(name: string): SubTag<any> | undefined {
+        name = name.toLowerCase();
+        if (name.startsWith(''))
+            return this.functions.get(name);
+        return this.engine.subtags.get(name);
+    }
 }
+
+
 
 export enum RunMode {
     full = 1, // cc's
@@ -64,6 +59,7 @@ export enum Permission {
 }
 
 export interface ContextOptions {
+    arguments?: string[];
     runMode?: RunMode;
     permission?: Permission;
 }

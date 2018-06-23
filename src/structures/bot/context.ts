@@ -1,5 +1,4 @@
-import { DiscordContext } from "../discord";
+import { DiscordContext } from "../discord/context";
 
 export class BotContext extends DiscordContext {
-    public readonly aaaa: any = null;
 }

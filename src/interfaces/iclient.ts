@@ -73,7 +73,7 @@ export interface IUser extends IEntity {
 
 export interface IMessage extends IEntity {
     readonly author: IUser;
-    readonly channel: IChannel;
+    readonly channel: AnyChannel;
     readonly content: string;
     readonly embeds: IEmbed[];
     readonly attachments: string[];
@@ -125,3 +125,4 @@ export interface IMsgOptions {
 
 export type Awaitable<T> = Promise<T> | T;
 export type ChannelType = 'text' | 'voice';
+export type AnyChannel = IChannel | IGuildChannel;

@@ -8,6 +8,7 @@
         "outDir": "../dist",
         "rootDir": "./",
         "strict": true,
-        "declaration": true
+        "declaration": true,
+        "strictFunctionTypes": true
     }
 }

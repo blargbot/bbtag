@@ -1,5 +1,5 @@
 import { IDatabase } from '../../dist/interfaces/idatabase';
-import { DiscordContext } from '../../dist/structures/context';
+import { DiscordContext } from '../../dist/structures/discord/context';
 
 export class MockDb implements IDatabase {
     public store: { [key: string]: string } = {};

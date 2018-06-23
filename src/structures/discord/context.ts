@@ -1,10 +1,10 @@
 import { Context, ContextOptions } from "../context";
-import { IMessage, IChannel, IGuildChannel, IUser, IMember, IGuild, Snowflake } from '../../interfaces/iclient';
+import { IMessage, IGuildChannel, IUser, IMember, IGuild, Snowflake, AnyChannel } from '../../interfaces/iclient';
 import { Engine } from "../../engine";
 
 export class DiscordContext extends Context {
     public readonly message: IMessage;
-    public readonly channel: IChannel;
+    public readonly channel: AnyChannel;
     public readonly user: IUser;
 
     public readonly guild?: IGuild;
@@ -23,8 +23,8 @@ export class DiscordContext extends Context {
         this.user = message.author;
         this.author = author;
 
-        if (this.channel.hasOwnProperty('guild')) {
-            this.guildChannel = this.channel as IGuildChannel;
+        if ('guild' in this.channel) {
+            this.guildChannel = this.channel;
             this.guild = this.guildChannel.guild;
         }
     }
