@@ -1,0 +1,9 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+init:
+- &1127640437 cmd: node --version && npm --version
+install:
+- cmd: npm install
+build: off
+test_script:
+- cmd: npm run test

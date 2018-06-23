@@ -104,7 +104,7 @@ describe('SubtagConditions', () => {
             ]);
         });
     });
-    describe('#hasCounts', () => {
+    describe('#hasCounts()', () => {
         it('should allow multiple counts', async () => {
             // arrange
             let check = hasCounts(1, 2, 5);

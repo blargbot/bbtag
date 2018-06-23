@@ -57,7 +57,7 @@ describe('Language', () => {
             expect(result.lines).to.be.deep.equal(expected);
         });
     });
-    describe('#getContent', () => {
+    describe('#getContent()', () => {
         it('should get from range', () => {
             // arrange
             let lines = ['this is a\n', 'test wooo\n', 'Hello there'];
@@ -70,7 +70,7 @@ describe('Language', () => {
             expect(result).to.be.equal('is a\ntest');
         });
     });
-    describe('#parse', () => {
+    describe('#parse()', () => {
         function toArray(bbstring: language.BBString): bbarray {
             return bbstring.parts.map(function (part) {
                 if (typeof part === 'string')
