@@ -8,8 +8,6 @@ SubTags are split up into varying categories. Subtags within each category can b
 #### General
 These subtags are implementations of general programming concepts. These are independent from any discord or bot functionality, and can be easily repurposed to other applications.
 - **[System](/src/subtags/general/system)** - All subtags relating to general programming concepts
-  - Flow control ([`{if}`](/src/subtags/general/system/if.ts), [`{switch}`](/src/subtags/general/system/if.ts), etc.)
-  - Variable management ([`{get}`](/src/subtags/general/system/get.ts), [`{set}`](/src/subtags/general/system/set.ts), [`{commit}`](/src/subtags/system/commit.ts), [`{rollback}`](/src/subtags/general/system/rollback.ts), etc.)
 - **[Array](/src/subtags/general/array)** - All subtags relating to the manipulation and usage of arrays. Arrays are rendered out as a json string following the pattern `{"n":"arrayName","v":[1,2,3]}` if it has come from a variable, otherwise `[1,2,3]`
 - **[Math](/src/subtags/general/math)** - All subtags that work with number manipulation
 
@@ -24,7 +22,6 @@ These subtags are all related to discord, and so require that a `DiscordContext`
 #### Blargbot
 These subtags are used for interacting with blargbots features, and so require a `BotContext` to be supplied to the engine upon execution.
 - **[Bot](/src/subtags/bot)** - All subtags used for interacting with blargbot directly
-  - Moderation ([`{pardon}`](/src/subtags/bot/pardon.ts), [`{warn}`](/src/subtags/bot/moderation/pardon.ts), etc.)
 
 ## Getting started
 For help using the language on blargbot, please visit the [blargbot website](https://blargbot.xyz/tags).
