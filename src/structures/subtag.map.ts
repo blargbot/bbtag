@@ -4,10 +4,10 @@ import { Context } from "./context";
 class SubTagMapNode extends Map<string, SubTagMapNode | SubTag<any>> { }
 
 export class SubTagMap {
-    private readonly _members: Set<SubTag<any>> = new Set();
+    private readonly _members: SubTag<any>[] = [];
     private readonly _map: SubTagMapNode = new SubTagMapNode();
 
-    public get members(): Array<SubTag<any>> { return [...this._members]; }
+    public members: ReadonlyArray<SubTag<any>> = this._members;
 
     public add(subtag: SubTag<any>): this {
         for (const path of this._getPaths(subtag)) {
@@ -16,7 +16,7 @@ export class SubTagMap {
             node.set(key, subtag);
         }
 
-        this._members.add(subtag);
+        this._members.push(subtag);
 
         return this;
     }
@@ -29,7 +29,9 @@ export class SubTagMap {
                 node.delete(key);
         }
 
-        this._members.delete(subtag);
+        let index = this._members.indexOf(subtag);
+        if (index != -1)
+            this._members.splice(index, 1);
 
         return this;
     }
