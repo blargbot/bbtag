@@ -86,10 +86,11 @@ export class BBSubTag {
     private _range: Range | null = null;
     private _parts: BBString[] = [];
 
+    public resolvedName: string = '';
     public get content(): string { return this._content; }
     public get range(): Range { return this._range as Range; }
 
-    public get name(): BBString { return this._parts[0]; }
+    public get name(): BBString | undefined { return this._parts[0]; }
     public get args(): BBString[] { return this._parts.slice(1); }
 
     private constructor(parent: BBString) {

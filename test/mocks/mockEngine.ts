@@ -3,6 +3,6 @@ import { MockDb } from "./mockDatabase";
 
 export class MockEngine extends Engine {
     constructor() {
-        super(new MockDb());
+        super({ database: new MockDb() });
     }
 }

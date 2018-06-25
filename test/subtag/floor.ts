@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Floor } from '../../dist/subtags/math/floor';
+import { Floor } from '../../dist/subtags/general/math/floor';
 import { Context } from '../../dist/structures/context';
 import * as errors from '../../dist/structures/subtag.errors';
 import { MockEngine } from '../mocks/mockEngine';
