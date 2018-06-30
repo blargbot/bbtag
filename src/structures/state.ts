@@ -1,4 +1,4 @@
-import { Location } from "./selection";
+import { Location } from './selection';
 
 export class StateManager {
     public errors: Array<TagError> = [];

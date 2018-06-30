@@ -1,4 +1,4 @@
-import { SubTag } from "../util";
+import { SubTag } from '../util';
 
 export const subtags = [
 

@@ -1,5 +1,5 @@
-import { SystemSubTag, Engine, hasCount, BBSubTag, Context } from "./util";
-import { BBString, satisfies } from "../../../dist";
+import { SystemSubTag, Engine, hasCount, BBSubTag, Context } from './util';
+import { BBString, satisfies } from '../../../dist';
 
 export class Func extends SystemSubTag {
     constructor(engine: Engine) {
