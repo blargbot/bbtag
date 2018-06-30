@@ -9,6 +9,7 @@
         "rootDir": "./",
         "strict": true,
         "declaration": true,
-        "strictFunctionTypes": true
+        "strictFunctionTypes": true,
+        "sourceMap": true
     }
 }
