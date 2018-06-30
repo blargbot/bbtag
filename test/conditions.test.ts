@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { hasCount, hasCounts } from '../dist/structures/subtag.conditions';
-import { BBSubTag } from '../dist/language';
+import { hasCount, hasCounts, BBSubTag } from '../dist';
 
 function mockSubTagArgs(args: any[]): BBSubTag {
     return <BBSubTag><any>{ args };

@@ -1,2 +1,2 @@
-export { BotSubTag } from './subtag';
-export { BotContext } from './context';
+export * from './subtag';
+export * from './context';

@@ -1,2 +1,2 @@
-export { DiscordSubTag } from './subtag';
-export { DiscordContext } from './context'; 
+export * from './subtag';
+export * from './context'; 

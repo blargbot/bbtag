@@ -1,4 +1,3 @@
-import { IDatabase } from '../interfaces/idatabase';
 import { Context } from './context';
 import { Engine } from '../engine';
 

@@ -19,14 +19,14 @@ export class Engine {
         this.onError = options.onError || (() => { });
     }
 
-    public register(...subtags: Array<new (engine: Engine) => SubTag<any>>): this {
+    public register(...subtags: Array<typeof SubTag>): this {
         for (const subtag of subtags)
             this.subtags.members.find(s => Object.getPrototypeOf(s) === subtag.prototype) ||
-                this.subtags.add(new subtag(this));
+                this.subtags.add(new (<any>subtag)(this));
         return this;
     }
 
-    public remove(...subtags: Array<new (engine: Engine) => SubTag<any>>): this {
+    public remove(...subtags: Array<typeof SubTag>): this {
         for (const subtag of subtags)
             this.subtags.members.filter(s => Object.getPrototypeOf(s) === subtag.prototype)
                 .map(s => this.subtags.remove(s));
@@ -41,7 +41,7 @@ export class Engine {
                 result.push(part);
             } else {
                 if (part.name === undefined) {
-                    result.push(sysError.missingSubtag()(part, context));
+                    result.push(await sysError.missingSubtag()(part, context));
                 } else {
                     let subtag;
                     try {
@@ -50,7 +50,7 @@ export class Engine {
 
                         subtag = context.functions.get(name) || this.subtags.get(name);
                         if (subtag === undefined) {
-                            result.push(sysError.unknownSubtag(name)(part, context));
+                            result.push(await sysError.unknownSubtag(name)(part, context));
                         } else {
                             result.push(await subtag.execute(part, context));
                         }
@@ -59,7 +59,7 @@ export class Engine {
                             this.onFatal(err, this, subtag, context, part);
                             throw err;
                         }
-                        result.push(sysError.internalError()(part, context));
+                        result.push(await sysError.internalError()(part, context));
                         this.onError(err, this, subtag, context, part);
                     }
                 }

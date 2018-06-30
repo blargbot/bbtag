@@ -1,8 +1,4 @@
-import { Engine } from '../../../engine';
-import { hasCount } from '../../../structures/subtag.conditions';
-import { BBSubTag } from '../../../language';
-import { Context } from '../../../structures/context';
-import { SystemSubTag, SubTagError } from '../../../structures/subtag';
+import { Engine, hasCount, BBSubTag, Context, SystemSubTag, SubTagError } from '../util';
 
 export class Floor extends SystemSubTag {
     constructor(engine: Engine) {
@@ -12,9 +8,9 @@ export class Floor extends SystemSubTag {
             alias: ['rounddown']
         });
 
-        this.whenArgs(hasCount(0), this.errors.arguments.notEnough(1))
+        this.whenArgs(hasCount(0), this.errors.args.notEnough(1))
             .whenArgs(hasCount(1), this.floor)
-            .whenArgs(hasCount('>1'), this.errors.arguments.tooMany(1));
+            .whenArgs(hasCount('>1'), this.errors.args.tooMany(1));
     }
 
     async floor(subtag: BBSubTag, context: Context): Promise<number | SubTagError> {

@@ -34,7 +34,7 @@ export class Context {
         let location = part.range.start;
         this.state.errors.push({ code, location, message });
 
-        return `\`[${location.line}:${location.column}][${code}] ${message}\``;
+        return `\`[${location.line + 1}:${location.column + 1}][${code}] ${message}\``;
     }
 
     public getSubTag(name: string): SubTag<any> | undefined {

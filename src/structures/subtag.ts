@@ -50,7 +50,7 @@ export abstract class SubTag<TContext extends Context> {
 
     protected async parseArgs(subtag: BBSubTag, context: TContext, positions?: number | number[]): Promise<string[]> {
         if (positions === undefined)
-            positions = [...new Array(subtag.args).keys()];
+            positions = [...new Array(subtag.args.length).keys()];
         else if (!Array.isArray(positions))
             positions = [positions];
 

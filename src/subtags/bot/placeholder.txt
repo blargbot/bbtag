@@ -1,1 +1,0 @@
-This file simply exists to force the folder structure. It will be deleted at a later date

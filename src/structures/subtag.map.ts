@@ -37,7 +37,7 @@ export class SubTagMap {
     }
 
     public get(name: string): SubTag<any> | undefined {
-        let path = name.split('.');
+        let path = name.toLowerCase().split('.');
         let node = this._getNode(path.slice(0, -1));
         let key = path[path.length - 1];
 
@@ -48,10 +48,10 @@ export class SubTagMap {
     }
 
     private _getPaths(subtag: SubTag<any>): string[][] {
-        let root = subtag.category.split('.');
-        let paths = [subtag.name, ...subtag.aliases].map(key => [...root, ...key.split('.')]);
+        let root = subtag.category.toLowerCase().split('.');
+        let paths = [subtag.name, ...subtag.aliases].map(key => [...root, ...key.toLowerCase().split('.')]);
         if (subtag.globalNames)
-            paths.push(...subtag.globalNames.map(key => key.split('.')));
+            paths.push(...subtag.globalNames.map(key => key.toLowerCase().split('.')));
         return paths;
     }
 
