@@ -1,5 +1,5 @@
-import { Floor } from './floor';
 import { SubTag } from '../util';
+import { Floor } from './floor';
 
 export const subtags = [
     Floor
