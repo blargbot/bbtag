@@ -1,7 +1,7 @@
 (async function () {
     let subtags: { [key: string]: { [key: string]: VoidFunction } } = {
         Math: {
-            Floor: (await import('./subtag/floor')).test
+            Floor: (await import('./subtag/floor.test')).test
         }
     };
     describe('Subtags', () => {
