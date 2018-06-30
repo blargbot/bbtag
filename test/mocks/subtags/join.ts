@@ -1,4 +1,4 @@
-import { hasCount, Engine, SystemSubTag, BBSubTag, Context } from "./util";
+import { hasCount, Engine, SystemSubTag, BBSubTag, Context } from './util';
 
 export class Join extends SystemSubTag {
     constructor(engine: Engine) {

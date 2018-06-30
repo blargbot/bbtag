@@ -1,6 +1,6 @@
-import { SubTag, SubTagOptions, BaseSubtagOptions } from "../subtag";
-import { BotContext } from "./context";
-import { Engine } from "../../engine";
+import { SubTag, SubTagOptions, BaseSubtagOptions } from '../subtag';
+import { BotContext } from './context';
+import { Engine } from '../../engine';
 
 export abstract class BotSubTag extends SubTag<BotContext> {
     constructor(engine: Engine, name: string, options?: SubTagOptions) {

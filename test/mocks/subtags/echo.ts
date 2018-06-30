@@ -1,4 +1,4 @@
-import { SystemSubTag, Engine, hasCount, BBSubTag, Context } from "./util";
+import { SystemSubTag, Engine, hasCount, BBSubTag, Context } from './util';
 
 export class Echo extends SystemSubTag {
     public static readonly values: string[] = [];

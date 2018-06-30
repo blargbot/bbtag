@@ -1,6 +1,6 @@
-import { Context, ContextOptions } from "../context";
+import { Context, ContextOptions } from '../context';
 import { IMessage, IGuildChannel, IUser, IMember, IGuild, Snowflake, AnyChannel } from '../../interfaces/iclient';
-import { Engine } from "../../engine";
+import { Engine } from '../../engine';
 
 export class DiscordContext extends Context {
     public readonly message: IMessage;

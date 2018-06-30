@@ -1,5 +1,5 @@
-import { SubTag } from "./subtag";
-import { Context } from "./context";
+import { SubTag } from './subtag';
+import { Context } from './context';
 
 class SubTagMapNode extends Map<string, SubTagMapNode | SubTag<any>> { }
 
