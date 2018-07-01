@@ -1,1 +1,1 @@
-export function number() { return /[-+]?\d+(?:\.\d*)?(?:e\+?\d+)?/g; }
+export function number() { return /(?:^|\b)(?:[-\+]?(?:Infinity|\d+(?:\.\d*)?(?:e\+?\d+)?)|NaN)(?:$|\b)/g; }

@@ -2,6 +2,10 @@
     let subtags: { [key: string]: { [key: string]: VoidFunction } } = {
         Math: {
             Floor: (await import('./subtag/floor.test')).test
+        },
+        General: {
+            Comment: (await import('./subtag/comment.test')).test,
+            Bool: (await import('./subtag/bool.test')).test,
         }
     };
     describe('Subtags', () => {

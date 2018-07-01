@@ -1,8 +1,8 @@
 import { deserialize } from './array';
 import { number } from './regex';
 
-type compFunc = (a: string, b: string) => number;
-type sorn = string | number;
+type SOrN = string | number;
+type compFunc = (a: SOrN, b: SOrN) => number;
 
 export class Comparer {
     public static Default: Comparer = new Comparer();
@@ -10,21 +10,17 @@ export class Comparer {
     private readonly _comparer: compFunc;
 
     constructor(internalComparer?: compFunc) {
-        if (internalComparer === undefined) {
-            let collator = new Intl.Collator();
-            internalComparer = collator.compare.bind(collator) as compFunc;
-        }
-        this._comparer = internalComparer;
+        this._comparer = internalComparer || Comparer.defaultComparisonFunction;
     }
 
-    public areEqual(a: sorn, b: sorn): boolean { return this.compare(a, b) === 0; }
-    public areNotEqual(a: sorn, b: sorn): boolean { return this.compare(a, b) !== 0; }
-    public greaterThan(a: sorn, b: sorn): boolean { return this.compare(a, b) > 0; }
-    public greaterOrEqual(a: sorn, b: sorn): boolean { return this.compare(a, b) >= 0; }
-    public lessThan(a: sorn, b: sorn): boolean { return this.compare(a, b) < 0; }
-    public lessOrEqual(a: sorn, b: sorn): boolean { return this.compare(a, b) <= 0; }
+    public areEqual(a: SOrN, b: SOrN): boolean { return this.compare(a, b) === 0; }
+    public notEqual(a: SOrN, b: SOrN): boolean { return this.compare(a, b) !== 0; }
+    public greaterThan(a: SOrN, b: SOrN): boolean { return this.compare(a, b) > 0; }
+    public greaterOrEqual(a: SOrN, b: SOrN): boolean { return this.compare(a, b) >= 0; }
+    public lessThan(a: SOrN, b: SOrN): boolean { return this.compare(a, b) < 0; }
+    public lessOrEqual(a: SOrN, b: SOrN): boolean { return this.compare(a, b) <= 0; }
 
-    public startsWith(a: sorn, b: sorn): boolean {
+    public startsWith(a: SOrN, b: SOrN): boolean {
         if (typeof a !== 'number') {
             let asArray = deserialize(a);
             if (asArray !== undefined) {
@@ -34,7 +30,7 @@ export class Comparer {
         return a.toString().startsWith(b.toString());
     }
 
-    public endsWith(a: sorn, b: sorn): boolean {
+    public endsWith(a: SOrN, b: SOrN): boolean {
         if (typeof a !== 'number') {
             let asArray = deserialize(a);
             if (asArray !== undefined) {
@@ -44,7 +40,7 @@ export class Comparer {
         return a.toString().endsWith(b.toString());
     }
 
-    public includes(a: sorn, b: sorn): boolean {
+    public includes(a: SOrN, b: SOrN): boolean {
         if (typeof a !== 'number') {
             let asArray = deserialize(a);
             if (asArray !== undefined) {
@@ -54,11 +50,11 @@ export class Comparer {
         return a.toString().includes(b.toString());
     }
 
-    public sort(array: sorn[]) {
+    public sort(array: SOrN[]) {
 
     }
 
-    public compare(a: sorn, b: sorn): number {
+    public compare(a: SOrN, b: SOrN): number {
         let blocks = {
             a: this.toBlocks(a.toString()),
             b: this.toBlocks(b.toString())
@@ -66,7 +62,7 @@ export class Comparer {
 
         let max = Math.max(blocks.a.length, blocks.b.length);
         for (let i = 0; i < max; i++) {
-            switch (this._comparer(blocks.a[i].toString(), blocks.b[i].toString())) {
+            switch (this._comparer(blocks.a[i], blocks.b[i])) {
                 case -1: return -1;
                 case 1: return 1;
             }
@@ -82,7 +78,12 @@ export class Comparer {
         let result = [];
         for (let i = 0; i < words.length; i++) {
             result.push(words[i]);
-            result.push(parseFloat(numbers[i]));
+            if (/^\-Infinity$/.test(numbers[i]))
+                result.push(Number.NEGATIVE_INFINITY);
+            else if (/^\+?Infinity$/.test(numbers[i]))
+                result.push(Number.POSITIVE_INFINITY);
+            else
+                result.push(parseFloat(numbers[i]));
         }
 
         result.pop();
@@ -94,5 +95,23 @@ export class Comparer {
             result.pop();
 
         return result;
+    }
+
+    public static defaultComparisonFunction(x: SOrN, y: SOrN) {
+        if (typeof x === 'number' && typeof y === 'number') {
+            let diff = x - y;
+            if (diff < 0 || (!isNaN(x) && isNaN(y)))
+                return -1;
+            if (diff > 0 || (isNaN(x) && !isNaN(y)))
+                return 1;
+            return 0;
+        }
+        if (typeof x === 'number') {
+            return -1;
+        }
+        if (typeof y === 'number') {
+            return 1;
+        }
+        return x.localeCompare(y);
     }
 }

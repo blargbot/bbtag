@@ -9,6 +9,8 @@ export function test() {
     let floor = new Floor(engine);
     engine.register(Echo as typeof SubTag);
 
+    afterEach(() => Echo.values.splice(0, Echo.values.length));
+
     it('should execute all inner arguments', async () => {
         // arrange
         let expected = ['1.1'];
@@ -19,7 +21,7 @@ export function test() {
         await floor.execute(subtag, context);
 
         // assert
-        expect(Echo.values).to.contain.members(expected);
+        expect(Echo.values).to.deep.equal(expected);
     })
     it('should have global names for backwards compatibility', async () => {
         // arrange
