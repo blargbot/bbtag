@@ -1,6 +1,7 @@
 import { BBSubTag, BBString } from '../language';
 import { Context } from '../structures/context';
 import { SubTagError } from './subtag';
+import { smartJoin } from '../util/generic';
 
 export function custom(code: string, message: string): SubTagError {
     return async (subtag: BBSubTag | BBString, context: Context) => context.addError(code, subtag, message);
@@ -19,6 +20,13 @@ export const args = {
 }
 
 export const value = {
+    expected(expected: string[], actual: string[]) {
+        return custom('BB-V-UV', `expected '${
+            smartJoin(expected, '\', \'', '\' or \'')
+            }' but got '${
+            smartJoin(actual, '\', \'', '\' and \'')
+            }'`);
+    },
     notANumber(text: string) { return custom('BB-V-NU', `'${text}' is not a number`); },
     notAnArray(text: string) { return custom('BB-V-AR', `'${text}' is not an array`); },
     notABool(text: string) { return custom('BB-V-TF', `'${text}' is not a boolean`); }

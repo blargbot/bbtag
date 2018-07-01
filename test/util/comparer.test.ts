@@ -10,18 +10,30 @@ export function test() {
                 { a: 'This is a test', b: 'This is a test', e: 0 },
                 { a: 'This is a test', b: 'This is b test', e: -1 },
                 { a: 'This is b test', b: 'This is a test', e: 1 },
+                { a: 'M', b: 'm', e: 1 },
+                { a: 'M', b: 'l', e: 1 },
+                { a: 'M', b: 'n', e: -1 },
+                { a: 'M', b: 'L', e: 1 },
+                { a: 'M', b: 'N', e: -1 },
                 { a: '1', b: '1', e: 0 },
                 { a: '1', b: '2', e: -1 },
-                { a: '9', b: '10', e: 1 },
+                { a: '9', b: '10', e: -1 },
                 { a: '1', b: '1.0', e: 0 },
                 { a: '1', b: '1.00001', e: -1 },
-                { a: '9.999999', b: '10', e: 1 },
+                { a: '9.999999', b: '10', e: -1 },
                 { a: '1e10', b: '1e10', e: 0 },
                 { a: '1e10', b: '1e11', e: -1 },
                 { a: '1e10', b: '1e9', e: 1 },
                 { a: '1test', b: '1test', e: 0 },
                 { a: '1test', b: 'testing', e: -1 },
                 { a: '10testing', b: '10test', e: 1 },
+                { a: 'NaN', b: '10', e: 1 }, // NaN always after normal numbers
+                { a: 'NaN', b: 'Test', e: -1 }, // NaN is still a number, so always before strings
+                { a: 'Infinity', b: String(Number.MAX_SAFE_INTEGER), e: 1 },
+                { a: '-Infinity', b: String(-Number.MAX_SAFE_INTEGER), e: -1 },
+                { a: 'Infinity', b: 'NaN', e: -1 },
+                { a: '-Infinity', b: 'NaN', e: -1 },
+                { a: 'NaN', b: 'NaN', e: 0 },
             ] as Array<{ a: string, b: string, e: number }>;
 
             for (const entry of cases) {
