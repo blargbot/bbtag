@@ -4,6 +4,8 @@ import { number } from './regex';
 type SOrN = string | number;
 type compFunc = (a: SOrN, b: SOrN) => number;
 
+// Number < NaN < symbols/letters
+
 export class Comparer {
     public static Default: Comparer = new Comparer();
 
@@ -100,10 +102,12 @@ export class Comparer {
     public static defaultComparisonFunction(x: SOrN, y: SOrN) {
         if (typeof x === 'number' && typeof y === 'number') {
             let diff = x - y;
-            if (diff < 0 || (!isNaN(x) && isNaN(y)))
-                return -1;
-            if (diff > 0 || (isNaN(x) && !isNaN(y)))
-                return 1;
+            if (diff < 0) return -1;
+            if (diff > 0) return 1;
+            if (diff === 0 || (isNaN(x) && isNaN(y)))
+                return 0;
+            if (isNaN(x)) return 1;
+            if (isNaN(y)) return -1;
             return 0;
         }
         if (typeof x === 'number') {

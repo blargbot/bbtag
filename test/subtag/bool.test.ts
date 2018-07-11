@@ -91,7 +91,7 @@ export function test() {
                 { a: '02', b: '1', e: true },
                 { a: '1e3', b: '1001', e: false },
                 { a: '10', b: '100', e: false },
-                { a: '10test', b: 'test', e: true },
+                { a: '10test', b: 'test', e: false },
             ]
         },
         {
@@ -104,7 +104,7 @@ export function test() {
                 { a: '02', b: '1', e: true },
                 { a: '1e3', b: '1001', e: false },
                 { a: '10', b: '100', e: false },
-                { a: '10test', b: 'test', e: true },
+                { a: '10test', b: 'test', e: false },
             ]
         },
         {
@@ -117,7 +117,7 @@ export function test() {
                 { a: '02', b: '1', e: false },
                 { a: '1e3', b: '1001', e: true },
                 { a: '10', b: '100', e: true },
-                { a: '10test', b: 'test', e: false },
+                { a: '10test', b: 'test', e: true },
             ]
         },
         {
@@ -130,7 +130,7 @@ export function test() {
                 { a: '02', b: '1', e: false },
                 { a: '1e3', b: '1001', e: true },
                 { a: '10', b: '100', e: true },
-                { a: '10test', b: 'test', e: false },
+                { a: '10test', b: 'test', e: true },
             ]
         },
     ];
