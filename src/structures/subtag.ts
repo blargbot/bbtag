@@ -48,13 +48,19 @@ export abstract class SubTag<TContext extends Context> {
         return this;
     }
 
+    protected async parseArg(subtag: BBSubTag, context: TContext, position: number): Promise<string> {
+        let result = await this.parseArgs(subtag, context, position);
+        return result[0];
+    }
+
     protected async parseArgs(subtag: BBSubTag, context: TContext, positions?: number | number[]): Promise<string[]> {
         if (positions === undefined)
             positions = [...new Array(subtag.args.length).keys()];
         else if (!Array.isArray(positions))
             positions = [positions];
 
-        let promises = positions.map(position => this.engine.execute(subtag.args[position], context));
+        let promises = positions.filter(v => v in subtag.args)
+            .map(position => this.engine.execute(subtag.args[position], context));
         return await Promise.all(promises);
     }
 

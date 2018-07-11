@@ -60,7 +60,7 @@ export function test() {
 
             // assert
             expect(end).to.be.lessThan(1000);
-        });
+        }).retries(5);
     });
     describe('#startswith()', () => {
         it('should successfully handle strings', () => {

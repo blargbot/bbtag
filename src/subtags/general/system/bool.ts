@@ -64,7 +64,7 @@ export class Bool extends SystemSubTag {
             }
         }
         if (opFunc === undefined) {
-            return this.errors.value.expected(Object.keys(this.operators), args);
+            return this.errors.value.notAComparer(args);
         }
 
         if (args.length === 1) {

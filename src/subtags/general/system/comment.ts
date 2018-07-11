@@ -1,5 +1,4 @@
-import { Engine, hasCount, BBSubTag, Context, SystemSubTag, SubTagError, util } from '../util';
-import { satisfies } from '../../bot/util';
+import { Engine, BBSubTag, Context, SystemSubTag } from '../util';
 
 export class Comment extends SystemSubTag {
     constructor(engine: Engine) {
@@ -7,11 +6,9 @@ export class Comment extends SystemSubTag {
             category: 'system',
             globalName: ['//']
         });
-
-        this.whenArgs(satisfies(() => true), this.doNothing);
     }
 
-    public doNothing(): Promise<void> {
-        return Promise.resolve();
+    public execute(subtag: BBSubTag, context: Context): Promise<string> {
+        return Promise.resolve('');
     }
 }
