@@ -29,5 +29,19 @@ export const value = {
     },
     notANumber(text: string) { return custom('BB-V-NU', `'${text}' is not a number`); },
     notAnArray(text: string) { return custom('BB-V-AR', `'${text}' is not an array`); },
-    notABool(text: string) { return custom('BB-V-TF', `'${text}' is not a boolean`); }
+    notABool(text: string) { return custom('BB-V-TF', `'${text}' is not a boolean`); },
+    notAComparer(values: string[]) {
+        return custom('BB-V-CM', `${
+            smartJoin(values, ', ', ' and ')
+            } ${
+            (values.length != 1 ? 'are' : 'is')
+            } not a valid comparison operator`)
+    },
+    notAMathOperator(values: string[]) {
+        return custom('BB-V-CM', `${
+            smartJoin(values, ', ', ' and ')
+            } ${
+            (values.length != 1 ? 'are' : 'is')
+            } not a valid math operator`)
+    }
 }

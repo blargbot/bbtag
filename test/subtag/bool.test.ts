@@ -4,9 +4,9 @@ import { Context, BBSubTag, parse, Engine, SubTag, errors } from '../../dist/ind
 import { MockDb } from '../mocks/mockDatabase';
 import { Echo } from '../mocks/subtags/echo';
 
-export function test() {
+export = function test() {
     let engine: Engine = new Engine({ database: new MockDb() });
-    let bool = new Bool(engine);
+    let subtag = new Bool(engine);
     engine.register(Echo as typeof SubTag);
 
     afterEach(() => Echo.values.splice(0, Echo.values.length));
@@ -15,10 +15,10 @@ export function test() {
         // arrange
         let expected = ['a', 'b', 'c'];
         let context = new Context(engine);
-        let subtag = parse('{System.bool;{mock.echo;a};{mock.echo;b};{mock.echo;c}}').parts[0] as BBSubTag;
+        let code = parse('{System.bool;{mock.echo;a};{mock.echo;b};{mock.echo;c}}').parts[0] as BBSubTag;
 
         // act
-        await bool.execute(subtag, context);
+        await subtag.execute(code, context);
 
         // assert
         expect(Echo.values).to.deep.equal(expected);
@@ -28,33 +28,33 @@ export function test() {
         let expected = ['bool'];
 
         // act & assert
-        expect(bool.globalNames).to.deep.equal(expected);
+        expect(subtag.globalNames).to.deep.equal(expected);
     });
     it('should return not enough args when given <2 args', async () => {
         // arrange
-        let subtag = parse('{System.bool}').parts[0] as BBSubTag;
+        let code = parse('{System.bool}').parts[0] as BBSubTag;
         let context = new Context(engine);
         let expected = errors.args.notEnough(2);
 
         // act
-        let result = await bool.execute(subtag, context);
+        let result = await subtag.execute(code, context);
 
         // assert
         expect(context.state.errors).to.have.length(1);
-        expect(result).to.equal(await expected(subtag, context));
+        expect(result).to.equal(await expected(code, context));
     });
     it('should return too many args when given >3 args', async () => {
         // arrange
-        let subtag = parse('{System.bool;a;b;c;d}').parts[0] as BBSubTag;
+        let code = parse('{System.bool;a;b;c;d}').parts[0] as BBSubTag;
         let context = new Context(engine);
         let expected = errors.args.tooMany(3);
 
         // act
-        let result = await bool.execute(subtag, context);
+        let result = await subtag.execute(code, context);
 
         // assert
         expect(context.state.errors).to.have.length(1);
-        expect(result).to.equal(await expected(subtag, context));
+        expect(result).to.equal(await expected(code, context));
     });
     let tests = [
         {
@@ -143,14 +143,14 @@ export function test() {
                 ];
 
                 for (const scenario of cases) {
-                    let subtag = parse(`{System.bool;${scenario.join(';')}}`).parts[0] as BBSubTag;
+                    let code = parse(`{System.bool;${scenario.join(';')}}`).parts[0] as BBSubTag;
                     let context = new Context(engine);
 
                     // act
-                    let result = await bool.execute(subtag, context);
+                    let result = await subtag.execute(code, context);
 
                     // assert
-                    expect(result).to.equal(String(entry.e), `'${subtag.content}' should correctly execute`);
+                    expect(result).to.equal(String(entry.e), `'${code.content}' should correctly execute`);
                 }
             }
         })

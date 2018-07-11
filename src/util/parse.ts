@@ -1,4 +1,4 @@
-export function parseBool(text: string, defaultValue?: boolean) {
+export function parseBool(text: string): boolean | undefined {
     switch (text.toLowerCase()) {
         case 'true':
         case 'yes':
@@ -16,5 +16,5 @@ export function parseBool(text: string, defaultValue?: boolean) {
         return parseInt(text) !== 0;
     }
 
-    return defaultValue;
+    return undefined;
 }
