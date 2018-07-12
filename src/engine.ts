@@ -20,16 +20,20 @@ export class Engine {
     }
 
     public register(...subtags: Array<typeof SubTag>): this {
-        for (const subtag of subtags)
-            this.subtags.members.find(s => Object.getPrototypeOf(s) === subtag.prototype) ||
+        for (const subtag of subtags) {
+            if (!this.subtags.members.find(member => Object.getPrototypeOf(member) === subtag.prototype)) {
                 this.subtags.add(new (<any>subtag)(this));
+            }
+        }
         return this;
     }
 
     public remove(...subtags: Array<typeof SubTag>): this {
-        for (const subtag of subtags)
-            this.subtags.members.filter(s => Object.getPrototypeOf(s) === subtag.prototype)
-                .map(s => this.subtags.remove(s));
+        for (const member of this.subtags.members) {
+            if (subtags.find(subtag => Object.getPrototypeOf(member) === subtag.prototype)) {
+                this.subtags.remove(member);
+            }
+        }
         return this;
     }
 

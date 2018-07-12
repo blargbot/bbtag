@@ -8,7 +8,7 @@ export class Comment extends SystemSubTag {
         });
     }
 
-    public execute(subtag: BBSubTag, context: Context): Promise<string> {
+    public execute(_subtag: BBSubTag, _context: Context): Promise<string> {
         return Promise.resolve('');
     }
 }

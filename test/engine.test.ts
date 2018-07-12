@@ -42,11 +42,9 @@ describe('Engine', () => {
             // assert
             expect(engine.subtags.members).to.have.length(0);
         });
-        it('should remove multiple subtags of the same instance', () => {
+        it('should not error when removing a subtag that does not exist', () => {
             // arrange
             let engine = new Engine({ database: new MockDb() });
-            engine.subtags.add(new (<any>subtags[0])(engine));
-            engine.subtags.add(new (<any>subtags[0])(engine));
 
             // act
             engine.remove(subtags[0] as typeof SubTag);

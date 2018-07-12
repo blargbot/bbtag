@@ -2,10 +2,11 @@
     let subtags: { [key: string]: { [key: string]: VoidFunction } } = {};
 
     // Basic subtags
-    subtags.General = {};
-    subtags.General.Comment = await import('./subtag/comment.test');
-    subtags.General.Bool = await import('./subtag/bool.test');
-    subtags.General.If = await import('./subtag/if.test');
+    subtags.System = {};
+    subtags.System.Comment = await import('./subtag/comment.test');
+    subtags.System.Bool = await import('./subtag/bool.test');
+    subtags.System.If = await import('./subtag/if.test');
+    subtags.System.Switch = await import('./subtag/switch.test');
 
     subtags.Math = {};
     subtags.Math.Floor = await import('./subtag/floor.test');
