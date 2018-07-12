@@ -5,7 +5,8 @@ export class Echo extends SystemSubTag {
 
     constructor(engine: Engine) {
         super(engine, 'echo', {
-            category: 'mock'
+            category: 'mock',
+            globalName: ['echo', '>']
         });
 
         this.whenArgs(hasCount(0), this.errors.args.notEnough(1))
