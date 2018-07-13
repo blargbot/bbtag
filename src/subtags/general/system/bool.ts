@@ -1,32 +1,37 @@
 import { Engine, hasCount, BBSubTag, Context, SystemSubTag, SubTagError, util } from '../util';
+import { makeOperatorCollection } from '../../util';
+import { SubTagHandler, SubTag } from '../../../structures/subtag';
+import { Operator } from './operator';
 
 type comparer = (a: string, b: string) => boolean;
 
 export class Bool extends SystemSubTag {
-    public static readonly operator_definitions = {
-        '==': ((a, b) => util.Comparer.Default.areEqual(a, b)) as comparer,
-        '!=': ((a, b) => util.Comparer.Default.notEqual(a, b)) as comparer,
-        '>': ((a, b) => util.Comparer.Default.greaterThan(a, b)) as comparer,
-        '>=': ((a, b) => util.Comparer.Default.greaterOrEqual(a, b)) as comparer,
-        '<': ((a, b) => util.Comparer.Default.lessThan(a, b)) as comparer,
-        '<=': ((a, b) => util.Comparer.Default.lessOrEqual(a, b)) as comparer,
-        'startswith': ((a, b) => util.Comparer.Default.startsWith(a, b)) as comparer,
-        'endswith': ((a, b) => util.Comparer.Default.endsWith(a, b)) as comparer,
-        'contains': ((a, b) => util.Comparer.Default.includes(a, b)) as comparer,
-    }
+    public static readonly operators = makeOperatorCollection<comparer>(
+        { names: ['==', '=', 'eq'], action: (a, b) => util.Comparer.Default.areEqual(a, b) },
+        { names: ['!=', '!', 'ne'], action: (a, b) => util.Comparer.Default.notEqual(a, b) },
+        { names: ['>', 'gt'], action: (a, b) => util.Comparer.Default.greaterThan(a, b) },
+        { names: ['<', 'lt'], action: (a, b) => util.Comparer.Default.lessThan(a, b) },
+        { names: ['>=', 'ge'], action: (a, b) => util.Comparer.Default.greaterOrEqual(a, b) },
+        { names: ['<=', 'le'], action: (a, b) => util.Comparer.Default.lessOrEqual(a, b) },
+        { names: ['startswith', 'sw'], action: (a, b) => util.Comparer.Default.startsWith(a, b) },
+        { names: ['endswith', 'ew'], action: (a, b) => util.Comparer.Default.endsWith(a, b) },
+        { names: ['includes', 'inc'], action: (a, b) => util.Comparer.Default.includes(a, b) },
+    );
 
-    public static readonly operator_aliases = {
-        '=': Bool.operator_definitions['=='],
-        '!': Bool.operator_definitions['!='],
-        'sw': Bool.operator_definitions['startswith'],
-        'ew': Bool.operator_definitions['endswith'],
-        'inc': Bool.operator_definitions['contains'],
-        'includes': Bool.operator_definitions['contains']
-    }
-
-    public static readonly operators = {
-        ...Bool.operator_definitions,
-        ...Bool.operator_aliases
+    private makeHandler(operator: string): SubTagHandler<Context> {
+        let valid = hasCount('1-2');
+        let notEnough = hasCount('0');
+        let tooMany = hasCount('>2');
+        return async (subtag: BBSubTag, context: Context) => {
+            if (await notEnough(subtag)) {
+                return this.errors.args.notEnough(1);
+            } else if (await valid(subtag)) {
+                let args = await this.parseArgs(subtag, context);
+                return Bool.compare(operator, ...args);
+            } else if (await tooMany(subtag)) {
+                return this.errors.args.tooMany(2);
+            }
+        }
     }
 
     constructor(engine: Engine) {
@@ -38,6 +43,12 @@ export class Bool extends SystemSubTag {
         this.whenArgs(hasCount('<2'), this.errors.args.notEnough(2))
             .whenArgs(hasCount('2-3'), this.run)
             .whenArgs(hasCount('>3'), this.errors.args.tooMany(3));
+
+        this.engine.subtags.onceAdded(Operator as typeof SubTag, (operator: SubTag<any>) => {
+            for (const key of Object.keys(Bool.operators)) {
+                (operator as Operator).registerOperator(key, this.makeHandler(key));
+            }
+        });
     }
 
     public async run(subtag: BBSubTag, context: Context): Promise<boolean | SubTagError> {
@@ -48,7 +59,7 @@ export class Bool extends SystemSubTag {
     public static getOperator(operator: string): comparer | undefined {
         operator = operator.toLowerCase();
         if (operator in this.operators) {
-            return (<any>this.operators)[operator];
+            return this.operators[operator];
         }
         return undefined;
     }

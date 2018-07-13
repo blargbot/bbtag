@@ -3,7 +3,7 @@ import { Bool } from '../../dist/subtags/general/system/bool';
 import { Context, BBSubTag, parse, Engine, SubTag, errors } from '../../dist/index';
 import { MockDb } from '../mocks/mockDatabase';
 import { Echo } from '../mocks/subtags/echo';
-import { checkBackwardsCompat, checkArgRange, contexts } from './util';
+import { checkBackwardsCompat, checkArgRange, contexts, checkLoadOperators } from './util';
 
 export = function test() {
     let engine: Engine = new Engine({ database: new MockDb() });
@@ -15,6 +15,7 @@ export = function test() {
 
     checkBackwardsCompat(subtag, 'bool');
     checkArgRange(context, subtag, 2, 3);
+    checkLoadOperators(e => new Bool(e), Object.keys(Bool.operators));
 
     let tests = [
         {

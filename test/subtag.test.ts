@@ -7,6 +7,7 @@
     subtags.System.Bool = await import('./subtag/bool.test');
     subtags.System.If = await import('./subtag/if.test');
     subtags.System.Switch = await import('./subtag/switch.test');
+    subtags.System.Operator = await import('./subtag/operator.test');
 
     subtags.Math = {};
     subtags.Math.Floor = await import('./subtag/floor.test');

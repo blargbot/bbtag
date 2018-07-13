@@ -30,6 +30,7 @@ export const value = {
     notANumber(text: string) { return custom('BB-V-NU', `'${text}' is not a number`); },
     notAnArray(text: string) { return custom('BB-V-AR', `'${text}' is not an array`); },
     notABool(text: string) { return custom('BB-V-TF', `'${text}' is not a boolean`); },
+    notAnOperator(value: string) { return custom('BB-V-NO', `'${value}' is not a valid operator`); },
     notAComparer(values: string[]) {
         return custom('BB-V-CM', `${
             smartJoin(values, ', ', ' and ')
