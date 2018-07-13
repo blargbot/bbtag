@@ -22,7 +22,7 @@ export = function test() {
         await runTest(context, subtag,
             {
                 input: [],
-                expected: SubTag.errors.value.notAnOperator('System.Operator'),
+                expected: SubTag.errors.value.notAnOperator('system.operator'),
                 echo: [],
                 errors: 1
             });

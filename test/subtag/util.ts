@@ -16,6 +16,7 @@ export async function runTest(makeContext: () => Context, subtag: SubTag<any>, .
         // arrange
         let name = (subtag.category ? subtag.category + '.' : '') + subtag.name;
         let code = parse(`{${name}${['', ...entry.input.map(input => `{_;${input}}`)].join(';')}}`).parts[0] as BBSubTag;
+        code.resolvedName = name;
         let context = makeContext();
         entry.errors = entry.errors || 0;
         entry.echo = entry.echo || [];
