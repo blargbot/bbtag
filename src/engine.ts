@@ -43,7 +43,7 @@ export class Engine {
             if (context.state.return) break;
             if (typeof part === 'string') {
                 result.push(part);
-            } else {
+            } else if (part instanceof BBSubTag) {
                 if (part.name === undefined) {
                     result.push(await sysError.missingSubtag()(part, context));
                 } else {
@@ -67,6 +67,8 @@ export class Engine {
                         this.onError(err, this, subtag, context, part);
                     }
                 }
+            } else {
+                result.push(`[${part.elements.join(';')}]`);
             }
         }
         return result.join('');

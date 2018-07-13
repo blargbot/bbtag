@@ -1,4 +1,5 @@
 import { Engine, hasCount, BBSubTag, Context, SystemSubTag, SubTagError, util } from '../util';
+import { BBArray } from '../../../language';
 
 export class Switch extends SystemSubTag {
     constructor(engine: Engine) {
@@ -20,10 +21,17 @@ export class Switch extends SystemSubTag {
             caseEnd--;
 
         for (let i = 1; i < caseEnd; i += 2) {
-            let executed = await this.parseArg(subtag, context, i);
-            let deserialized = util.array.deserialize(executed);
+            let deserialized: string[] = [];
+            let parts = subtag.args[i].parts;
+            console.log(parts[0].parts[0]);
+            if (parts.length === 1 && parts[0] instanceof BBArray) {
+                deserialized = await this.parseArgs(<BBArray>parts[0], context);
+                console.log(deserialized);
+            } else {
+                deserialized.push(await this.parseArg(subtag, context, i));
+            }
 
-            let entries = deserialized !== undefined ? deserialized.v : [executed];
+            let entries = deserialized;
 
             for (const entry of entries) {
                 if (!(entry in cases)) {

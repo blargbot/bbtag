@@ -2,17 +2,16 @@ import { Range, Location } from './structures/selection';
 import { Cursor } from './structures/cursor';
 
 export class BBString {
-    public static parse(parent: BBSubTag | BBSource, cursor: Cursor): BBString {
+    public static parse(parent: BBSubTag | BBSource | BBArray, cursor: Cursor): BBString {
         let result = new BBString(parent);
         let start = cursor.location;
         let current = cursor.location;
 
         do {
+            /* SubTags */
             if (cursor.next == '}') {
-                if (result.parent === null)
+                if (result.parent === null || result.parent instanceof BBArray)
                     throw new ParseError(cursor.location, 'Unexpected \'}\'');
-                break;
-            } else if (cursor.next == '}') {
                 break;
             } else if (cursor.next == ';' && result.parent !== null) {
                 break;
@@ -20,6 +19,18 @@ export class BBString {
                 if (!Location.AreEqual(current, cursor.location))
                     result._parts.push(getContent(result.source.lines, new Range(current, cursor.location)));
                 result._parts.push(BBSubTag.parse(result, cursor));
+                current = cursor.location;
+                cursor.moveBack();
+            }
+            /* Arrays */
+            else if (cursor.next == ']') {
+                if (result.parent === null || result.parent instanceof BBSubTag)
+                    throw new ParseError(cursor.location, 'Unexpected \'}\'');
+                break;
+            } else if (cursor.next == '[') {
+                if (!Location.AreEqual(current, cursor.location))
+                    result._parts.push(getContent(result.source.lines, new Range(current, cursor.location)));
+                result._parts.push(BBArray.parse(result, cursor));
                 current = cursor.location;
                 cursor.moveBack();
             }
@@ -34,7 +45,7 @@ export class BBString {
         return result;
     }
 
-    public readonly parent: BBSubTag | null;
+    public readonly parent: BBSubTag | BBArray | null;
     public readonly source: BBSource;
     private _content: string = '';
     private _range: Range | null = null;
@@ -44,14 +55,66 @@ export class BBString {
     public get range(): Range { return this._range as Range; }
     public get parts(): BBPart[] { return this._parts.slice(0); }
 
-    private constructor(parent: BBSubTag | BBSource) {
-        if (parent instanceof BBSubTag) {
+    private constructor(parent: BBSubTag | BBSource | BBArray) {
+        if (parent instanceof BBSubTag || parent instanceof BBArray) {
             this.parent = parent;
             this.source = this.parent.source;
         } else {
             this.parent = null;
             this.source = parent;
         }
+    }
+}
+
+export class BBArray {
+    public static parse(parent: BBString, cursor: Cursor): BBArray {
+        let result = new BBArray(parent);
+
+        let start = cursor.location;
+
+        while (cursor.moveNext()) {
+            result._parts.push(BBString.parse(result, cursor));
+            if (cursor.next == ']')
+                break;
+            if (cursor.next != ';' && cursor.next !== undefined)
+                cursor.moveBack();
+        }
+
+        if (cursor.next != ']')
+            throw new ParseError(start, 'Unpaired \'[\'');
+
+        cursor.moveNext();
+
+        result._range = new Range(start, cursor.location);
+        result._content = getContent(result.source.lines, result._range);
+
+        // console.log(result._content, result._parts.length, result._parts.join(', '));
+        // try {
+
+        // } catch (err) {/* no-op */ }
+        // console.log(result._content, result._parts.length, result._parts.join(', '));
+
+        return result;
+    }
+
+    public readonly parent: BBString;
+    public readonly source: BBSource;
+    private _content: string = '';
+    private _range: Range | null = null;
+    private _parts: BBString[] = [];
+    private _name: String | null = null;
+
+    public resolvedName: string = '';
+    public get content(): string { return this._content; }
+    public get range(): Range { return this._range as Range; }
+    public get name(): String | null { return this._name; }
+    public get elements(): BBString[] { return this._parts; }
+    public get args(): BBString[] { return this._parts; }
+
+    private constructor(parent: BBString, name?: String) {
+        this.parent = parent;
+        this.source = this.parent.source;
+        this._name = name || null;
     }
 }
 
@@ -115,7 +178,7 @@ export class BBSource {
     }
 }
 
-export type BBPart = (BBSubTag | string);
+export type BBPart = (BBSubTag | BBArray | string);
 
 export class ParseError extends Error {
     public readonly location: Location;

@@ -1,4 +1,6 @@
-export type BBArray = {
+import { parse, BBArray, BBString } from '../language';
+
+export type BBJArray = {
     v: string[],
     n?: string
 };
@@ -6,6 +8,13 @@ export type BBArray = {
 function tryParse(text: string): any {
     try {
         return JSON.parse(text);
+    } catch (_) {
+    }
+}
+
+function tryFullParse(text: string): any {
+    try {
+        return parse(text);
     } catch (_) {
     }
 }
@@ -32,10 +41,12 @@ function spread(text: string): string {
         });
 }
 
-export function serialize(array: BBArray | string[], name?: string): string {
-    if (Array.isArray(array)) {
-        array = { v: array };
-    }
+export function serialize(array: BBJArray | string[] | BBArray, name?: string): string {
+    if (array instanceof BBArray)
+
+        if (Array.isArray(array)) {
+            array = { v: array };
+        }
 
     if (name != undefined) {
         array.n = name;
@@ -50,14 +61,21 @@ export function serialize(array: BBArray | string[], name?: string): string {
 
 export function deserialize(text: string): BBArray | undefined {
     let parsed = tryParse(text) || tryParse(spread(text));
-    if (typeof parsed !== 'object' || parsed === null)
-        return undefined;
-    if (Array.isArray(parsed))
-        return { v: parsed.map(stringify) }
-    if (!Array.isArray(parsed.v) ||
-        ['string', 'undefined', 'null'].indexOf(typeof parsed.n) == -1)
-        return undefined;
-    if (parsed.n)
-        return { v: parsed.v.map(stringify), n: parsed.n };
-    return { v: parsed.v.map(stringify) };
+
+    if (typeof parsed === 'object' && parsed !== null) {
+        if (Array.isArray(parsed))
+            parsed = { v: parsed.map(stringify) }
+        else if (!Array.isArray(parsed.v) ||
+            ['string', 'undefined', 'null'].indexOf(typeof parsed.n) == -1)
+            parsed = undefined;
+        else if (parsed.n)
+            parsed = { v: parsed.v.map(stringify), n: parsed.n };
+        parsed = { v: parsed.v.map(stringify) };
+    }
+    if (parsed) {
+
+    } else {
+        let fullParsed: BBString = tryFullParse(text);
+        fullParsed.
+    }
 }

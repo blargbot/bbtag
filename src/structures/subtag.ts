@@ -1,4 +1,4 @@
-import { BBString, BBSubTag } from '../language';
+import { BBString, BBSubTag, BBArray } from '../language';
 import { Context } from './context';
 import { Engine } from '../engine';
 import { Condition } from './subtag.conditions';
@@ -48,12 +48,12 @@ export abstract class SubTag<TContext extends Context> {
         return this;
     }
 
-    protected async parseArg(subtag: BBSubTag, context: TContext, position: number): Promise<string> {
+    protected async parseArg(subtag: BBSubTag | BBArray, context: TContext, position: number): Promise<string> {
         let result = await this.parseArgs(subtag, context, position);
         return result[0];
     }
 
-    protected async parseArgs(subtag: BBSubTag, context: TContext, positions?: number | number[]): Promise<string[]> {
+    protected async parseArgs(subtag: BBSubTag | BBArray, context: TContext, positions?: number | number[]): Promise<string[]> {
         if (positions === undefined)
             positions = [...new Array(subtag.args.length).keys()];
         else if (!Array.isArray(positions))

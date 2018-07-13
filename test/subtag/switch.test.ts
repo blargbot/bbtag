@@ -48,34 +48,34 @@ export = function test() {
     it('should support arrays as the case', async () => {
         await runTest(context, subtag,
             {
-                input: ['case1', '["case1","case2"]', 'success'],
+                input: ['case1', '[case1;case2]', 'success'],
                 expected: 'success',
-                echo: ['case1', '["case1","case2"]', 'success']
+                echo: ['case1', '[case1;case2]', 'success']
             },
             {
-                input: ['case3', '["case1","case2"]', 'failure', 'case3', 'success'],
+                input: ['case3', '[case1;case2]', 'failure', 'case3', 'success'],
                 expected: 'success',
-                echo: ['case3', '["case1","case2"]', 'case3', 'success']
+                echo: ['case3', '[case1;case2]', 'case3', 'success']
             },
             {
-                input: ['case1', 'case1', 'success', '["case2","case3"]', 'failure'],
+                input: ['case1', 'case1', 'success', '[case1;case2]', 'failure'],
                 expected: 'success',
-                echo: ['case1', 'case1', '["case2","case3"]', 'success']
+                echo: ['case1', 'case1', '[case1;case2]', 'success']
             },
             {
-                input: ['case3', 'case1', 'failure', '["case2","case3"]', 'success'],
+                input: ['case3', 'case1', 'failure', '[case1;case2]', 'success'],
                 expected: 'success',
-                echo: ['case3', 'case1', '["case2","case3"]', 'success']
+                echo: ['case3', 'case1', '[case1;case2]', 'success']
             },
             {
-                input: ['casemissing', '["case1","case2"]', 'failure', 'case3', 'failure'],
+                input: ['casemissing', '[case1;case2]', 'failure', 'case3', 'failure'],
                 expected: '',
-                echo: ['casemissing', '["case1","case2"]', 'case3']
+                echo: ['casemissing', '[case1;case2]', 'case3']
             },
             {
-                input: ['casemissing', '["case1","case2"]', 'failure', 'case3', 'failure', 'success'],
+                input: ['casemissing', '[case1;case2]', 'failure', 'case3', 'failure', 'success'],
                 expected: 'success',
-                echo: ['casemissing', '["case1","case2"]', 'case3', 'success']
+                echo: ['casemissing', '[case1;case2]', 'case3', 'success']
             })
     });
 

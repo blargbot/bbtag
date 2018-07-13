@@ -76,9 +76,13 @@ describe('Language', () => {
                 if (typeof part === 'string')
                     return part;
                 let children = [];
-                if (part.name !== undefined)
-                    children.push(part.name);
-                children.push(...part.args);
+                if (part instanceof language.BBArray) {
+                    children.push(...part.elements);
+                } else if (part instanceof language.BBSubTag) {
+                    if (part.name !== undefined)
+                        children.push(part.name);
+                    children.push(...part.args);
+                }
                 return children.map(toArray).reduce((p, c) => (p.push(...c), p), []);
             });
         }
