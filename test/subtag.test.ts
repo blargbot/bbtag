@@ -1,6 +1,10 @@
 (async () => {
     let subtags: { [key: string]: { [key: string]: VoidFunction } } = {};
 
+    // Mock subtags
+    subtags.Mock = {};
+    subtags.Mock.Named = await import('./subtag/namedargs.test');
+
     // Basic subtags
     subtags.System = {};
     subtags.System.Comment = await import('./subtag/comment.test');

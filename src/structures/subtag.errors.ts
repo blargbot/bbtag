@@ -9,6 +9,7 @@ export function custom(code: string, message: string): SubTagError {
 
 export const system = {
     missingSubtag() { return custom('BB-S-MS', `Missing subtag name`); },
+    missingKeyValueKey() { return custom('BB-S-MK', `Missing key in key-value pair`); },
     unknownSubtag(name: string) { return custom('BB-S-US', `Unknown subtag '${name || '\u200b'}'`); },
     internalError() { return custom('BB-S-IS', `An internal server error has occurred`); }
 }

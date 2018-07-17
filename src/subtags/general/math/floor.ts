@@ -1,4 +1,4 @@
-import { Engine, hasCount, BBSubTag, Context, SystemSubTag, SubTagError } from '../util';
+import { Engine, hasCount, hasArgs, BBSubTag, Context, SystemSubTag, SubTagError } from '../util';
 
 export class Floor extends SystemSubTag {
     constructor(engine: Engine) {
@@ -8,7 +8,12 @@ export class Floor extends SystemSubTag {
             alias: ['rounddown']
         });
 
+        // this.setNamedArgs([
+        //     { key: 'number' }
+        // ]);
+
         this.whenArgs(hasCount(0), this.errors.args.notEnough(1))
+            // .whenArgs(hasArgs(['number']), this.floor)
             .whenArgs(hasCount(1), this.floor)
             .whenArgs(hasCount('>1'), this.errors.args.tooMany(1));
     }
