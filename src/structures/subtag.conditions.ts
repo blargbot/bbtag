@@ -25,7 +25,7 @@ export function satisfiesAny(...conditions: Condition[]): SubTagCondition {
             if (await c(subtag))
                 return true;
         return false;
-    })
+    });
 }
 
 export function satisfiesAll(...conditions: Condition[]): SubTagCondition {
@@ -34,7 +34,7 @@ export function satisfiesAll(...conditions: Condition[]): SubTagCondition {
             if (!await c(subtag))
                 return false;
         return true;
-    })
+    });
 }
 
 export function hasCounts(...count: Array<string | number>): SubTagCondition {
@@ -46,7 +46,7 @@ export function hasCount(count: string | number): SubTagCondition {
         return satisfies(s => s.args.length === count);
     let match: string[] | null = count.match(/^(\d+)$/);
     if (match) {
-        count = parseInt(match[1])
+        count = parseInt(match[1]);
         return satisfies(s => s.args.length === count);
     }
 

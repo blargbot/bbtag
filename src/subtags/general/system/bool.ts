@@ -31,7 +31,7 @@ export class Bool extends SystemSubTag {
             } else if (await tooMany(subtag)) {
                 return this.errors.args.tooMany(2);
             }
-        }
+        };
     }
 
     constructor(engine: Engine) {

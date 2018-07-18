@@ -55,7 +55,7 @@ export abstract class SubTag<TContext extends Context> {
     }
 
     protected default(handler: SubTagHandler<TContext>): this {
-        this.rules.push({ condition: () => true, handler: handler.bind(this) })
+        this.rules.push({ condition: () => true, handler: handler.bind(this) });
         return this;
     }
 
@@ -289,19 +289,19 @@ export type SubTagRule<TContext> = { condition: Condition, handler: SubTagHandle
 export type SubTagError = (part: BBString | BBSubTag, context: Context) => Promise<string>;
 export type SubTagResult = Promise<void | string | boolean | number | Array<string | number> | SubTagError>;
 export interface SubTagOptions {
-    alias?: string | string[],
-    category?: string,
-    globalName?: string | string[],
-    allowNamed?: boolean
+    alias?: string | string[];
+    category?: string;
+    globalName?: string | string[];
+    allowNamed?: boolean;
 }
 export interface NamedArgument {
-    key: string,
-    desc?: string,
-    optional?: boolean,
-    repeated?: boolean,
-    conditional?: string,
-    priority?: boolean
+    key: string;
+    desc?: string;
+    optional?: boolean;
+    repeated?: boolean;
+    conditional?: string;
+    priority?: boolean;
 }
 export interface RawArguments {
-    [name: string]: BBString | BBString[]
+    [name: string]: BBString | BBString[];
 }
