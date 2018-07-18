@@ -11,7 +11,7 @@ export class Operator extends SystemSubTag {
 
         this.whenArgs(() => true, this.run);
         Object.defineProperty(this, 'globalNames', {
-            get() { return Object.keys(this.operators); }
+            get: () => { return Object.keys(this.operators); }
         });
     }
 
