@@ -15,7 +15,7 @@ export class If extends SystemSubTag {
             { key: 'b', optional: true, conditional: 'operator' },
             { key: 'then' },
             { key: 'else', optional: true }
-        ])
+        ]);
 
         this.whenArgs(hasArgs(['a', 'operator', 'b', 'then', 'else']), this.run)
             .whenArgs(hasArgs(['a', 'operator', 'b', 'then']), this.run)

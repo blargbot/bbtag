@@ -3,7 +3,7 @@ import { makeOperatorCollection } from '../../util';
 import { SubTagHandler, SubTag, RawArguments } from '../../../structures/subtag';
 import { Operator } from './operator';
 
-type comparer = (a: string, b: string) => boolean;
+export type comparer = (a: string, b: string) => boolean;
 
 export class Bool extends SystemSubTag {
     public static readonly operators = makeOperatorCollection<comparer>(
@@ -44,7 +44,7 @@ export class Bool extends SystemSubTag {
             { key: 'a', optional: true },
             { key: 'operator' },
             { key: 'b' }
-        ])
+        ]);
 
         this.whenArgs(hasCount('<2'), this.errors.args.notEnough(2))
             .whenArgs(hasArgs(['a', 'operator', 'b']), this.run)
