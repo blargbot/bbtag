@@ -36,7 +36,6 @@ export class If extends SystemSubTag {
         let { args } = await this.parseNamedArgs(subtag, context, ['a', 'b', 'operator'], rawArgs);
 
         if (args.a && args.operator && args.b) {
-            console.log(args.a, args.operator, args.b);
             success = await Bool.compare(<string>args.a, <string>args.operator, <string>args.b);
         } else if (!args.operator && !args.b) {
             success = this.parseBool(<string>args.a);
