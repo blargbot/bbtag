@@ -155,9 +155,8 @@ export abstract class SubTag<TContext extends Context> {
                 for (const condition of conditionals) {
                     let _met = false;
                     for (const _c of conditionals)
-                        if (_c.key === condition.requires)
-                            _met = true;
-                    if (!_met) met = false;
+                        if (_c.key === condition.requires) { _met = true; break; }
+                    if (!_met) { met = false; break; }
                 }
                 if (met) {
                     for (const condition of conditionals)
@@ -172,10 +171,10 @@ export abstract class SubTag<TContext extends Context> {
                 let remainingImportantArgs = 0;
                 for (let iii = ii; iii < this.namedArgs.length; iii++) {
                     if (!this.namedArgs[iii].optional) remainingRequiredArgs++;
-                    if (this.namedArgs[iii].priority) remainingImportantArgs++;
+                    if (this.namedArgs[iii].priority && this.namedArgs[iii].optional)
+                        remainingImportantArgs++;
                 }
                 remainingImportantArgs += remainingRequiredArgs;
-                let remainingParts = subtag.args.length - i;
                 let arg = this.namedArgs[ii];
                 let optional = arg.optional === true;
                 let repeated = arg.repeated === true;
@@ -183,6 +182,7 @@ export abstract class SubTag<TContext extends Context> {
                 let condition = arg.conditional;
                 if (!condition && conditionals.length > 0)
                     handleConditions();
+                let remainingParts = subtag.args.length - i;
                 let part = subtag.args[i];
 
                 if (repeated) {
