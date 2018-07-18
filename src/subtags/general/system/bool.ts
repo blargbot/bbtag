@@ -1,6 +1,6 @@
-import { Engine, hasCount, BBSubTag, Context, SystemSubTag, SubTagError, util } from '../util';
+import { Engine, hasCount, hasArgs, BBSubTag, Context, SystemSubTag, SubTagError, util } from '../util';
 import { makeOperatorCollection } from '../../util';
-import { SubTagHandler, SubTag } from '../../../structures/subtag';
+import { SubTagHandler, SubTag, RawArguments } from '../../../structures/subtag';
 import { Operator } from './operator';
 
 type comparer = (a: string, b: string) => boolean;
@@ -40,8 +40,15 @@ export class Bool extends SystemSubTag {
             globalName: ['bool'],
         });
 
+        this.setNamedArgs([
+            { key: 'a', optional: true },
+            { key: 'operator' },
+            { key: 'b' }
+        ])
+
         this.whenArgs(hasCount('<2'), this.errors.args.notEnough(2))
-            .whenArgs(hasCount('2-3'), this.run)
+            .whenArgs(hasArgs(['a', 'operator', 'b']), this.run)
+            .whenArgs(hasArgs(['operator', 'b']), this.run)
             .whenArgs(hasCount('>3'), this.errors.args.tooMany(3));
 
         this.engine.subtags.onceAdded(Operator as typeof SubTag, (operator: SubTag<any>) => {
@@ -51,9 +58,13 @@ export class Bool extends SystemSubTag {
         });
     }
 
-    public async run(subtag: BBSubTag, context: Context): Promise<boolean | SubTagError> {
-        let args = await this.parseArgs(subtag, context);
-        return Bool.compare(...args);
+    public async run(subtag: BBSubTag, context: Context, rawArgs?: RawArguments): Promise<boolean | SubTagError> {
+        let { args } = await this.parseNamedArgs(subtag, context, ['a', 'b', 'operator'], rawArgs);
+        let arr: string[] = [];
+        if (args.a) arr.push(<string>args.a);
+        if (args.operator) arr.push(<string>args.operator);
+        if (args.b) arr.push(<string>args.b);
+        return Bool.compare(...arr);
     }
 
     public static getOperator(operator: string): comparer | undefined {

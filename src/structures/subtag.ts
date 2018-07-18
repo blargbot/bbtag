@@ -54,6 +54,11 @@ export abstract class SubTag<TContext extends Context> {
         return this;
     }
 
+    protected default(handler: SubTagHandler<TContext>): this {
+        this.rules.push({ condition: () => true, handler: handler.bind(this) })
+        return this;
+    }
+
     protected async parseArg(subtag: BBSubTag, context: TContext, position: number): Promise<string> {
         let result = await this.parseArgs(subtag, context, position);
         return result[0];
@@ -70,14 +75,15 @@ export abstract class SubTag<TContext extends Context> {
         return await Promise.all(promises);
     }
 
-    protected async parseNamedArg(subtag: BBSubTag, context: TContext, name: string) {
-        let result = await this.parseNamedArgs(subtag, context, name);
+    protected async parseNamedArg(subtag: BBSubTag, context: TContext, name: string, raw?: RawArguments) {
+        let result = await this.parseNamedArgs(subtag, context, name, raw);
+        return result.args[name];
     }
 
     protected async parseNamedArgs(subtag: BBSubTag, context: TContext, name?: string | string[], raw?: RawArguments) {
         let rawArgs: RawArguments;
         if (raw) rawArgs = raw;
-        else rawArgs = await this.mapNamedArgs(subtag, context);
+        else rawArgs = <RawArguments>await this.mapNamedArgs(subtag, context);
 
         let args: { [name: string]: string | string[] } = {};
         let names: string[];
@@ -105,7 +111,7 @@ export abstract class SubTag<TContext extends Context> {
     }
 
     private async mapNamedArgs(subtag: BBSubTag, context: TContext) {
-        let rawArgs: { [name: string]: BBString | BBString[] } = {};
+        let rawArgs: RawArguments = {};
         if (subtag.named) { // map named args
             let parts = subtag.args[0].parts;
             for (const part of parts) {
@@ -133,38 +139,83 @@ export abstract class SubTag<TContext extends Context> {
             }
         } else { // map positional args
             let i = 0;
-            let r = []
+            let r = [];
+            let maxArgs = 0;
+            let minArgs = 0;
+            for (const arg of this.namedArgs)
+                if (arg.optional) maxArgs++;
+                else {
+                    maxArgs++;
+                    minArgs++;
+                }
+
+            let conditionals: { key: string, requires: string, value: BBString }[] = [];
+            function handleConditions() {
+                let met = true;
+                for (const condition of conditionals) {
+                    let _met = false;
+                    for (const _c of conditionals)
+                        if (_c.key === condition.requires)
+                            _met = true;
+                    if (!_met) met = false;
+                }
+                if (met) {
+                    for (const condition of conditionals)
+                        rawArgs[condition.key] = condition.value;
+                } else {
+                    i -= conditionals.length;
+                }
+                conditionals = [];
+            }
             for (let ii = 0; ii < this.namedArgs.length; ii++) {
-                let arg = this.namedArgs[ii];
-                let part = subtag.args[i];
-                let remainingArgs = this.namedArgs.length - ii;
+                let remainingRequiredArgs = 0;
+                let remainingImportantArgs = 0;
+                for (let iii = ii; iii < this.namedArgs.length; iii++) {
+                    if (!this.namedArgs[iii].optional) remainingRequiredArgs++;
+                    if (this.namedArgs[iii].priority) remainingImportantArgs++;
+                }
+                remainingImportantArgs += remainingRequiredArgs;
                 let remainingParts = subtag.args.length - i;
+                let arg = this.namedArgs[ii];
                 let optional = arg.optional === true;
                 let repeated = arg.repeated === true;
+                let priority = arg.priority === true;
+                let condition = arg.conditional;
+                if (!condition && conditionals.length > 0)
+                    handleConditions();
+                let part = subtag.args[i];
 
                 if (repeated) {
                     let minLength = optional ? 0 : 1;
-                    console.log('repeated arg', i, minLength, remainingParts, remainingArgs);
-                    let temp = subtag.args.slice(i, i + Math.max(minLength, remainingParts - remainingArgs + 1));
-                    rawArgs[arg.key] = temp;
-                    i += temp.length;
-                    console.log('finished arg', i, temp.length, remainingParts, remainingArgs);
-
+                    let temp = subtag.args.slice(i, i + Math.max(minLength, remainingParts - remainingRequiredArgs));
+                    if (temp.length > 0) {
+                        rawArgs[arg.key] = temp;
+                        i += temp.length;
+                    }
                 } else {
                     if (!optional) {
-                        if (!part) throw new NotEnoughArgumentsError(this, subtag);
+                        if (!part) return this.errors.args.notEnough(minArgs);
                         rawArgs[arg.key] = part;
                         i++;
                     } else {
-                        if (remainingParts >= remainingArgs) {
-                            rawArgs[arg.key] = part;
-                            i++;
+                        if (remainingParts > remainingRequiredArgs) {
+                            if (condition) {
+                                conditionals.push({ key: arg.key, requires: condition, value: part });
+                                i++;
+                            } else {
+                                if (priority || remainingParts > remainingImportantArgs) {
+                                    rawArgs[arg.key] = part;
+                                    i++;
+                                }
+                            }
                         } else continue;
                     }
                 }
             }
+            if (conditionals.length > 0)
+                handleConditions();
             if (subtag.args.length > i)
-                throw new TooManyArgumentsError(this, subtag);
+                return this.errors.args.tooMany(maxArgs);
         }
         return rawArgs;
     }
@@ -175,17 +226,22 @@ export abstract class SubTag<TContext extends Context> {
             args = await this.mapNamedArgs(subtag, context);
 
         let handler: SubTagHandler<TContext> | undefined;
-        for (const rule of this.rules) {
-            if (await rule.condition(subtag, args)) {
-                handler = rule.handler.bind(this);
-                break;
+
+        if (typeof args === 'function') {
+            handler = args;
+        } else {
+            for (const rule of this.rules) {
+                if (await rule.condition(subtag, <RawArguments>args)) {
+                    handler = rule.handler.bind(this);
+                    break;
+                }
             }
+
+            if (handler === undefined)
+                throw new MissingHandlerError(this, subtag);
         }
 
-        if (handler === undefined)
-            throw new MissingHandlerError(this, subtag);
-
-        let result = await handler(subtag, context, args);
+        let result = await handler(subtag, context, <RawArguments>args);
         switch (typeof result) {
             case 'function': return await (<SubTagError>result)(subtag, context);
             case 'string': return <string>result;
@@ -216,33 +272,12 @@ export class InvalidNamedArgumentError<TContext extends Context> extends Error {
     }
 }
 
-export class NotEnoughArgumentsError<TContext extends Context> extends Error {
-    public subtag: SubTag<TContext>;
-    public part: BBSubTag;
-
-    constructor(subtag: SubTag<TContext>, part: BBSubTag) {
-        super(`Not enough arguments were provided on ${subtag.name}`);
-        this.subtag = subtag;
-        this.part = part;
-    }
-}
-export class TooManyArgumentsError<TContext extends Context> extends Error {
-    public subtag: SubTag<TContext>;
-    public part: BBSubTag;
-
-    constructor(subtag: SubTag<TContext>, part: BBSubTag) {
-        super(`Too many arguments were provided on ${subtag.name}`);
-        this.subtag = subtag;
-        this.part = part;
-    }
-}
-
 export class MissingHandlerError<TContext extends Context> extends Error {
     public subtag: SubTag<TContext>;
     public part: BBSubTag;
 
     constructor(subtag: SubTag<TContext>, part: BBSubTag) {
-        super(`Missing handler on ${subtag.name} for ${JSON.stringify(part.args)}`);
+        super(`Missing handler on ${subtag.name}`);
         this.subtag = subtag;
         this.part = part;
     }
@@ -263,7 +298,9 @@ export interface NamedArgument {
     key: string,
     desc?: string,
     optional?: boolean,
-    repeated?: boolean
+    repeated?: boolean,
+    conditional?: string,
+    priority?: boolean
 }
 export interface RawArguments {
     [name: string]: BBString | BBString[]
