@@ -10,10 +10,9 @@ export class Operator extends SystemSubTag {
         });
 
         this.whenArgs(() => true, this.run);
-    }
-
-    get globalNames() {
-        return Object.keys(this.operators);
+        Object.defineProperty(this, 'globalNames', {
+            get() { return Object.keys(this.operators); }
+        });
     }
 
     public registerOperator(operators: string | string[], handler: SubTagHandler<any>) {
