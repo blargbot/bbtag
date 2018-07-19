@@ -16,7 +16,7 @@ export class Floor extends SystemSubTag {
         this.whenArgs(hasArgs(['number']), this.floor);
     }
 
-    async floor(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<number | SubTagError> {
+    async floor(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<number | SubTagError> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         let parsed = parseFloat(<string>args.number);
         if (isNaN(parsed))

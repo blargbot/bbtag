@@ -29,7 +29,7 @@ export class Operator extends SystemSubTag {
         let operator = subtag.resolvedName.toLowerCase();
         let handler = this.operators[operator];
         if (handler != null) {
-            return await handler(subtag, context);
+            return await handler(subtag, context, {});
         }
 
         return this.errors.value.notAnOperator(operator);

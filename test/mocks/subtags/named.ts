@@ -21,19 +21,19 @@ export class Named1 extends SystemSubTag {
             .whenArgs(hasArgs(['arg1', 'arg3', 'arg5']), this.threeArgs);
     }
 
-    async fiveArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fiveArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Five ' + JSON.stringify(args);
     }
-    async fourArgsOne(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fourArgsOne(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Four1 ' + JSON.stringify(args);
     }
-    async fourArgsTwo(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fourArgsTwo(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Four2 ' + JSON.stringify(args);
     }
-    async threeArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async threeArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Three ' + JSON.stringify(args);
     }
@@ -60,19 +60,19 @@ export class Named2 extends SystemSubTag {
             .whenArgs(hasArgs(['arg1', 'arg3', 'arg5']), this.threeArgs);
     }
 
-    async fiveArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fiveArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Five ' + JSON.stringify(args);
     }
-    async fourArgsOne(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fourArgsOne(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Four1 ' + JSON.stringify(args);
     }
-    async fourArgsTwo(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fourArgsTwo(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Four2 ' + JSON.stringify(args);
     }
-    async threeArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async threeArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Three ' + JSON.stringify(args);
     }
@@ -94,11 +94,11 @@ export class NamedPriority extends SystemSubTag {
             .whenArgs(hasArgs(['arg2']), this.oneArg);
     }
 
-    async oneArg(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async oneArg(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'One ' + JSON.stringify(args);
     }
-    async twoArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async twoArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Two ' + JSON.stringify(args);
     }
@@ -123,15 +123,15 @@ export class NamedConditional extends SystemSubTag {
             .default(this.errors.args.notEnough(1));
     }
 
-    async oneArg(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async oneArg(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'One ' + JSON.stringify(args);
     }
-    async threeArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async threeArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Three ' + JSON.stringify(args);
     }
-    async fourArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string> {
+    async fourArgs(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string> {
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs);
         return 'Four ' + JSON.stringify(args);
     }

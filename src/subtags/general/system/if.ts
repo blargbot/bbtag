@@ -31,7 +31,7 @@ export class If extends SystemSubTag {
         return this.errors.value.notABool(text);
     }
 
-    public async run(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string | SubTagError> {
+    public async run(subtag: BBSubTag, context: Context, rawArgs: RawArguments): Promise<string | SubTagError> {
         let success: boolean | SubTagError = false;
         let { args } = await this.parseNamedArgs(subtag, context, rawArgs, ['a', 'b', 'operator']);
 

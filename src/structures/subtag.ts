@@ -216,7 +216,7 @@ export abstract class SubTag<TContext extends Context> {
     }
 
     public async execute(subtag: BBSubTag, context: TContext): Promise<string> {
-        let args;
+        let args: RawArguments | SubTagError = {};
         if (this.namedArgs.length > 0)
             args = await this.mapNamedArgs(subtag, context);
 
@@ -281,7 +281,7 @@ export class MissingHandlerError<TContext extends Context> extends Error {
 }
 
 export type BaseSubtagOptions<TContext> = SubTagOptions & { context: new (...args: any[]) => TContext };
-export type SubTagHandler<TContext> = (subtag: BBSubTag, context: TContext, args?: RawArguments) => SubTagResult;
+export type SubTagHandler<TContext> = (subtag: BBSubTag, context: TContext, args: RawArguments) => SubTagResult;
 export type SubTagRule<TContext> = { condition: Condition, handler: SubTagHandler<TContext> };
 export type SubTagError = (part: BBString | BBSubTag, context: Context) => Promise<string>;
 export type SubTagResult = Promise<void | string | boolean | number | Array<string | number> | SubTagError>;
