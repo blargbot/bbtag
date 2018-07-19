@@ -31,9 +31,9 @@ export class If extends SystemSubTag {
         return this.errors.value.notABool(text);
     }
 
-    public async run(subtag: BBSubTag, context: Context, rawArgs?: RawArguments): Promise<string | SubTagError> {
+    public async run(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<string | SubTagError> {
         let success: boolean | SubTagError = false;
-        let { args } = await this.parseNamedArgs(subtag, context, ['a', 'b', 'operator'], rawArgs);
+        let { args } = await this.parseNamedArgs(subtag, context, rawArgs, ['a', 'b', 'operator']);
 
         if (args.a && args.operator && args.b) {
             success = await Bool.compare(<string>args.a, <string>args.operator, <string>args.b);
@@ -44,6 +44,6 @@ export class If extends SystemSubTag {
         if (typeof success === 'function')
             return success;
 
-        return <string>await this.parseNamedArg(subtag, context, success ? 'then' : 'else', rawArgs) || '';
+        return <string>await this.parseNamedArg(subtag, context, rawArgs, success ? 'then' : 'else') || '';
     }
 }

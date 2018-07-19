@@ -75,22 +75,17 @@ export abstract class SubTag<TContext extends Context> {
         return await Promise.all(promises);
     }
 
-    protected async parseNamedArg(subtag: BBSubTag, context: TContext, name: string, raw?: RawArguments) {
-        let result = await this.parseNamedArgs(subtag, context, name, raw);
+    protected async parseNamedArg(subtag: BBSubTag, context: TContext, rawArgs: RawArguments, name: string, ) {
+        let result = await this.parseNamedArgs(subtag, context, rawArgs, name);
         return result.args[name];
     }
 
-    protected async parseNamedArgs(subtag: BBSubTag, context: TContext, name?: string | string[], raw?: RawArguments) {
-        let rawArgs: RawArguments;
-        if (raw) rawArgs = raw;
-        else rawArgs = <RawArguments>await this.mapNamedArgs(subtag, context);
-
+    protected async parseNamedArgs(subtag: BBSubTag, context: TContext, rawArgs: RawArguments, name?: string | string[]) {
         let args: { [name: string]: string | string[] } = {};
         let names: string[];
         if (name === undefined) {
             names = this.namedArgs.map(a => a.key);
-        }
-        if (Array.isArray(name)) names = name;
+        } else if (Array.isArray(name)) names = name;
         else names = [<string>name];
 
         for (const key in rawArgs) {
@@ -227,11 +222,13 @@ export abstract class SubTag<TContext extends Context> {
 
         let handler: SubTagHandler<TContext> | undefined;
 
+        let result: any;
+
         if (typeof args === 'function') {
-            handler = args;
+            result = await args(subtag, context);
         } else {
             for (const rule of this.rules) {
-                if (await rule.condition(subtag, <RawArguments>args)) {
+                if (await rule.condition(subtag, args)) {
                     handler = rule.handler.bind(this);
                     break;
                 }
@@ -239,9 +236,9 @@ export abstract class SubTag<TContext extends Context> {
 
             if (handler === undefined)
                 throw new MissingHandlerError(this, subtag);
-        }
 
-        let result = await handler(subtag, context, <RawArguments>args);
+            result = await handler(subtag, context, args);
+        }
         switch (typeof result) {
             case 'function': return await (<SubTagError>result)(subtag, context);
             case 'string': return <string>result;

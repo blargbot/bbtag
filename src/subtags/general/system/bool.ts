@@ -58,8 +58,8 @@ export class Bool extends SystemSubTag {
         });
     }
 
-    public async run(subtag: BBSubTag, context: Context, rawArgs?: RawArguments): Promise<boolean | SubTagError> {
-        let { args } = await this.parseNamedArgs(subtag, context, ['a', 'b', 'operator'], rawArgs);
+    public async run(subtag: BBSubTag, context: Context, rawArgs: RawArguments = {}): Promise<boolean | SubTagError> {
+        let { args } = await this.parseNamedArgs(subtag, context, rawArgs, ['a', 'b', 'operator']);
         let arr: string[] = [];
         if (args.a) arr.push(<string>args.a);
         if (args.operator) arr.push(<string>args.operator);
