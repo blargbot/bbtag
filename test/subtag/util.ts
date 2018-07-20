@@ -1,6 +1,9 @@
 import { SubTagError, parse, Context, Engine, SubTag, BBSubTag } from "../../dist";
 import { expect } from "chai";
 import { Echo } from "../mocks/subtags/echo";
+import { Operator } from "../../dist/subtags/general/system/operator";
+import { Bool } from "../../dist/subtags/general/system/bool";
+import { MockDb } from "../mocks/mockDatabase";
 
 export type TestCase = { input: string[], expected: SubTagError | string, errors?: number, echo: string[] };
 
@@ -12,7 +15,8 @@ export async function runTest(makeContext: () => Context, subtag: SubTag<any>, .
     for (const entry of cases) {
         // arrange
         let name = (subtag.category ? subtag.category + '.' : '') + subtag.name;
-        let code = parse(`{${name}${['', ...entry.input.map(input => `{>;${input}}`)].join(';')}}`).parts[0] as BBSubTag;
+        let code = parse(`{${name}${['', ...entry.input.map(input => `{_;${input}}`)].join(';')}}`).parts[0] as BBSubTag;
+        code.resolvedName = name;
         let context = makeContext();
         entry.errors = entry.errors || 0;
         entry.echo = entry.echo || [];
@@ -67,4 +71,19 @@ export function checkArgRange(makeContext: () => Context, subtag: SubTag<any>, m
                 })
         })
     }
+}
+
+export function checkLoadOperators(subtag: (engine: Engine) => SubTag<any>, operators: string[]) {
+    it('should load operators into System.Operator', () => {
+        // arrange
+        let engine = new Engine({ database: new MockDb() });
+        let operator = new Operator(engine);
+
+        // act
+        engine.subtags.add(operator);
+        engine.subtags.add(subtag(engine));
+
+        // assert
+        expect(operator.globalNames).to.deep.equal(operators);
+    });
 }

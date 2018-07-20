@@ -79,8 +79,6 @@ export = function test() {
             })
     });
 
-
-
     it('should always pick the first match', async () => {
         await runTest(context, subtag,
             {

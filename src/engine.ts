@@ -43,28 +43,37 @@ export class Engine {
             if (context.state.return) break;
             if (typeof part === 'string') {
                 result.push(part);
-            } else {
-                if (part.name === undefined) {
-                    result.push(await sysError.missingSubtag()(part, context));
+            } else if (part instanceof BBSubTag) {
+                if (part.keyValue) {
+                    if (part.name === undefined) {
+                        result.push(await sysError.missingKeyValueKey()(part, context));
+                    } else {
+                        let name = await this.execute(part.name, context);
+                        part.key = name;
+                    }
                 } else {
-                    let subtag;
-                    try {
-                        let name = part.resolvedName = part.resolvedName || await this.execute(part.name, context);
-                        if (context.state.return) break;
+                    if (part.name === undefined) {
+                        result.push(await sysError.missingSubtag()(part, context));
+                    } else {
+                        let subtag;
+                        try {
+                            let name = part.resolvedName = part.resolvedName || await this.execute(part.name, context);
+                            if (context.state.return) break;
 
-                        subtag = context.functions.get(name) || this.subtags.get(name);
-                        if (subtag === undefined) {
-                            result.push(await sysError.unknownSubtag(name)(part, context));
-                        } else {
-                            result.push(await subtag.execute(part, context));
+                            subtag = context.functions.get(name) || this.subtags.get(name);
+                            if (subtag === undefined) {
+                                result.push(await sysError.unknownSubtag(name)(part, context));
+                            } else {
+                                result.push(await subtag.execute(part, context));
+                            }
+                        } catch (err) {
+                            if (err instanceof FatalError) {
+                                this.onFatal(err, this, subtag, context, part);
+                                throw err;
+                            }
+                            result.push(await sysError.internalError()(part, context));
+                            this.onError(err, this, subtag, context, part);
                         }
-                    } catch (err) {
-                        if (err instanceof FatalError) {
-                            this.onFatal(err, this, subtag, context, part);
-                            throw err;
-                        }
-                        result.push(await sysError.internalError()(part, context));
-                        this.onError(err, this, subtag, context, part);
                     }
                 }
             }

@@ -14,6 +14,8 @@ export class BBString {
                 break;
             } else if (cursor.next == '}') {
                 break;
+            } else if (parent instanceof BBSubTag && cursor.next == '=' && parent.name === undefined) {
+                break;
             } else if (cursor.next == ';' && result.parent !== null) {
                 break;
             } else if (cursor.next == '{') {
@@ -63,14 +65,32 @@ export class BBSubTag {
 
         while (cursor.moveNext()) {
             result._parts.push(BBString.parse(result, cursor));
-            if (cursor.next == '}')
+            if (cursor.next === '}')
                 break;
-            if (cursor.next != ';' && cursor.next !== undefined)
+            if (cursor.next === '=') {
+                result._named = true;
+                continue;
+            }
+            if (cursor.next !== ';' && cursor.next !== undefined)
                 cursor.moveBack();
         }
 
         if (cursor.next != '}')
             throw new ParseError(start, 'Unpaired \'{\'');
+
+        // Named arguments
+        if (result.name && result.named) {
+            if (result.args.length > 1)
+                throw new ParseError(start, 'Cannot use \';\' when using named arguments');
+
+        }
+
+        // Key-value pairs
+        if (result.name && result.name.content.startsWith('*')) {
+            result._keyValue = true;
+            if (result.args.length !== 1)
+                throw new ParseError(start, 'Key-Values must have exactly 1 argument');
+        }
 
         cursor.moveNext();
 
@@ -85,6 +105,12 @@ export class BBSubTag {
     private _content: string = '';
     private _range: Range | null = null;
     private _parts: BBString[] = [];
+    private _named: boolean = false;
+    private _keyValue: boolean = false;
+    private _kvParsed: { key: string | null, value: string | null } = {
+        key: null,
+        value: null
+    };
 
     public resolvedName: string = '';
     public get content(): string { return this._content; }
@@ -92,6 +118,12 @@ export class BBSubTag {
 
     public get name(): BBString | undefined { return this._parts[0]; }
     public get args(): BBString[] { return this._parts.slice(1); }
+    public get named(): boolean { return this._named; }
+    public get keyValue(): boolean { return this._keyValue; }
+    public get key(): string | null { return this._kvParsed.key; }
+    public get value(): string | null { return this._kvParsed.value; }
+    public set key(value: string | null) { this._kvParsed.key = value; }
+    public set value(value: string | null) { this._kvParsed.value = value; }
 
     private constructor(parent: BBString) {
         this.parent = parent;

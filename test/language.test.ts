@@ -183,6 +183,27 @@ describe('Language', () => {
             // act & assert
             expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:17]: Unexpected \'}\'');
         });
+        it('should fail when named args are used with normal args', () => {
+            // arrange
+            let input = '{this=is;a;test}';
+
+            // act && assert
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Cannot use \';\' when using named arguments');
+        });
+        it('should fail when key-value pairs have more than 1 arg', () => {
+            // arrange
+            let input = '{*this;is;a;test}';
+
+            // act && assert
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Key-Values must have exactly 1 argument');
+        });
+        it('should fail when key-value pairs have less than 1 arg', () => {
+            // arrange
+            let input = '{*this is a test}';
+
+            // act && assert
+            expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Key-Values must have exactly 1 argument');
+        });
     })
 });
 
