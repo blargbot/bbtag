@@ -20,8 +20,7 @@ export class If extends SystemSubTag {
         this.whenArgs(hasArgs(['a', 'operator', 'b', 'then', 'else']), this.run)
             .whenArgs(hasArgs(['a', 'operator', 'b', 'then']), this.run)
             .whenArgs(hasArgs(['a', 'then', 'else']), this.run)
-            .whenArgs(hasArgs(['a', 'then']), this.run)
-            .default(this.errors.args.notEnough(2));
+            .whenArgs(hasArgs(['a', 'then']), this.run);
     }
 
     private parseBool(text: string): boolean | SubTagError {

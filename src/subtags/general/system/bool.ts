@@ -46,10 +46,8 @@ export class Bool extends SystemSubTag {
             { key: 'b' }
         ]);
 
-        this.whenArgs(hasCount('<2'), this.errors.args.notEnough(2))
-            .whenArgs(hasArgs(['a', 'operator', 'b']), this.run)
-            .whenArgs(hasArgs(['operator', 'b']), this.run)
-            .whenArgs(hasCount('>3'), this.errors.args.tooMany(3));
+        this.whenArgs(hasArgs(['a', 'operator', 'b']), this.run)
+            .whenArgs(hasArgs(['operator', 'b']), this.run);
 
         this.engine.subtags.onceAdded(Operator as typeof SubTag, (operator: SubTag<any>) => {
             for (const key of Object.keys(Bool.operators)) {

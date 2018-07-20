@@ -73,7 +73,7 @@ export abstract class SubTag<TContext extends Context> {
         this.remainingArgMap = [];
 
         // Loop through the named args backwards. 
-        // For each element increade the max & min args where needed
+        // For each element increase the max & min args where needed
         // and increase the important/required counts where needed.
         // important & required are a count of the number of such args
         // after the current element, hence the reverse loop
