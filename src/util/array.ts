@@ -61,3 +61,23 @@ export function deserialize(text: string): BBArray | undefined {
         return { v: parsed.v.map(stringify), n: parsed.n };
     return { v: parsed.v.map(stringify) };
 }
+
+export function all<T>(array: Array<T>, check: (entry: T) => boolean) {
+    for (const entry of array || []) {
+        if (!check(entry)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+export function any<T>(array: Array<T>, check: (entry: T) => boolean) {
+    for (const entry of array || []) {
+        if (check(entry)) {
+            return true;
+        }
+    }
+
+    return false;
+}

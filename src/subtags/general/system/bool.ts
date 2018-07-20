@@ -22,13 +22,13 @@ export class Bool extends SystemSubTag {
         let valid = hasCount('1-2');
         let notEnough = hasCount('0');
         let tooMany = hasCount('>2');
-        return async (subtag: BBSubTag, context: Context) => {
-            if (await notEnough(subtag)) {
+        return async (subtag: BBSubTag, context: Context, rawArgs: RawArguments) => {
+            if (await notEnough(subtag, rawArgs)) {
                 return this.errors.args.notEnough(1);
-            } else if (await valid(subtag)) {
+            } else if (await valid(subtag, rawArgs)) {
                 let args = await this.parseArgs(subtag, context);
                 return Bool.compare(operator, ...args);
-            } else if (await tooMany(subtag)) {
+            } else if (await tooMany(subtag, rawArgs)) {
                 return this.errors.args.tooMany(2);
             }
         };

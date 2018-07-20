@@ -5,6 +5,7 @@ import { Condition } from './subtag.conditions';
 import * as conditions from './subtag.conditions';
 import * as errors from './subtag.errors';
 import { IDatabase } from '../interfaces/idatabase';
+import { array } from '../util';
 
 function ensureArray(value?: string | string[]): string[] {
     if (Array.isArray(value))
@@ -32,6 +33,10 @@ export abstract class SubTag<TContext extends Context> {
     public readonly errors = SubTag.errors;
     public readonly conditions = SubTag.conditions;
 
+    private maxArgs: number = 0;
+    private minArgs: number = 0;
+    private remainingArgMap: { important: number, required: number }[] = [];
+
     protected namedArgs: NamedArgument[] = [];
 
     protected constructor(engine: Engine, name: string, options: BaseSubtagOptions<TContext>) {
@@ -46,7 +51,47 @@ export abstract class SubTag<TContext extends Context> {
     }
 
     protected setNamedArgs(namedArgs: NamedArgument[]) {
+        let important = 0;
+        let required = 0;
+
+        // Check there are no duplicated key names
+        let keyMap: string[] = [];
+        let duplicatedKeys = namedArgs.filter(arg => {
+            if (keyMap.indexOf(arg.key.toLowerCase()) === -1) {
+                keyMap.push(arg.key.toLowerCase());
+                return false;
+            }
+            return true;
+        });
+        if (duplicatedKeys.length > 0) {
+            throw new DuplicatedArgumentKeys(this, duplicatedKeys);
+        }
+
+        // Reset the argument variables
         this.namedArgs = namedArgs;
+        this.maxArgs = this.minArgs = 0;
+        this.remainingArgMap = [];
+
+        // Loop through the named args backwards. 
+        // For each element increade the max & min args where needed
+        // and increase the important/required counts where needed.
+        // important & required are a count of the number of such args
+        // after the current element, hence the reverse loop
+        for (let i = namedArgs.length - 1; i >= 0; i--) {
+            this.remainingArgMap.splice(0, 0, { important, required });
+            let arg = namedArgs[i];
+            if (arg.optional) {
+                this.maxArgs++;
+                if (arg.priority) {
+                    important++;
+                }
+            } else {
+                this.minArgs++;
+                this.maxArgs++;
+                important++;
+                required++;
+            }
+        }
     }
 
     protected whenArgs(condition: Condition, handler: SubTagHandler<TContext>): this {
@@ -80,13 +125,14 @@ export abstract class SubTag<TContext extends Context> {
         return result.args[name];
     }
 
-    protected async parseNamedArgs(subtag: BBSubTag, context: TContext, rawArgs: RawArguments, name?: string | string[]) {
+    protected async parseNamedArgs(subtag: BBSubTag, context: TContext, rawArgs: RawArguments, names?: string | string[]) {
         let args: { [name: string]: string | string[] } = {};
-        let names: string[];
-        if (name === undefined) {
+
+        if (names === undefined) {
             names = this.namedArgs.map(a => a.key);
-        } else if (Array.isArray(name)) names = name;
-        else names = [<string>name];
+        } else if (!Array.isArray(names)) {
+            names = [names];
+        }
 
         for (const key in rawArgs) {
             if (names.indexOf(key) > -1) {
@@ -108,109 +154,88 @@ export abstract class SubTag<TContext extends Context> {
     private async mapNamedArgs(subtag: BBSubTag, context: TContext) {
         let rawArgs: RawArguments = {};
         if (subtag.named) { // map named args
-            let parts = subtag.args[0].parts;
-            for (const part of parts) {
-                if (part instanceof BBSubTag) {
+            for (const part of subtag.args[0].parts) {
+                if (typeof part !== 'string') {
                     if (part.keyValue && part.name) {
                         let key = await this.engine.execute(part.name, context);
                         key = key.substring(1); // remove * prefix
-                        let args = this.namedArgs.filter(na => na.key === key);
-                        if (args.length > 0) {
-                            if (args[0].repeated) {
-                                let arg = rawArgs[key];
-                                if (arg === undefined)
-                                    arg = [];
-                                else if (!Array.isArray(arg))
-                                    arg = [arg];
-                                arg.push(part.args[0]);
-                                rawArgs[key] = arg;
-                            } else
+                        let arg = this.namedArgs.find(na => na.key === key);
+                        if (arg) {
+                            if (arg.repeated) {
+                                let entry = rawArgs[key];
+                                let argArray = Array.isArray(entry) ? entry : entry = rawArgs[key] = [];
+                                argArray.push(part.args[0]);
+                            } else {
                                 rawArgs[key] = part.args[0];
+                            }
+                        } else {
+                            return this.errors.args.unknownNamed(key);
                         }
                     } else {
-                        throw new InvalidNamedArgumentError(this, part);
+                        return this.errors.args.nonNamed();
                     }
                 }
             }
         } else { // map positional args
-            let i = 0;
-            let r = [];
-            let maxArgs = 0;
-            let minArgs = 0;
-            for (const arg of this.namedArgs)
-                if (arg.optional) maxArgs++;
-                else {
-                    maxArgs++;
-                    minArgs++;
-                }
-
+            let current = 0;
             let conditionals: { key: string, requires: string, value: BBString }[] = [];
             function handleConditions() {
-                let met = true;
-                for (const condition of conditionals) {
-                    let _met = false;
-                    for (const _c of conditionals)
-                        if (_c.key === condition.requires) { _met = true; break; }
-                    if (!_met) { met = false; break; }
-                }
+                let met = array.all(conditionals, c =>
+                    array.any(conditionals, e => c.requires === e.key)
+                );
                 if (met) {
-                    for (const condition of conditionals)
+                    for (const condition of conditionals) {
                         rawArgs[condition.key] = condition.value;
+                    }
                 } else {
-                    i -= conditionals.length;
+                    current -= conditionals.length;
                 }
                 conditionals = [];
             }
-            for (let ii = 0; ii < this.namedArgs.length; ii++) {
-                let remainingRequiredArgs = 0;
-                let remainingImportantArgs = 0;
-                for (let iii = ii; iii < this.namedArgs.length; iii++) {
-                    if (!this.namedArgs[iii].optional) remainingRequiredArgs++;
-                    if (this.namedArgs[iii].priority && this.namedArgs[iii].optional)
-                        remainingImportantArgs++;
-                }
-                remainingImportantArgs += remainingRequiredArgs;
-                let arg = this.namedArgs[ii];
-                let optional = arg.optional === true;
-                let repeated = arg.repeated === true;
-                let priority = arg.priority === true;
-                let condition = arg.conditional;
-                if (!condition && conditionals.length > 0)
+            for (let i = 0; i < this.namedArgs.length; i++) {
+                let arg = this.namedArgs[i];
+                let remaining = this.remainingArgMap[i];
+                if (!arg.conditional && conditionals.length > 0) {
                     handleConditions();
-                let remainingParts = subtag.args.length - i;
-                let part = subtag.args[i];
+                }
+                let remainingParts = subtag.args.length - current;
+                let part = subtag.args[current];
 
-                if (repeated) {
-                    let minLength = optional ? 0 : 1;
-                    let temp = subtag.args.slice(i, i + Math.max(minLength, remainingParts - remainingRequiredArgs));
-                    if (temp.length > 0) {
-                        rawArgs[arg.key] = temp;
-                        i += temp.length;
+                if (arg.repeated) {
+                    let repeatCount = current + Math.max(arg.optional ? 0 : 1, remainingParts - remaining.required);
+                    let values = subtag.args.slice(current, repeatCount);
+                    if (values.length > 0) {
+                        rawArgs[arg.key] = values;
+                        current += values.length;
                     }
                 } else {
-                    if (!optional) {
-                        if (!part) return this.errors.args.notEnough(minArgs);
+                    if (!arg.optional) {
+                        if (!part) {
+                            return this.errors.args.notEnough(this.minArgs);
+                        }
                         rawArgs[arg.key] = part;
-                        i++;
+                        current++;
                     } else {
-                        if (remainingParts > remainingRequiredArgs) {
-                            if (condition) {
-                                conditionals.push({ key: arg.key, requires: condition, value: part });
-                                i++;
-                            } else {
-                                if (priority || remainingParts > remainingImportantArgs) {
-                                    rawArgs[arg.key] = part;
-                                    i++;
-                                }
+                        if (remainingParts > remaining.required) {
+                            if (arg.conditional) {
+                                conditionals.push({ key: arg.key, requires: arg.conditional, value: part });
+                                current++;
+                            } else if (arg.priority || remainingParts > remaining.important) {
+                                rawArgs[arg.key] = part;
+                                current++;
                             }
-                        } else continue;
+                        } else {
+                            continue;
+                        }
                     }
                 }
             }
-            if (conditionals.length > 0)
+            if (conditionals.length > 0) {
                 handleConditions();
-            if (subtag.args.length > i)
-                return this.errors.args.tooMany(maxArgs);
+            }
+            if (subtag.args.length > current) {
+                return this.errors.args.tooMany(this.maxArgs);
+            }
         }
         return rawArgs;
     }
@@ -258,14 +283,14 @@ export abstract class SystemSubTag extends SubTag<Context> {
     }
 }
 
-export class InvalidNamedArgumentError<TContext extends Context> extends Error {
+export class DuplicatedArgumentKeys<TContext extends Context> extends Error {
+    public keys: NamedArgument[];
     public subtag: SubTag<TContext>;
-    public part: BBSubTag;
 
-    constructor(subtag: SubTag<TContext>, part: BBSubTag) {
-        super(`A named argument must be a key-value pair on ${subtag.name}`);
+    constructor(subtag: SubTag<TContext>, keys: NamedArgument[]) {
+        super(`Duplicated argument keys ${keys.map(arg => arg.key)} on ${subtag.name}`);
         this.subtag = subtag;
-        this.part = part;
+        this.keys = keys;
     }
 }
 

@@ -17,7 +17,9 @@ export const system = {
 export const args = {
     notEnough(minimum: number) { return custom('BB-A-NE', `Not enough arguments. Minimum ${minimum}`); },
     tooMany(maximum: number) { return custom('BB-A-TM', `Too many arguments. Maximum ${maximum}`); },
-    outOfRange() { return custom('BB-A-OR', `Arguments out of range`); }
+    outOfRange() { return custom('BB-A-OR', `Arguments out of range`); },
+    nonNamed() { return custom('BB-A-NN', 'Named and positional arguments cannot be mixed'); },
+    unknownNamed(name: string) { return custom('BB-A-UN', `Unknown named arg ${name}`); }
 }
 
 export const value = {

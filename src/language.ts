@@ -106,7 +106,6 @@ export class BBSubTag {
     private _range: Range | null = null;
     private _parts: BBString[] = [];
     private _named: boolean = false;
-    private _namedArgs: object = {};
     private _keyValue: boolean = false;
     private _kvParsed: { key: string | null, value: string | null } = {
         key: null,
