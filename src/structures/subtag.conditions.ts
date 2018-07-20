@@ -1,5 +1,6 @@
 import { BBSubTag } from '../language';
 import { SubTag, RawArguments } from './subtag';
+import { array } from '../util';
 
 export type Condition = (subtag: BBSubTag, rawArgs: RawArguments) => boolean | Promise<boolean>;
 export interface SubTagCondition extends Condition {
@@ -78,12 +79,7 @@ export function hasCount(count: string | number): SubTagCondition {
 }
 
 export function hasArgs(args: string[]) {
-    return satisfies(async (_, r) => {
-        if (!r) return false;
-        let cont = true;
-        for (const arg of args) {
-            if (!r[arg]) cont = false;
-        }
-        return cont;
+    return satisfies(async (_, rawArgs) => {
+        return array.all(args, arg => arg in rawArgs)
     });
 }
