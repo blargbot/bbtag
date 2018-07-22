@@ -1,6 +1,8 @@
 import { BBSubTag } from '../language';
+import { SubTag, RawArguments } from './subtag';
+import { array } from '../util';
 
-export type Condition = (subtag: BBSubTag) => boolean | Promise<boolean>;
+export type Condition = (subtag: BBSubTag, rawArgs: RawArguments) => boolean | Promise<boolean>;
 export interface SubTagCondition extends Condition {
     or(...conditions: Condition[]): SubTagCondition;
     and(...conditions: Condition[]): SubTagCondition;
@@ -19,21 +21,21 @@ export function satisfies(condition: Condition): SubTagCondition {
 }
 
 export function satisfiesAny(...conditions: Condition[]): SubTagCondition {
-    return satisfies(async function (subtag: BBSubTag) {
+    return satisfies(async function (subtag: BBSubTag, rawArgs: RawArguments) {
         for (const c of conditions)
-            if (await c(subtag))
+            if (await c(subtag, rawArgs))
                 return true;
         return false;
-    })
+    });
 }
 
 export function satisfiesAll(...conditions: Condition[]): SubTagCondition {
-    return satisfies(async function (subtag: BBSubTag) {
+    return satisfies(async function (subtag: BBSubTag, rawArgs: RawArguments) {
         for (const c of conditions)
-            if (!await c(subtag))
+            if (!await c(subtag, rawArgs))
                 return false;
         return true;
-    })
+    });
 }
 
 export function hasCounts(...count: Array<string | number>): SubTagCondition {
@@ -45,7 +47,7 @@ export function hasCount(count: string | number): SubTagCondition {
         return satisfies(s => s.args.length === count);
     let match: string[] | null = count.match(/^(\d+)$/);
     if (match) {
-        count = parseInt(match[1])
+        count = parseInt(match[1]);
         return satisfies(s => s.args.length === count);
     }
 
@@ -74,4 +76,10 @@ export function hasCount(count: string | number): SubTagCondition {
     }
 
     return satisfies(() => false);
+}
+
+export function hasArgs(args: string[]) {
+    return satisfies(async (_, rawArgs) => {
+        return array.all(args, arg => arg in rawArgs)
+    });
 }

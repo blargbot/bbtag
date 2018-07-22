@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { hasCount, hasCounts, BBSubTag } from '../dist';
+import { RawArguments } from '../dist/structures/subtag';
 
 function mockSubTagArgs(args: any[]): BBSubTag {
     return <BBSubTag><any>{ args };
@@ -14,7 +15,7 @@ describe('SubtagConditions', () => {
             for (const entry of cases) {
                 // act
                 let subtag = mockSubTagArgs(entry.args);
-                let result = await check(subtag);
+                let result = await check(subtag, {});
 
                 // assert
                 expect(result).to.be.equal(entry.expect);
@@ -120,7 +121,7 @@ describe('SubtagConditions', () => {
             for (const entry of cases) {
                 // act
                 let subtag = mockSubTagArgs(entry.args);
-                let result = await check(subtag);
+                let result = await check(subtag, {});
 
                 // assert
                 expect(result).to.be.equal(entry.expect);
