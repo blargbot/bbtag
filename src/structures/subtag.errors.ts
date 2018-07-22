@@ -12,7 +12,7 @@ export const system = {
     missingKeyValueKey() { return custom('BB-S-MK', `Missing key in key-value pair`); },
     unknownSubtag(name: string) { return custom('BB-S-US', `Unknown subtag '${name || '\u200b'}'`); },
     internalError() { return custom('BB-S-IS', `An internal server error has occurred`); }
-}
+};
 
 export const args = {
     notEnough(minimum: number) { return custom('BB-A-NE', `Not enough arguments. Minimum ${minimum}`); },
@@ -20,7 +20,7 @@ export const args = {
     outOfRange() { return custom('BB-A-OR', `Arguments out of range`); },
     nonNamed() { return custom('BB-A-NN', 'Named and positional arguments cannot be mixed'); },
     unknownNamed(name: string) { return custom('BB-A-UN', `Unknown named arg ${name}`); }
-}
+};
 
 export const value = {
     expected(expected: string[], actual: string[]) {
@@ -39,13 +39,13 @@ export const value = {
             smartJoin(values, ', ', ' and ')
             } ${
             (values.length != 1 ? 'are' : 'is')
-            } not a valid comparison operator`)
+            } not a valid comparison operator`);
     },
     notAMathOperator(values: string[]) {
         return custom('BB-V-CM', `${
             smartJoin(values, ', ', ' and ')
             } ${
             (values.length != 1 ? 'are' : 'is')
-            } not a valid math operator`)
+            } not a valid math operator`);
     }
-}
+};

@@ -4,12 +4,15 @@ import { Context, BBSubTag, parse, Engine, SubTag, errors } from '../../dist/ind
 import { MockDb } from '../mocks/mockDatabase';
 import { Echo } from '../mocks/subtags/echo';
 import { checkBackwardsCompat, checkArgRange, contexts, checkLoadOperators } from './util';
+import { Operator } from '../../dist/subtags/general/system/operator';
 
 export = function test() {
     let engine: Engine = new Engine({ database: new MockDb() });
     let subtag = new Bool(engine);
     let context = contexts.basic(engine);
     engine.register(Echo as typeof SubTag);
+    engine.register(Operator as typeof SubTag);
+    engine.subtags.add(subtag);
 
     afterEach(() => Echo.values.splice(0, Echo.values.length));
 
@@ -99,21 +102,33 @@ export = function test() {
         it(`should correctly handle the ${test.operator} operator`, async () => {
             for (const entry of test.cases) {
                 // arrange
-                let cases = [
-                    [entry.a, test.operator, entry.b]
-                ];
+                let scenario = [entry.a, test.operator, entry.b];
 
-                for (const scenario of cases) {
-                    let code = parse(`{System.bool;${scenario.join(';')}}`).parts[0] as BBSubTag;
-                    let context = new Context(engine);
+                let code = parse(`{System.bool;${scenario.join(';')}}`);
+                let context = new Context(engine);
 
-                    // act
-                    let result = await subtag.execute(code, context);
+                // act
+                let result = await engine.execute(code, context);
 
-                    // assert
-                    expect(result).to.equal(String(entry.e), `'${code.content}' should correctly execute`);
-                }
+
+                // assert
+                expect(result).to.equal(String(entry.e), `'${code.content}' should correctly execute`);
             }
-        })
+        });
+
+        it(`should correctly handle the ${test.operator} operator via operators`, async () => {
+            for (const entry of test.cases) {
+                // arrange
+                let code = parse(`{${test.operator};${entry.a};${entry.b}}`);
+                let context = new Context(engine);
+
+                // act
+                let result = await engine.execute(code, context);
+
+
+                // assert
+                expect(result).to.equal(String(entry.e), `'${code.content}' should correctly execute via operator`);
+            }
+        });
     }
-}
+};

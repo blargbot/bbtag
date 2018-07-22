@@ -39,4 +39,4 @@ export = function test() {
             expect(result).to.equal(test.expected);
         }
     });
-}
+};

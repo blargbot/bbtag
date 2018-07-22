@@ -14,7 +14,7 @@ export class BBString {
                 break;
             } else if (cursor.next == '}') {
                 break;
-            } else if (parent instanceof BBSubTag && cursor.next == '=' && parent.name === undefined) {
+            } else if (isNamedArg(cursor) && result.parent !== null && result.parent.name === undefined) {
                 break;
             } else if (cursor.next == ';' && result.parent !== null) {
                 break;
@@ -57,6 +57,31 @@ export class BBString {
     }
 }
 
+const namedAccept = /\w/;
+const namedReject = /\{|[^\w\s]/;
+
+function isNamedArg(cursor: Cursor): boolean {
+    if (cursor.next !== '=') {
+        return false;
+    }
+
+    let position = cursor.position;
+    let result = false;
+    do {
+        if (namedAccept.test(cursor.prev)) {
+            result = true;
+            break;
+        }
+        if (namedReject.test(cursor.prev)) {
+            break;
+        }
+    } while (cursor.moveBack());
+
+    cursor.position = position;
+
+    return result;
+}
+
 export class BBSubTag {
     public static parse(parent: BBString, cursor: Cursor): BBSubTag {
         let result = new BBSubTag(parent);
@@ -67,7 +92,7 @@ export class BBSubTag {
             result._parts.push(BBString.parse(result, cursor));
             if (cursor.next === '}')
                 break;
-            if (cursor.next === '=') {
+            if (isNamedArg(cursor)) {
                 result._named = true;
                 continue;
             }

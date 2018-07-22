@@ -57,7 +57,7 @@ export class Engine {
                     } else {
                         let subtag;
                         try {
-                            let name = part.resolvedName = part.resolvedName || await this.execute(part.name, context);
+                            let name = part.resolvedName = await this.execute(part.name, context);
                             if (context.state.return) break;
 
                             subtag = context.functions.get(name) || this.subtags.get(name);
