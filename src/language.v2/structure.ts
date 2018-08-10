@@ -19,6 +19,7 @@ export abstract class BBStructure {
         this.range = range;
     }
 
+    public abstract validate(): void;
 }
 
 export class BBString extends BBStructure {
@@ -27,6 +28,10 @@ export class BBString extends BBStructure {
     constructor(source: StringSource, range: Range, parts: Iterable<string | BBSubTag>) {
         super(source, range);
         this.parts = Enumerable.from(parts);
+    }
+
+    public validate() {
+
     }
 }
 
@@ -46,6 +51,10 @@ export class BBSubTag extends BBStructure {
             named: n
         };
     }
+
+    public validate() {
+
+    }
 }
 
 export class BBNamedArg extends BBStructure {
@@ -58,6 +67,9 @@ export class BBNamedArg extends BBStructure {
         let v = Enumerable.from(parts);
         this.name = checkName(v.first(), range);
         this.values = v.skip(1);
+    }
+
+    public validate() {
     }
 }
 

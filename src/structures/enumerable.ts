@@ -5,7 +5,7 @@ type predicate<T> = mapping<T, boolean>;
 type comparer<T> = (left: T, right: T) => number;
 type equality<T> = (left: T, right: T) => boolean | number;
 type EnumerableSource<T> = Iterable<T> | (() => Iterator<T>);
-type AsyncEnumerableSource<T> = AsyncIterable<T> | (() => AsyncIterator<T>);
+type typeGuard<T, R extends T> = (value: T, index: number) => value is R;
 
 const secret = {} as any;
 const iterableType = Symbol('IterableType');
@@ -59,6 +59,8 @@ export class Enumerable<T> implements Iterable<T> {
                 if (source.length === 0) return new Enumerable(source);
             case 'object':
                 if (source[iterableType] === Enumerable) return source;
+                if (source instanceof Array) return new ArrayEnumerable(source);
+                if (source instanceof Set) return new SetEnumerable(source);
                 if (Symbol.iterator in source) return new Enumerable(source);
                 if (source === null) return Enumerable.empty();
         }
@@ -122,6 +124,14 @@ export class Enumerable<T> implements Iterable<T> {
      * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
      * @param predicate The predicate to use
      */
+
+    public filter(predicate: predicate<T>): Enumerable<T>;
+    /**
+     * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
+     * @param predicate The predicate to use
+     */
+    public filter<R extends T>(predicate: typeGuard<T, R>): Enumerable<R>;
+    public filter(predicate: predicate<T>): Enumerable<T>;
     public filter(predicate: predicate<T>): Enumerable<T> { return filter(this, predicate); }
 
     /**
@@ -181,6 +191,8 @@ export class Enumerable<T> implements Iterable<T> {
      * All elements after this point are ignored
      * @param predicate The predicate to use
      */
+    public takeWhile(predicate: predicate<T>): Enumerable<T>;
+    public takeWhile<R extends T>(predicate: typeGuard<T, R>): Enumerable<R>;
     public takeWhile(predicate: predicate<T>): Enumerable<T> { return takeWhile(this, predicate); }
 
     /**
@@ -252,13 +264,23 @@ export class Enumerable<T> implements Iterable<T> {
      * This is a direct alias for the `filter` method
      * @param predicate The predicate to use
      */
+    public where(predicate: predicate<T>): Enumerable<T>;
+    public where<R extends T>(predicate: typeGuard<T, R>): Enumerable<R>;
     public where(predicate: predicate<T>): Enumerable<T> { return this.filter(predicate); }
+
+    /**
+     * `Deferred Method` Returns an Enumerable wrapping the generator you provided.
+     * @param generator The generator method to use
+     */
+    public generate<R>(generator: (this: this) => IterableIterator<R>): Enumerable<R> {
+        return new Enumerable(generator.bind(this));
+    }
 
     /**
      * `Immediate Method` Returns an Enumerable containing all the elements from `this`. This should be used if you want to create an evaluated
      * Enumerable from a `Deferred Method` call
      */
-    public exhaust(): Enumerable<T> { return new Enumerable([...this]); }
+    public exhaust(): Enumerable<T> { return new ArrayEnumerable([...this]); }
 
     /**
      * `Immediate Method` Returns an Array containing all the elements from `this` in order.
@@ -309,6 +331,11 @@ export class Enumerable<T> implements Iterable<T> {
      * @param predicate The predicate to use
      * @param defaultValue The value to return if nothing matches `predicate`
      */
+    public first(): T | undefined;
+    public first(predicate?: predicate<T>): T | undefined;
+    public first<R extends T>(predicate?: typeGuard<T, R>): R | undefined;
+    public first<R extends T>(predicate?: typeGuard<T, R>, defaultValue?: R): R | undefined;
+    public first(predicate?: predicate<T>, defaultValue?: T): T | undefined;
     public first(predicate?: predicate<T>, defaultValue?: T): T | undefined {
         for (const value of filter(this, predicate))
             return value;
@@ -321,6 +348,11 @@ export class Enumerable<T> implements Iterable<T> {
      * @param predicate The predicate to use
      * @param defaultValue The value to return if nothing matches `predicate`
      */
+    public last(): T | undefined;
+    public last(predicate?: predicate<T>): T | undefined;
+    public last<R extends T>(predicate?: typeGuard<T, R>): R | undefined;
+    public last<R extends T>(predicate?: typeGuard<T, R>, defaultValue?: R): R | undefined;
+    public last(predicate?: predicate<T>, defaultValue?: T): T | undefined;
     public last(predicate?: predicate<T>, defaultValue?: T): T | undefined {
         for (const value of filter(this, predicate))
             defaultValue = value;
@@ -343,6 +375,8 @@ export class Enumerable<T> implements Iterable<T> {
      * `Immediate Method` Returns `true` if all elements in `this` match the `predicate`. Otherwise `false`
      * @param predicate The predicate to use
      */
+    public all<R extends T>(predicate: typeGuard<T, R>): this is Enumerable<R>;
+    public all(predicate: predicate<T>): boolean;
     public all(predicate: predicate<T>): boolean { return this.first((v, i) => !predicate(v, i), secret) === secret; }
 
     /**
@@ -368,23 +402,85 @@ export class Enumerable<T> implements Iterable<T> {
     }
 
     /**
-     * Immediate Method` Returns the number of elements in `this` which match `predicate`. If `predicate` is not provided, return the total count.
+     * `Immediate Method` Returns the number of elements in `this` which match `predicate`. If `predicate` is not provided, return the total count.
      * @param predicate The predicate to use
      */
-    public count(predicate?: predicate<T>): number { return filter(this, predicate).reduce(p => p++, 0); }
+    public count(predicate?: predicate<T>): number { return filter(this, predicate).reduce(p => p + 1, 0); }
+}
+
+class ArrayEnumerable<T> extends Enumerable<T> {
+    private readonly source: T[];
+    constructor(source: T[]) {
+        super(source);
+        this.source = source;
+    }
+
+    public count(predicate?: predicate<T>) {
+        if (!predicate) this.source.length;
+        return super.count(predicate);
+    }
+
+    public last(predicate?: predicate<T>, defaultValue?: T) {
+        if (!predicate) return this.source[this.source.length - 1];
+        for (let i = this.source.length - 1; i >= 0; i--)
+            if (predicate(this.source[i], i))
+                return this.source[i];
+        return defaultValue;
+    }
+
+    public get(position: number) {
+        return this.source[position];
+    }
+
+    public join(separator?: string) {
+        return this.source.join(separator);
+    }
+
+    public toArray() {
+        return this.source;
+    }
+
+    public exhaust() {
+        return this;
+    }
+}
+
+class SetEnumerable<T> extends Enumerable<T> {
+    private readonly source: Set<T>;
+    constructor(source: Set<T>) {
+        super(source);
+        this.source = source;
+    }
+
+    public count(predicate?: predicate<T>) {
+        if (!predicate) this.source.size;
+        return super.count(predicate);
+    }
+
+    public distinct(comparer?: equality<T>): Enumerable<T> {
+        if (!comparer) return this;
+        return super.distinct(comparer);
+    }
+
+    public contains(value: T, compare?: equality<T>) {
+        if (!compare) return this.source.has(value);
+        return super.contains(value, compare);
+    }
+
+    public exhaust() {
+        return this;
+    }
 }
 
 /**
  * A wrapper class which contains a collection of elements and a key associated with those elements.
  */
-class Group<T, K> extends Enumerable<T> {
+class Group<T, K> extends ArrayEnumerable<T> {
     public readonly key: K;
 
-    constructor(source: EnumerableSource<T>, key: K) {
+    constructor(source: T[], key: K) {
         super(source);
         this.key = key;
-
-
     }
 }
 

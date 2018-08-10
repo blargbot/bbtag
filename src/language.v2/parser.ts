@@ -13,22 +13,44 @@ export function parse(content: string) {
         results.push(parseBBString(source, cursor));
     } while (cursor.moveNext());
 
-    return new BBString(source, source.range, Enumerable.concat(...results.map(v => v.parts)));
+    return new BBString(
+        source,
+        source.range,
+        Enumerable.from(results)
+            .mapMany(v => v.parts)
+            .generate(function* () {
+                let iterator = this[Symbol.iterator]();
+                let result = iterator.next();
+                while (!result.done) {
+                    let text = [];
+                    while (!result.done && typeof result.value === 'string') {
+                        text.push(result.value);
+                        result = iterator.next();
+                    }
+                    if (text.length > 0)
+                        yield text.join(';');
+                    if (!result.done)
+                        yield result.value;
+                }
+            })
+    );
 }
+
+
 
 function parseBBString(source: StringSource, cursor: Cursor): BBString {
     let parts: Array<string | BBSubTag> = [];
     let start, marker = start = cursor.location;
 
-    while (cursor.next !== ';') {
+    while (cursor.next !== ';' && cursor.next !== '}') {
         if (cursor.next === '{') {
             let text = source.get(new Range(marker, cursor.location));
             if (text) parts.push(text);
+            console.log(cursor.location, 'Begin read subtag');
             parts.push(parseBBSubTag(source, cursor));
+            console.log(cursor.location, 'Resule read bbstring');
             // cursor.prev === '}'
             marker = cursor.location;
-        } else if (cursor.next === '}') {
-            throw new ParseError(cursor.location, 'Unpaired \'}\'');
         } else if (!cursor.moveNext()) {
             break;
         }
