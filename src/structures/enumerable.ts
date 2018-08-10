@@ -9,14 +9,6 @@ type EnumerableSource<T> = Iterable<T> | (() => Iterator<T>);
 const secret = {} as any;
 const enumerable = Symbol('Enumerable');
 
-export class InvalidEnumerableSource extends Error {
-    public readonly source: any;
-    constructor(source: any) {
-        super('Invalid enumerable source');
-        this.source = source;
-    }
-}
-
 /**
  * A wrapper class for any iterable instance or generator function. This provides functions to allow efficent navigation through
  * iterable instances, ensuring the minimal number of iterations are performed by whatver utilises this class.
@@ -356,6 +348,14 @@ class Group<T, K> extends Enumerable<T> {
     constructor(source: EnumerableSource<T>, key: K) {
         super(source);
         this.key = key;
+    }
+}
+
+export class InvalidEnumerableSource extends Error {
+    public readonly source: any;
+    constructor(source: any) {
+        super('Invalid enumerable source');
+        this.source = source;
     }
 }
 
