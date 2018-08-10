@@ -8,7 +8,7 @@ type EnumerableSource<T> = Iterable<T> | (() => Iterator<T>);
 type AsyncEnumerableSource<T> = AsyncIterable<T> | (() => AsyncIterator<T>);
 
 const secret = {} as any;
-const enumerable = Symbol('Enumerable');
+const iterableType = Symbol('IterableType');
 
 /**
  * A wrapper class for any iterable instance or generator function. This provides functions to allow efficent navigation through
@@ -20,10 +20,35 @@ const enumerable = Symbol('Enumerable');
  */
 export class Enumerable<T> implements Iterable<T> {
     /**
-     * Attempts to produce an Enumerable<any> instance from the given `source`. Enumerables can be constructed from 
-     * numbers, booleans, strings, undefined, null, generator functions and iterables.
-     * @param source The instance to generate an Enumerable<any> instance from
+     * Attempts to produce an Enumerable<string> instance from the given `source`.
+     * @param source The string to generate from
      */
+    public static from(source: string): Enumerable<string>;
+    /**
+     * Attempts to produce an Enumerable<number> instance from the given `source`.
+     * @param source The number to generate from
+     */
+    public static from(source: number): Enumerable<number>;
+    /**
+     * Attempts to produce an Enumerable<boolean> instance from the given `source`.
+     * @param source The boolean to generate from
+     */
+    public static from(source: boolean): Enumerable<boolean>;
+    /**
+     * Attempts to produce an Enumerable<undefined> instance from the given `source`.
+     * @param source The undefined to generate from
+     */
+    public static from(source: undefined): Enumerable<undefined>;
+    /**
+     * Attempts to produce an Enumerable<null> instance from the given `source`.
+     * @param source The null to generate from
+     */
+    public static from(source: null): Enumerable<null>;
+    /**
+     * Attempts to produce an Enumerable<T> instance from the given `source`.
+     * @param source The Iterable<T> to generate from
+     */
+    public static from<T>(source: EnumerableSource<T>): Enumerable<T>;
     public static from(source: any): Enumerable<any> {
         switch (typeof source) {
             case 'number':
@@ -33,7 +58,7 @@ export class Enumerable<T> implements Iterable<T> {
             case 'function':
                 if (source.length === 0) return new Enumerable(source);
             case 'object':
-                if (source[enumerable] === true) return source;
+                if (source[iterableType] === Enumerable) return source;
                 if (Symbol.iterator in source) return new Enumerable(source);
                 if (source === null) return Enumerable.empty();
         }
@@ -61,6 +86,8 @@ export class Enumerable<T> implements Iterable<T> {
      */
     public static empty<T>(): Enumerable<T> { return empty; }
 
+    public static concat<T>(...sources: EnumerableSource<T>[]): Enumerable<T> { return concat(Enumerable.empty<T>(), ...sources); }
+
     /** Iterator */
     *[Symbol.iterator](): Iterator<T> { }
     /** IsConcatSpreadable */
@@ -68,7 +95,7 @@ export class Enumerable<T> implements Iterable<T> {
     /** ToStringTag */
     [Symbol.toStringTag]() { return 'Enumerable'; }
     /** Enumerable */
-    [enumerable] = Enumerable;
+    [iterableType] = Enumerable;
 
     /**
      * Constructs a new Enumerable<T> which wraps the given source. The source may be any Iterable<T> or a generator function
@@ -493,7 +520,7 @@ function union<T>(source: Enumerable<T>, other: EnumerableSource<T>, comparer?: 
 
 function intersect<T>(source: Enumerable<T>, other: EnumerableSource<T>, comparer?: equality<T>): Enumerable<T> {
     return new Enumerable(function* () {
-        let intersect = Enumerable.from(except).exhaust();
+        let intersect = Enumerable.from(other).exhaust();
         for (const value of source)
             if (intersect.contains(value, comparer))
                 yield value;
