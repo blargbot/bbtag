@@ -204,7 +204,7 @@ describe('Language', () => {
             // act && assert
             expect(language.parse.bind(null, input)).to.throw(language.ParseError, '[1:1]: Key-Values must have exactly 1 argument');
         });
-    })
+    });
 });
 
 interface bbarray extends Array<bbarray | string> { }

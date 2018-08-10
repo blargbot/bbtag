@@ -26,5 +26,5 @@ export = function test() {
                 echo: [],
                 errors: 1
             });
-    })
-}
+    });
+};

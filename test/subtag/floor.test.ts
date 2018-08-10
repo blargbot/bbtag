@@ -26,7 +26,7 @@ export = function test() {
             { input: '{Math.Floor;4.50}', expected: '4' },
             { input: '{Math.Floor;5.51}', expected: '5' },
             { input: '{Math.Floor;6.99}', expected: '6' },
-        ]
+        ];
 
         for (const test of cases) {
             let code = parse(test.input).parts[0] as BBSubTag;

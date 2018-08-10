@@ -80,6 +80,6 @@ export function hasCount(count: string | number): SubTagCondition {
 
 export function hasArgs(args: string[]) {
     return satisfies(async (_, rawArgs) => {
-        return array.all(args, arg => arg in rawArgs)
+        return array.all(args, arg => arg in rawArgs);
     });
 }

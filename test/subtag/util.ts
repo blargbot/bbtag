@@ -1,15 +1,15 @@
-import { SubTagError, parse, Context, Engine, SubTag, BBSubTag } from "../../dist";
-import { expect } from "chai";
-import { Echo } from "../mocks/subtags/echo";
-import { Operator } from "../../dist/subtags/general/system/operator";
-import { Bool } from "../../dist/subtags/general/system/bool";
-import { MockDb } from "../mocks/mockDatabase";
+import { SubTagError, parse, Context, Engine, SubTag, BBSubTag } from '../../dist';
+import { expect } from 'chai';
+import { Echo } from '../mocks/subtags/echo';
+import { Operator } from '../../dist/subtags/general/system/operator';
+import { Bool } from '../../dist/subtags/general/system/bool';
+import { MockDb } from '../mocks/mockDatabase';
 
 export type TestCase = { input: string[], expected: SubTagError | string, errors?: number, echo: string[] };
 
 export const contexts = {
     basic: (engine: Engine) => () => new Context(engine)
-}
+};
 
 export async function runTest(makeContext: () => Context, subtag: SubTag<any>, ...cases: TestCase[]) {
     for (const entry of cases) {
@@ -57,8 +57,8 @@ export function checkArgRange(makeContext: () => Context, subtag: SubTag<any>, m
                     expected: subtag.errors.args.notEnough(min),
                     echo: [],
                     errors: 1
-                })
-        })
+                });
+        });
     }
     if (max != null) {
         it(`should return too many args if given >${max} args`, async () => {
@@ -68,8 +68,8 @@ export function checkArgRange(makeContext: () => Context, subtag: SubTag<any>, m
                     expected: subtag.errors.args.tooMany(max),
                     echo: [],
                     errors: 1
-                })
-        })
+                });
+        });
     }
 }
 

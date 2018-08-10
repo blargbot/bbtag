@@ -36,14 +36,14 @@ export class VariableManager {
                 key,
                 value: await this._map[key]
             };
-        })
+        });
         let entries = await Promise.all(promises);
         let update = entries.filter(entry => entry.value.hasChanged).map(entry => {
             return {
                 name: entry.key,
                 value: entry.value.value
             };
-        })
+        });
 
         await this._engine.database.setVariable(this.context, ...update);
     }

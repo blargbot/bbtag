@@ -8,7 +8,7 @@ export class Join extends SystemSubTag {
     }
 
     async echo(subtag: BBSubTag, context: Context): Promise<string> {
-        let result = await this.parseArgs(subtag, context)
+        let result = await this.parseArgs(subtag, context);
         return result.join(', ');
     }
 }

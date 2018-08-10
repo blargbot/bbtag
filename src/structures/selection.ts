@@ -1,11 +1,11 @@
 export class Location {
     public static AreEqual(l1: Location, l2: Location) {
-        return l1.column == l2.column
-            && l1.line == l2.line;
+        return l1.column === l2.column
+            && l1.line === l2.line;
     }
 
-    public column: number;
-    public line: number;
+    public readonly column: number;
+    public readonly line: number;
 
     constructor(line: number, column: number) {
         this.line = line;
@@ -23,8 +23,8 @@ export class Range {
             && Location.AreEqual(r1.end, r2.end);
     }
 
-    public start: Location;
-    public end: Location;
+    public readonly start: Location;
+    public readonly end: Location;
 
     constructor(start: Location, end: Location) {
         this.start = start;

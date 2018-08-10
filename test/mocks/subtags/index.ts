@@ -9,4 +9,4 @@ export const subtags = [
     Echo,
     Func,
     ISE
-] as Array<typeof SubTag>
+] as Array<typeof SubTag>;

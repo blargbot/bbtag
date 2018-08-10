@@ -3,4 +3,4 @@ import { Floor } from './floor';
 
 export const subtags = [
     Floor
-] as Array<typeof SubTag>
+] as Array<typeof SubTag>;

@@ -14,12 +14,38 @@ function getName(part: BBString | BBSubTag): BBString {
     throw new InvalidName(part);
 }
 
-export class BBString {
+export abstract class BBStructure {
+    public readonly source: BBSource;
+    public readonly range: Range;
+    constructor(source: BBSource, range: Range) {
+        this.source = source;
+        this.range = range;
+    }
+}
+
+export class BBSource {
+    public readonly content: string;
+    private readonly lines: Enumerable<string>;
+
+    constructor(content: string) {
+        this.content = content;
+        this.lines = new Enumerable(content.split('\n'));
+    }
+
+    public get(range: Range): string {
+        let lines = this.lines.slice(range.start.line, range.end.line + 1).toArray();
+        lines[lines.length - 1] = lines[lines.length - 1].substring(0, range.end.column);
+        lines[0] = lines[0].substring(range.start.column);
+        return lines.join('\n');
+    }
+}
+
+export class BBString extends BBStructure {
     private readonly _parts: Array<string | BBSubTag> = [];
     public readonly parts = new Enumerable(this._parts);
 }
 
-export class BBSubTag {
+export class BBSubTag extends BBStructure {
     private readonly _parts: Array<BBString | BBSubTag> = [];
     private readonly _named: Array<BBNamedArg> = [];
 
@@ -31,7 +57,7 @@ export class BBSubTag {
     };
 }
 
-export class BBNamedArg {
+export class BBNamedArg extends BBStructure {
     private readonly _parts: Array<BBString | BBSubTag> = [];
 
     public get name() { return getName(this._parts[0]); }

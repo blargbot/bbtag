@@ -26,7 +26,7 @@ export class FuncHandler extends SystemSubTag {
             category: 'mockFunc'
         });
         this.code = code;
-        this.whenArgs(satisfies(() => true), this.run)
+        this.whenArgs(satisfies(() => true), this.run);
     }
 
     async run(subtag: BBSubTag, context: Context): Promise<string> {

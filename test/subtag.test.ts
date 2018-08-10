@@ -36,9 +36,9 @@
         for (const category in subtags) {
             describe(category, () => {
                 for (const subtag in subtags[category]) {
-                    describe(subtag, subtags[category][subtag])
+                    describe(subtag, subtags[category][subtag]);
                 }
-            })
+            });
         }
     });
 })();

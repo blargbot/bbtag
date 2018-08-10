@@ -53,7 +53,7 @@ export function deserialize(text: string): BBArray | undefined {
     if (typeof parsed !== 'object' || parsed === null)
         return undefined;
     if (Array.isArray(parsed))
-        return { v: parsed.map(stringify) }
+        return { v: parsed.map(stringify) };
     if (!Array.isArray(parsed.v) ||
         ['string', 'undefined', 'null'].indexOf(typeof parsed.n) == -1)
         return undefined;

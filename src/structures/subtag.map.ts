@@ -6,7 +6,7 @@ export class SubTagMap {
     private readonly _map: { [key: string]: SubTag<any> } = {};
     private readonly _whenAdded: Map<any, Array<(subtag: SubTag<any>) => void>> = new Map();
 
-    public get members(): ReadonlyArray<SubTag<any>> { return Array.from(this._members) };
+    public get members(): ReadonlyArray<SubTag<any>> { return Array.from(this._members); }
 
     private getNames(subtag: SubTag<any>): string[] {
         let result: string[] = [];

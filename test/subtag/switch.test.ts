@@ -42,7 +42,7 @@ export = function test() {
                 input: ['casemissing', 'case1', 'failure', 'case2', 'failure', 'success'],
                 expected: 'success',
                 echo: ['casemissing', 'case1', 'case2', 'success']
-            })
+            });
     });
 
     it('should support arrays as the case', async () => {
@@ -76,7 +76,7 @@ export = function test() {
                 input: ['casemissing', '["case1","case2"]', 'failure', 'case3', 'failure', 'success'],
                 expected: 'success',
                 echo: ['casemissing', '["case1","case2"]', 'case3', 'success']
-            })
+            });
     });
 
     it('should always pick the first match', async () => {
@@ -85,6 +85,6 @@ export = function test() {
                 input: ['case1', 'case1', 'success', 'case1', 'failure'],
                 expected: 'success',
                 echo: ['case1', 'case1', 'case1', 'success']
-            })
+            });
     });
-}
+};

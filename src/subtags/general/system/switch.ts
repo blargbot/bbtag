@@ -8,7 +8,7 @@ export class Switch extends SystemSubTag {
         });
 
         this.whenArgs(hasCount('<2'), this.errors.args.notEnough(2))
-            .whenArgs(hasCount('>=2'), this.run)
+            .whenArgs(hasCount('>=2'), this.run);
     }
 
     public async run(subtag: BBSubTag, context: Context): Promise<string | SubTagError> {

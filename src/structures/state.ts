@@ -5,4 +5,4 @@ export class StateManager {
     public return: number = 0;
 }
 
-export type TagError = { location: Location, code: string, message: string }
+export type TagError = { location: Location, code: string, message: string };

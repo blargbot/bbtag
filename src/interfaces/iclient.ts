@@ -93,23 +93,23 @@ export interface IEmbed {
     footer?: {
         text?: string;
         icon_url?: string;
-    },
+    };
     thumbnail?: {
         url?: string;
-    },
+    };
     image?: {
         url?: string;
-    },
+    };
     author?: {
         name?: string;
         url?: string;
         icon_url?: string;
-    },
+    };
     fields?: {
         name: string,
         value: string,
         inline?: boolean
-    }[]
+    }[];
 }
 
 export interface IEntity {

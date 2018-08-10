@@ -5,6 +5,7 @@ type predicate<T> = mapping<T, boolean>;
 type comparer<T> = (left: T, right: T) => number;
 type equality<T> = (left: T, right: T) => boolean | number;
 type EnumerableSource<T> = Iterable<T> | (() => Iterator<T>);
+type AsyncEnumerableSource<T> = AsyncIterable<T> | (() => AsyncIterator<T>);
 
 const secret = {} as any;
 const enumerable = Symbol('Enumerable');
@@ -67,7 +68,7 @@ export class Enumerable<T> implements Iterable<T> {
     /** ToStringTag */
     [Symbol.toStringTag]() { return 'Enumerable'; }
     /** Enumerable */
-    [enumerable] = true;
+    [enumerable] = Enumerable;
 
     /**
      * Constructs a new Enumerable<T> which wraps the given source. The source may be any Iterable<T> or a generator function
@@ -140,6 +141,13 @@ export class Enumerable<T> implements Iterable<T> {
      * @param count The number of elements to skip
      */
     public skip(count: number): Enumerable<T> { return skipWhile(this, (_, i) => i < count); }
+
+    /**
+     * `Deferred Method` Returns an Enumerable containing all elements between `start` and `end` from `this`
+     * @param start The element position to start at
+     * @param end The element position to end at
+     */
+    public slice(start: number, end: number): Enumerable<T> { return this.skip(start).take(end - start); }
 
     /**
      * `Deferred Method` Returns an Enumerable containing all the elements from `this`, until `predicate` returns false.
@@ -348,6 +356,8 @@ class Group<T, K> extends Enumerable<T> {
     constructor(source: EnumerableSource<T>, key: K) {
         super(source);
         this.key = key;
+
+
     }
 }
 

@@ -7,7 +7,7 @@
     };
     describe('Util', () => {
         for (const key in utils) {
-            describe(key, utils[key])
+            describe(key, utils[key]);
         }
     });
 })();
