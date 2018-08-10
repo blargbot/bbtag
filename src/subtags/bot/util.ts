@@ -1,2 +1,2 @@
 export * from '../util';
-export * from '../../structures/bot/index';
+export * from '../../structures/bot';

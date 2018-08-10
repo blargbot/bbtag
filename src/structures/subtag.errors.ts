@@ -1,5 +1,5 @@
 import { BBSubTag, BBString } from '../language';
-import { Context } from '../structures/context';
+import { Context } from './context';
 import { SubTagError } from './subtag';
 import { smartJoin } from '../util/generic';
 
