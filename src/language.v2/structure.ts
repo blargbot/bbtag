@@ -30,7 +30,10 @@ export abstract class BBStructure {
         this.range = range;
     }
 
-    public abstract validate(names: string[]): void;
+    public abstract validate(): Enumerable<ValidationError>;
+
+    /** Converts this into a minimal form. Useful for debugging. */
+    public abstract toBasic(): any;
 }
 
 export class BBString extends BBStructure {
@@ -41,14 +44,17 @@ export class BBString extends BBStructure {
         this.parts = Enumerable.from(parts);
     }
 
+    /** Converts this into a minimal form. Useful for debugging. */
     public toBasic(): basicString {
         return this.parts.map(part => {
             return typeof part === 'string' ? part : part.toBasic();
         }).toArray();
     }
 
-    public validate() {
-
+    public validate(): Enumerable<ValidationError> {
+        return this.parts
+            .filter<BBSubTag>(function (part): part is BBSubTag { return typeof part !== 'string'; })
+            .mapMany(part => part.validate());
     }
 }
 
@@ -69,6 +75,7 @@ export class BBSubTag extends BBStructure {
         };
     }
 
+    /** Converts this into a minimal form. Useful for debugging. */
     public toBasic(): basicSubTag {
         return {
             name: this.name.toBasic(),
@@ -77,8 +84,20 @@ export class BBSubTag extends BBStructure {
         };
     }
 
-    public validate() {
+    public validate(): Enumerable<ValidationError> {
+        let self = this;
+        return Enumerable.from(function* () {
+            if (self.name.content.startsWith('*'))
+                yield new ValidationError(self, 'The name of a SubTag must not start with a \'*\'');
 
+            if (!self.name.content)
+                yield new ValidationError(self, 'Unnamed SubTag');
+
+            yield* self.name.validate();
+
+            for (const arg of self.args.all)
+                yield* arg.validate();
+        });
     }
 }
 
@@ -94,6 +113,7 @@ export class BBNamedArg extends BBStructure {
         this.values = v.skip(1);
     }
 
+    /** Converts this into a minimal form. Useful for debugging. */
     public toBasic(): basicNamedArg {
         return {
             name: this.name.toBasic(),
@@ -101,12 +121,20 @@ export class BBNamedArg extends BBStructure {
         };
     }
 
-    public validate() {
-        if (!this.name.content.startsWith('*'))
-            throw new ValidationError(this, 'The name of a Named Argument must start with a \'*\'');
+    public validate(): Enumerable<ValidationError> {
+        let self = this;
+        return Enumerable.from(function* () {
+            if (!self.name.content.startsWith('*'))
+                yield new ValidationError(self, 'The name of a Named Argument must start with a \'*\'');
 
-        if (this.values.isEmpty())
-            throw new ValidationError(this, 'Named args must be given atleast 1 value');
+            if (self.values.isEmpty())
+                yield new ValidationError(self, 'Named args must be given atleast 1 value');
+
+            yield* self.name.validate();
+
+            for (const value of self.values)
+                yield* value.validate();
+        });
     }
 }
 
@@ -130,10 +158,11 @@ export class BBNameRequiredError extends BBNameError {
     }
 }
 
-export class ValidationError extends Error {
+export class ValidationError {
     public readonly structure: BBStructure;
+    public readonly message: string;
     constructor(structure: BBStructure, message: string) {
-        super(message);
+        this.message = message;
         this.structure = structure;
     }
 }

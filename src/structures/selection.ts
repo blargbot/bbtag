@@ -15,6 +15,13 @@ export class Location {
     public Equals(other: Location) {
         return Location.AreEqual(this, other);
     }
+
+    public toString(braces: boolean = false) {
+        let result = `${this.column},${this.line}`;
+        if (braces)
+            return `[${result}]`;
+        return result;
+    }
 }
 
 export class Range {
@@ -33,5 +40,12 @@ export class Range {
 
     public Equals(other: Range) {
         return Range.AreEqual(this, other);
+    }
+
+    public toString(braces: boolean = false) {
+        let result = `${this.start}-${this.end}`;
+        if (braces)
+            return `[${result}]`;
+        return result;
     }
 }

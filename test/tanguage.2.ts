@@ -15,6 +15,7 @@ type bbNamedArg = {
 type testCase = {
     input: string;
     output: bbString | string;
+    invalid?: boolean;
 };
 type testCollection = {
     description: string;
@@ -39,11 +40,15 @@ function checkBBSubTag(actual: language.BBSubTag, expected: bbSubTag, parent: st
         expect(actual.args.positional.count(), parent + '\n\t.args.positional.count()').to.equal(expected.positional.length);
         for (let i = 0; i < expected.positional.length; i++)
             checkBBSubTagOrBBString(actual.args.positional.get(i)!, expected.positional[i], parent + `\n\t.args.positional.get(${i})`);
+    } else {
+        expect(actual.args.positional.isEmpty(), '\n\t.args.positional to be empty').to.be.true;
     }
     if (expected.named) {
         expect(actual.args.named.count(), parent + '\n\t.args.named.count()').to.equal(expected.named.length);
         for (let i = 0; i < expected.named.length; i++)
             checkBBNamedArg(actual.args.named.get(i)!, expected.named[i], parent + `\n\t.args.named.get(${i})`);
+    } else {
+        expect(actual.args.named.isEmpty(), '\n\t.args.named to be empty').to.be.true;
     }
 }
 
@@ -66,7 +71,7 @@ describe('Language.2', () => {
     describe('#parse(string)', () => {
         let testCases: Array<testCollection> = [
             {
-                description: 'should successfully parse a string without subtags',
+                description: 'should correctly parse a string without subtags',
                 cases: [
                     // successes
                     { input: '', output: [] },
@@ -81,12 +86,13 @@ describe('Language.2', () => {
                 ]
             },
             {
-                description: 'should successfully parse a string with non-nested subtags',
+                description: 'should correctly parse a string with non-nested subtags',
                 cases: [
                     // successes
                     {
-                        input: '{}',
-                        output: [{ name: [] }]
+                        input: '{  }',
+                        output: [{ name: [] }],
+                        invalid: true
                     }, {
                         input: 'Hello, { this } is a test',
                         output: ['Hello, ', { name: ['this'] }, ' is a test']
@@ -101,7 +107,11 @@ describe('Language.2', () => {
                         output: [{ name: ['hello'], positional: [['this']], named: [{ name: ['*is'], values: [['a test']] }] }]
                     }, {
                         input: '{*hello;this;{*is;a test}}',
-                        output: [{ name: ['*hello'], positional: [['this']], named: [{ name: ['*is'], values: [['a test']] }] }]
+                        output: [{ name: ['*hello'], positional: [['this']], named: [{ name: ['*is'], values: [['a test']] }] }],
+                        invalid: true
+                    }, {
+                        input: '{hello;{*this is;a test}}',
+                        output: [{ name: ['hello'], named: [{ name: ['*this is'], values: [['a test']] }] }]
                     }, {
                         input: '{hello;matey;this;{*is;a test}{*with;multiple};{*named;args;woah}}',
                         output: [{
@@ -118,14 +128,48 @@ describe('Language.2', () => {
                     {
                         input: '{hello;{*there;!};General kenobi!}',
                         output: '[1:19] Named args cannot be followed by positional args'
-                    },
-                    {
+                    }, {
                         input: '{hello;{*there;!};{*General;{*kenobi}}}',
                         output: '[1:29] Named args cannot contain named args'
-                    },
-                    {
+                    }, {
                         input: '{hello;{*there;!} general kenobi}',
                         output: '[1:8] Cannot mix named args and text'
+                    }, {
+                        input: 'Hello, this {is}} a test',
+                        output: '[1:17] Unpaired \'}\''
+                    }, {
+                        input: 'Hello, this is a {test}}',
+                        output: '[1:24] Unpaired \'}\''
+                    }, {
+                        input: 'Hello, {{this} is a test',
+                        output: '[1:8] Unpaired \'{\''
+                    }, {
+                        input: '{{Hello}, this is a test',
+                        output: '[1:1] Unpaired \'{\''
+                    }
+                ]
+            },
+            {
+                description: 'should correctly parse a string with nested subtags',
+                cases: [
+                    {
+                        input: 'Hello {{there}} general kenobi! ',
+                        output: ['Hello ', { name: { name: ['there'] } }, ' general kenobi!']
+                    }, {
+                        input: 'Hello { there {general} kenobi ;!} ',
+                        output: ['Hello ', { name: ['there ', { name: ['general'] }, ' kenobi'], positional: [['!']] }]
+                    }, {
+                        input: 'Hello {there;{general;{*kenobi;}}}! ',
+                        output: ['Hello ', {
+                            name: ['there'],
+                            positional: [
+                                {
+                                    name: ['general'],
+                                    named: [
+                                        { name: ['*kenobi'], values: [[]] }
+                                    ]
+                                }]
+                        }, '!']
                     }
                 ]
             }
@@ -150,6 +194,13 @@ describe('Language.2', () => {
 
                         // assert
                         checkBBString(result, expected, `language.parse('${input}')`);
+                        if (!entry.invalid) {
+                            expect(result.validate().isEmpty())
+                                .to.equal(true, `language.parse('${input}').validate() should be empty, but gave ${
+                                    result.validate().map(v => `'[${v.structure.range.start}] ${v.message}'`).join(', ')
+                                    }`
+                                );
+                        }
                     }
                 }
             });
