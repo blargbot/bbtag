@@ -524,8 +524,7 @@ function map<T, R>(source: Enumerable<T>, mapping: mapping<T, R>): Enumerable<R>
 function mapMany<T, R>(source: Enumerable<T>, mapping: mapping<T, Iterable<R>>): Enumerable<R> {
     return new Enumerable(function* () {
         for (const iterable of source.map(mapping))
-            for (const value of iterable)
-                yield value;
+            yield* iterable;
     });
 }
 
@@ -564,15 +563,10 @@ function takeWhile<T>(source: Enumerable<T>, predicate: predicate<T>): Enumerabl
 }
 
 function distinct<T>(source: Enumerable<T>, comparer?: equality<T>): Enumerable<T> {
-    let comp = comparer || ((left, right) => left === right);
-    let search = (left: T, set: Enumerable<T>) => set.any(right => !comp(left, right));
-
     return new Enumerable(function* () {
         let values = source.exhaust();
         let i = 0;
-        for (const value of values)
-            if (!search(value, values.take(i++)))
-                yield value;
+        yield* values.filter(value => !values.take(i++).contains(value, comparer));
     });
 }
 
@@ -584,8 +578,7 @@ function sort<T, K>(source: Enumerable<T>, comparer?: comparer<K>, keyMap?: keyS
     let sorter = (left: T, right: T) => mult * comp(keyOf(left), keyOf(right));
 
     return new Enumerable(function* () {
-        for (const value of source.toArray().sort(sorter))
-            yield value;
+        yield* source.toArray().sort(sorter);
     });
 }
 
@@ -599,23 +592,16 @@ function reverse<T>(source: Enumerable<T>): Enumerable<T> {
 
 function concat<T, R>(source: EnumerableSource<T>, ...sources: EnumerableSource<R>[]): Enumerable<T | R> {
     return new Enumerable(function* () {
-        for (const value of Enumerable.from(source) as Enumerable<T>)
-            yield value;
+        yield* Enumerable.from(source);
         for (const source of sources)
-            for (const value of Enumerable.from(source) as Enumerable<R>)
-                yield value;
+            yield* Enumerable.from(source);
     });
 }
 
 function except<T>(source: Enumerable<T>, except: EnumerableSource<T>, comparer?: equality<T>): Enumerable<T> {
-    let comp = comparer || ((left, right) => left === right);
-
     return new Enumerable(function* () {
         let exclude = Enumerable.from(except).exhaust();
-
-        for (const value of source)
-            if (!exclude.contains(value, comp))
-                yield value;
+        yield* source.filter(value => !exclude.contains(value, comparer));
     });
 }
 
@@ -626,8 +612,6 @@ function union<T>(source: Enumerable<T>, other: EnumerableSource<T>, comparer?: 
 function intersect<T>(source: Enumerable<T>, other: EnumerableSource<T>, comparer?: equality<T>): Enumerable<T> {
     return new Enumerable(function* () {
         let intersect = Enumerable.from(other).exhaust();
-        for (const value of source)
-            if (intersect.contains(value, comparer))
-                yield value;
+        yield* source.filter(value => intersect.contains(value, comparer));
     });
 }
