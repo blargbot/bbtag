@@ -14,7 +14,7 @@ export class BBError {
     }
 
     toString() {
-        return `\`[${this.code.padEnd(10, ' ')}]: ${this.message}\``;
+        return `\`[${this.code.padEnd(10, ' ')}] ${this.message}\``;
     }
 }
 

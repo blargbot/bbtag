@@ -4,61 +4,94 @@ import { BBString, BBSubTag, BBNamedArg, BBStructure } from './structure';
 import { Range, Location } from '../structures/selection';
 import { Enumerable } from '../structures/enumerable';
 
+function trimParts(parts: Array<string | BBSubTag>) {
+    let part = parts[0];
+    if (typeof part === 'string') {
+        parts[0] = part.replace(/^\s+/, '');
+        if (!parts[0])
+            parts.shift();
+    }
+
+    part = parts[parts.length - 1];
+    if (typeof part === 'string') {
+        parts[parts.length - 1] = part.replace(/\s+$/, '');
+        if (!parts[parts.length - 1])
+            parts.pop();
+    }
+}
+
+function* joinNeighbouringStrings(this: Enumerable<string | BBSubTag>) {
+    let text = [];
+    for (const value of this) {
+        if (typeof value === 'string') {
+            text.push(value);
+        } else {
+            if (text.length > 0) {
+                yield text.join(';');
+                text = [];
+            }
+            yield value;
+        }
+    }
+    if (text.length > 0)
+        yield text.join(';');
+}
+
 export function parse(content: string) {
     let source = new StringSource(content);
     let cursor = new Cursor(content);
     let results: BBString[] = [];
 
+    // parseBBString stops when cursor.next == ';' or '}'
+    // At the top level (here) we want to keep parsing after any ';' that are not inside a subtag.
+
     do {
-        results.push(parseBBString(source, cursor));
+        results.push(parseBBString(source, cursor, true));
+
+        if (cursor.next === '}')
+            // A '}' at the top level means that there is an unpaired '}'
+            throw new ParseError(cursor.location, 'Unpaired \'}\'');
     } while (cursor.moveNext());
 
-    return new BBString(
-        source,
-        source.range,
-        Enumerable.from(results)
-            .mapMany(v => v.parts)
-            .generate(function* () {
-                let iterator = this[Symbol.iterator]();
-                let result = iterator.next();
-                while (!result.done) {
-                    let text = [];
-                    while (!result.done && typeof result.value === 'string') {
-                        text.push(result.value);
-                        result = iterator.next();
-                    }
-                    if (text.length > 0)
-                        yield text.join(';');
-                    if (!result.done)
-                        yield result.value;
-                }
-            })
-    );
+    let parts = Enumerable.from(results).mapMany(bb => bb.parts);
+    if (results.length > 1)
+        // If there are multiple BBStrings (i.e. there were top level ';'s present) then we need to
+        // join together any neighbouring strings using ';' as the separator.
+        // e.g. ['hi!', ' this is ', 'a test'] => ['hi!; this is ;a test']
+        parts = parts.generate(joinNeighbouringStrings);
+
+
+    // Now that we have our joined up bbstring parts, we can trim the start and end, then create a new bbstring instance
+    let asArray = parts.toArray();
+    trimParts(asArray);
+
+    return new BBString(source, source.range, asArray);
 }
 
-
-
-function parseBBString(source: StringSource, cursor: Cursor): BBString {
+function parseBBString(source: StringSource, cursor: Cursor, dontTrim?: boolean): BBString {
     let parts: Array<string | BBSubTag> = [];
     let start, marker = start = cursor.location;
 
+    // BBStrings contain text up until a ';' or '}'
     while (cursor.next !== ';' && cursor.next !== '}') {
         if (cursor.next === '{') {
+            // Push the text since the marker onto the parts array, then begin subtag parsing.
+            // Once subtag parsing is done, reset the marker
             let text = source.get(new Range(marker, cursor.location));
             if (text) parts.push(text);
-            console.log(cursor.location, 'Begin read subtag');
             parts.push(parseBBSubTag(source, cursor));
-            console.log(cursor.location, 'Resule read bbstring');
-            // cursor.prev === '}'
             marker = cursor.location;
         } else if (!cursor.moveNext()) {
             break;
         }
     }
 
+    // Push any remaining text onto the parts array
     let end = cursor.location;
     let text = source.get(new Range(marker, end));
     if (text) parts.push(text);
+
+    if (!dontTrim) trimParts(parts);
 
     return new BBString(source, new Range(start, end), parts);
 }
@@ -129,7 +162,7 @@ function parseSubtagArg(source: StringSource, cursor: Cursor): BBString | BBSubT
 export class ParseError extends Error {
     public readonly location: Location;
     constructor(location: Location, message: string) {
-        super(`[${location.line + 1}:${location.column + 1}]: ${message}`);
+        super(`[${location.line + 1}:${location.column + 1}] ${message}`);
         this.location = location;
     }
 }

@@ -90,15 +90,6 @@ export class Enumerable<T> implements Iterable<T> {
 
     public static concat<T>(...sources: EnumerableSource<T>[]): Enumerable<T> { return concat(Enumerable.empty<T>(), ...sources); }
 
-    /** Iterator */
-    *[Symbol.iterator](): Iterator<T> { }
-    /** IsConcatSpreadable */
-    [Symbol.isConcatSpreadable] = true;
-    /** ToStringTag */
-    [Symbol.toStringTag]() { return 'Enumerable'; }
-    /** Enumerable */
-    [iterableType] = Enumerable;
-
     /**
      * Constructs a new Enumerable<T> which wraps the given source. The source may be any Iterable<T> or a generator function
      * @param source The underlying source to wrap
@@ -406,6 +397,16 @@ export class Enumerable<T> implements Iterable<T> {
      * @param predicate The predicate to use
      */
     public count(predicate?: predicate<T>): number { return filter(this, predicate).reduce(p => p + 1, 0); }
+
+
+    /** Iterator */
+    *[Symbol.iterator](): Iterator<T> { }
+    /** IsConcatSpreadable */
+    [Symbol.isConcatSpreadable] = true;
+    /** ToStringTag */
+    [Symbol.toStringTag]() { return 'Enumerable'; }
+    /** Enumerable */
+    [iterableType] = Enumerable;
 }
 
 class ArrayEnumerable<T> extends Enumerable<T> {

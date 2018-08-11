@@ -1,2 +1,2 @@
 export * from './structure';
-export { parse } from './parser';
+export * from './parser';

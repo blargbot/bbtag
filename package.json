@@ -17,8 +17,8 @@
         "moment-timezone": "^0.5.20"
     },
     "devDependencies": {
-        "@types/chai": "^4.1.4",
-        "@types/mocha": "^5.2.2",
+        "@types/chai": "^4.1.2",
+        "@types/mocha": "^5.2.0",
         "@types/moment-timezone": "^0.5.4",
         "chai": "^4.1.2",
         "mocha": "^5.2.0",
