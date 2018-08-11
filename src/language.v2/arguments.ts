@@ -11,7 +11,7 @@ export class ArgumentManager {
     public readonly subtag: BBSubTag;
     public readonly context: Context;
 
-    public readonly ready: Promise<void> & { done: boolean };
+    public readonly ready: Promise<void>;
 
     constructor(engine: Engine, converter: Converter, definition: ArgumentDefinition[], subtag: BBSubTag, context: Context) {
         this.engine = engine;
@@ -20,10 +20,8 @@ export class ArgumentManager {
         this.context = context;
 
         this.ready = new Promise((resolve, reject) => {
-            throw new Error('Not Implemented');
-
-            this.ready.done = true;
-        }) as any;
+            reject(new Error('Not Implemented'));
+        });
     }
 
     public async getArg(name: string, position?: number): Promise<BBString | BBSubTag> {
@@ -41,8 +39,7 @@ export class ArgumentManager {
      * @param position The position of the argument to retrieve if by name fails
      */
     public async getArgs(name: string, position?: number): Promise<Array<BBString | BBSubTag>> {
-        if (!this.ready.done)
-            await this.ready;
+        await this.ready;
         throw new Error('Not Implemented');
     }
 
