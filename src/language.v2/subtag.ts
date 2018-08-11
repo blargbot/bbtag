@@ -1,8 +1,8 @@
 import { BBSubTag, BBString, BBStructure } from './structure';
 import { Engine } from './engine';
-import { ArgumentError } from './errors';
-import { ArgumentMap, Converter } from './dataTypes';
+import { Converter } from './converter';
 import { Context } from './context';
+import { ArgumentManager, ArgumentDefinition } from './arguments';
 
 export abstract class SubTag {
     private readonly engine: Engine;
@@ -15,23 +15,7 @@ export abstract class SubTag {
     }
 
     public async execute(subtag: BBSubTag, context: Context): Promise<any> {
-        let args = await this.mapArgs(subtag, context);
-        if ('message' in args)
-            return args;
-    }
+        let args = new ArgumentManager(this.engine, this.converter, this.arguments, subtag, context);
 
-    private async mapArgs(subtag: BBSubTag, context: Context): Promise<ArgumentMap | ArgumentError> {
-        throw new Error('Not implemented');
     }
 }
-
-export type ArgumentDefinition = {
-    name: string;
-    aliases?: string[];
-    type: string;
-    desc: string;
-    optional?: boolean;
-    repeated?: boolean;
-    conditional?: string;
-    priority?: boolean;
-};

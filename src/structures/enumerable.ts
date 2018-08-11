@@ -398,6 +398,14 @@ export class Enumerable<T> implements Iterable<T> {
      */
     public count(predicate?: predicate<T>): number { return filter(this, predicate).reduce(p => p + 1, 0); }
 
+    public isEmpty(): boolean { return !this.any(_ => true); }
+
+    /**
+     * `Deferred Method` Returns `this` but with the type of `Enumerable<R>`. This does not actually do anything data wise, it is
+     * purely a typescript type checking rule.
+     */
+    public cast<R>(): Enumerable<R> { return this as any; }
+
 
     /** Iterator */
     *[Symbol.iterator](): Iterator<T> { }

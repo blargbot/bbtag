@@ -5,7 +5,8 @@
     "main": "./dist/index.js",
     "scripts": {
         "build": "cd ./src && tsc -w",
-        "test": "cd ./src && tsc && cd ../test && tsc && cd .. && mocha --reporter spec"
+        "test": "cd ./src && tsc && cd ../test && tsc && cd .. && mocha --reporter spec",
+        "clean:js": "del-cli src/**/*.js"
     },
     "repository": {
         "type": "git",
@@ -21,6 +22,7 @@
         "@types/mocha": "^5.2.0",
         "@types/moment-timezone": "^0.5.4",
         "chai": "^4.1.2",
+        "del-cli": "^1.1.0",
         "mocha": "^5.2.0",
         "tslint": "^5.11.0",
         "typescript": "^2.9.2"

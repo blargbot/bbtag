@@ -8,6 +8,17 @@ type BBSubtagArgs = {
     readonly named: Enumerable<BBNamedArg>
 };
 
+type basicString = Array<string | basicSubTag>;
+type basicSubTag = {
+    name: basicString | basicSubTag,
+    positional: Array<basicString | basicSubTag>
+    named: Array<basicNamedArg>
+};
+type basicNamedArg = {
+    name: basicString | basicSubTag,
+    values: Array<basicString | basicSubTag>
+};
+
 export abstract class BBStructure {
     public readonly source: StringSource;
     public readonly range: Range;
@@ -19,7 +30,7 @@ export abstract class BBStructure {
         this.range = range;
     }
 
-    public abstract validate(): void;
+    public abstract validate(names: string[]): void;
 }
 
 export class BBString extends BBStructure {
@@ -28,6 +39,12 @@ export class BBString extends BBStructure {
     constructor(source: StringSource, range: Range, parts: Iterable<string | BBSubTag>) {
         super(source, range);
         this.parts = Enumerable.from(parts);
+    }
+
+    public toBasic(): basicString {
+        return this.parts.map(part => {
+            return typeof part === 'string' ? part : part.toBasic();
+        }).toArray();
     }
 
     public validate() {
@@ -52,6 +69,14 @@ export class BBSubTag extends BBStructure {
         };
     }
 
+    public toBasic(): basicSubTag {
+        return {
+            name: this.name.toBasic(),
+            positional: this.args.positional.map(arg => arg.toBasic()).toArray(),
+            named: this.args.named.map(arg => arg.toBasic()).toArray()
+        };
+    }
+
     public validate() {
 
     }
@@ -69,7 +94,19 @@ export class BBNamedArg extends BBStructure {
         this.values = v.skip(1);
     }
 
+    public toBasic(): basicNamedArg {
+        return {
+            name: this.name.toBasic(),
+            values: this.values.map(value => value.toBasic()).toArray()
+        };
+    }
+
     public validate() {
+        if (!this.name.content.startsWith('*'))
+            throw new ValidationError(this, 'The name of a Named Argument must start with a \'*\'');
+
+        if (this.values.isEmpty())
+            throw new ValidationError(this, 'Named args must be given atleast 1 value');
     }
 }
 
@@ -90,5 +127,13 @@ export class BBNameError extends Error {
 export class BBNameRequiredError extends BBNameError {
     constructor(range: Range) {
         super('Names are not optional', range);
+    }
+}
+
+export class ValidationError extends Error {
+    public readonly structure: BBStructure;
+    constructor(structure: BBStructure, message: string) {
+        super(message);
+        this.structure = structure;
     }
 }

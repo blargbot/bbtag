@@ -8,25 +8,26 @@ function trimParts(parts: Array<string | BBSubTag>) {
     let part = parts[0];
     if (typeof part === 'string') {
         parts[0] = part.replace(/^\s+/, '');
-        if (!parts[0])
+        if (!parts[0]) // Dont want empty elements in the resulting BBString
             parts.shift();
     }
 
     part = parts[parts.length - 1];
     if (typeof part === 'string') {
         parts[parts.length - 1] = part.replace(/\s+$/, '');
-        if (!parts[parts.length - 1])
+        if (!parts[parts.length - 1]) // Dont want empty elements in the resulting BBString
             parts.pop();
     }
 }
 
 function* joinNeighbouringStrings(this: Enumerable<string | BBSubTag>) {
-    let text = [];
+    let text = []; // To keep track of any chain of strings
     for (const value of this) {
         if (typeof value === 'string') {
-            text.push(value);
+            text.push(value); // Add to the string chain
         } else {
             if (text.length > 0) {
+                // Any string chain must be joined, yielded and reset before yielding the current non-string part
                 yield text.join(';');
                 text = [];
             }
@@ -34,6 +35,7 @@ function* joinNeighbouringStrings(this: Enumerable<string | BBSubTag>) {
         }
     }
     if (text.length > 0)
+        // Ensure that no text is left over at the end
         yield text.join(';');
 }
 
@@ -102,19 +104,25 @@ function parseBBSubTag(source: StringSource, cursor: Cursor): BBSubTag {
     let moved = false;
     let start = cursor.location;
 
+    // BBSubTags contains text up to and including a '}'
     while ((moved = cursor.moveNext()) && cursor.prev !== '}') {
+        // Until the next block is parsed we cant really know what kind of value the result will be.
+        // Perform a generic parse and then change the action based on the value
         let arg = parseSubtagArg(source, cursor);
         if ('length' in arg) {
-            named = arg;
+            // NamedArgs are the only structure that can be multiple in 1 argument
+            named.push(...arg);
         } else {
-            if (named.length > 0) {
+            if (named.length > 0)
+                // Once a named arg has been found, only named args may follow it
                 throw new ParseError(arg.range.start, 'Named args cannot be followed by positional args');
-            }
             args.push(arg);
         }
     }
 
-    if (!moved) throw new ParseError(start, 'Unpaired \'{\'');
+    if (!moved)
+        // We hit the end of the text before finding a closing '}'
+        throw new ParseError(start, 'Unpaired \'{\'');
 
     let end = cursor.location;
 
@@ -122,41 +130,46 @@ function parseBBSubTag(source: StringSource, cursor: Cursor): BBSubTag {
 }
 
 function parseSubtagArg(source: StringSource, cursor: Cursor): BBString | BBSubTag | BBNamedArg[] {
+    // Parse as a BBString initially
+    // BBSubTags can be extracted from a BBString
+    // BBNamedArgs are created from BBSubTags
     let parsed = parseBBString(source, cursor);
-    let hasText = false, hasNamed = false, hasSubtag = false;
+
+    // Variables to keep track of what kinds of values we have seen so far in the BBString.parts
+    let hasText = false, hasNamed = false, subtags: BBSubTag[] = [];
     for (const part of parsed.parts) {
         if (typeof part === 'string') {
-            if (part.trim()) {
+            if (part.trim())
+                // Blank strings dont count as text for these purposes    
                 hasText = true;
-            }
         } else {
-            if (part.content.startsWith('*')) {
-                if (part.args.named.any(_ => true)) {
+            if (part.name.content.startsWith('*')) {
+                // Subtag is styled like a BBNamedArg. Check it is valid
+                if (!part.args.named.isEmpty())
                     throw new ParseError(part.args.named.first()!.range.start, 'Named args cannot contain named args');
-                }
                 hasNamed = true;
             } else {
-                hasSubtag = true;
+                subtags.push(part);
             }
         }
 
         if (hasNamed && hasText) throw new ParseError(parsed.range.start, 'Cannot mix named args and text');
-        if (hasNamed && hasSubtag) throw new ParseError(parsed.range.start, 'Cannot mix named args and subtags');
+        if (hasNamed && subtags.length > 0) throw new ParseError(parsed.range.start, 'Cannot mix named args and subtags');
     }
 
     if (hasNamed)
-        return parsed.parts.map(
-            part => new BBNamedArg(
-                source,
-                (<BBSubTag>part).range,
-                (<BBSubTag>part).args.positional
-            )
+        return parsed.parts.cast<BBSubTag>().map(
+            part => new BBNamedArg(source, part.range, part.args.positional.prepend(part.name))
         ).toArray();
 
-    if (hasText || !hasSubtag || parsed.parts.count() !== 1)
+    if (hasText || subtags.length !== 1)
+        // If there is non-blank text or multiple subtags then during execution they will be converted to strings and
+        // joined together, losing their references. Because no optimisations can be made, just return the BBString as is
         return parsed;
 
-    return <any>parsed.parts.first();
+    // The subtag arg consisted of exactly 1 part which was not an empty string.
+    // This must be a BBSubTag, which means references can be preserved up the call stack.
+    return subtags[0];
 }
 
 export class ParseError extends Error {
