@@ -7,9 +7,6 @@ type equality<T> = (left: T, right: T) => boolean | number;
 type EnumerableSource<T> = Iterable<T> | (() => Iterator<T>);
 type typeGuard<T, R extends T> = (value: T, index: number) => value is R;
 
-const secret = {} as any;
-const iterableType = Symbol('IterableType');
-
 /**
  * A wrapper class for any iterable instance or generator function. This provides functions to allow efficent navigation through
  * iterable instances, ensuring the minimal number of iterations are performed by whatver utilises this class.
@@ -58,7 +55,7 @@ export class Enumerable<T> implements Iterable<T> {
             case 'function':
                 if (source.length === 0) return new Enumerable(source);
             case 'object':
-                if (source[iterableType] === Enumerable) return source;
+                if (source instanceof Enumerable) return source;
                 if (source instanceof Array) return new ArrayEnumerable(source);
                 if (source instanceof Set) return new SetEnumerable(source);
                 if (Symbol.iterator in source) return new Enumerable(source);
@@ -88,6 +85,10 @@ export class Enumerable<T> implements Iterable<T> {
      */
     public static empty<T>(): Enumerable<T> { return empty; }
 
+    /**
+     * Produces an Enumerable consisting of every value contained within `sources`
+     * @param sources The Iterables to concatenate
+     */
     public static concat<T>(...sources: EnumerableSource<T>[]): Enumerable<T> { return concat(Enumerable.empty<T>(), ...sources); }
 
     /**
@@ -115,14 +116,21 @@ export class Enumerable<T> implements Iterable<T> {
      * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
      * @param predicate The predicate to use
      */
-
     public filter(predicate: predicate<T>): Enumerable<T>;
+
     /**
      * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
      * @param predicate The predicate to use
      */
     public filter<R extends T>(predicate: typeGuard<T, R>): Enumerable<R>;
+
+    /**
+     * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
+     * @param predicate The predicate to use
+     */
     public filter(predicate: predicate<T>): Enumerable<T>;
+
+    /* implementation */
     public filter(predicate: predicate<T>): Enumerable<T> { return filter(this, predicate); }
 
     /**
@@ -156,7 +164,10 @@ export class Enumerable<T> implements Iterable<T> {
      * `Deferred Method` Returns an Enumerable<Group> where each Group contains all elements from `this` with the same key
      * @param keySelector The key selector used to determine how to group elements
      */
-    public group<K>(keySelector: keySelector<T, K>): Enumerable<Group<T, K>> { return new Enumerable(this.toMap(keySelector)).map(v => new Group(v[1], v[0])); }
+    public group<K>(keySelector: keySelector<T, K>): Enumerable<Group<T, K>> {
+        return new Enumerable(this.toMap(keySelector))
+            .map(v => new Group(v[1], v[0]));
+    }
 
     /**
      * `Deferred Method` Returns an Enumerable starting from the first element that returned `false` from `predicate`
@@ -183,7 +194,15 @@ export class Enumerable<T> implements Iterable<T> {
      * @param predicate The predicate to use
      */
     public takeWhile(predicate: predicate<T>): Enumerable<T>;
+
+    /**
+     * `Deferred Method` Returns an Enumerable containing all the elements from `this`, until `predicate` returns false.
+     * All elements after this point are ignored
+     * @param predicate The predicate to use
+     */
     public takeWhile<R extends T>(predicate: typeGuard<T, R>): Enumerable<R>;
+
+    /* implementation */
     public takeWhile(predicate: predicate<T>): Enumerable<T> { return takeWhile(this, predicate); }
 
     /**
@@ -233,33 +252,6 @@ export class Enumerable<T> implements Iterable<T> {
     public intersect(source: EnumerableSource<T>, comparer?: equality<T>): Enumerable<T> { return intersect(this, source, comparer); }
 
     /**
-     * `Deferred Method` Returns an Enumerable where each element is directly mapped from `this` in a 1:1 fashion.
-     * 
-     * This is a direct alias for the `map` method
-     * @param mapping The mapping to apply to each element in the Enumerable<T>
-     */
-    public select<R>(mapping: mapping<T, R>): Enumerable<R> { return this.map(mapping); }
-
-    /**
-     * `Deferred Method` Returns an Enumerable where each element from `this` is contained within a collection returned by mapping the original collection.
-     * Useful for flattening an Enumerable of Iterables
-     * 
-     * This is a direct alias for the `mapMany` method
-     * @param mapping The mapping to apply to each element and then to expand
-     */
-    public selectMany<R>(mapping: mapping<T, Iterable<R>>): Enumerable<R> { return this.mapMany(mapping); }
-
-    /**
-     * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
-     * 
-     * This is a direct alias for the `filter` method
-     * @param predicate The predicate to use
-     */
-    public where(predicate: predicate<T>): Enumerable<T>;
-    public where<R extends T>(predicate: typeGuard<T, R>): Enumerable<R>;
-    public where(predicate: predicate<T>): Enumerable<T> { return this.filter(predicate); }
-
-    /**
      * `Deferred Method` Returns an Enumerable wrapping the generator you provided.
      * @param generator The generator method to use
      */
@@ -296,9 +288,8 @@ export class Enumerable<T> implements Iterable<T> {
      * `Immediate Method` Returns a string containing every element from `this` separated by `separator`
      * @param separator The separator to use. Defaults to `,`
      */
-    public join(separator?: string): string {
+    public join(separator: string = ','): string {
         let result = '';
-        separator = separator || ',';
         for (const value of this)
             result += value + separator;
         return result.substring(0, result.length - separator.length);
@@ -317,36 +308,94 @@ export class Enumerable<T> implements Iterable<T> {
     }
 
     /**
-     * `Immediate Method` Returns the first element in `this` which matches `predicate`, or `defaultvalue` if there was no match.
-     * If `predicate` is not provided then the first element is returned.
-     * @param predicate The predicate to use
-     * @param defaultValue The value to return if nothing matches `predicate`
+     * `Immediate Method` Returns the first element in `this`. If `this` is empty then `undefined` is returned
      */
     public first(): T | undefined;
-    public first(predicate?: predicate<T>): T | undefined;
-    public first<R extends T>(predicate?: typeGuard<T, R>): R | undefined;
-    public first<R extends T>(predicate?: typeGuard<T, R>, defaultValue?: R): R | undefined;
-    public first(predicate?: predicate<T>, defaultValue?: T): T | undefined;
-    public first(predicate?: predicate<T>, defaultValue?: T): T | undefined {
+
+    /**
+     * `Immediate Method` Returns the first element in `this`. If `this` is empty then `defaultValue` is returned
+     * @param defaultValue The value to return if `this` is empty
+     */
+    public first(defaultValue: T): T;
+
+    /**
+     * `Immediate Method` Returns the first element in `this` which matches `predicate`. If there are no matches then `undefined` is returned
+     * @param predicate The predicate to use
+     */
+    public first(predicate: predicate<T>): T | undefined;
+
+    /**
+     * `Immediate Method` Returns the first element in `this` which matches `predicate`. If there are no matches then `defaultValue` is returned
+     * @param predicate The predicate to use
+     * @param defaultValue The value to return if there are no matches
+     */
+    public first(predicate: predicate<T>, defaultValue: T): T;
+
+    /**
+     * `Immediate Method` Returns the first element in `this` which matches `predicate`. If there are no matches then `undefined` is returned
+     * @param predicate The predicate to use
+     */
+    public first<R extends T>(predicate: typeGuard<T, R>): R | undefined;
+
+    /**
+     * `Immediate Method` Returns the first element in `this` which matches `predicate`. If there are no matches then `defaultValue` is returned
+     * @param predicate The predicate to use
+     * @param defaultValue The value to return if there are no matches
+     */
+    public first<R extends T>(predicate: typeGuard<T, R>, defaultValue: R): R;
+
+    /* implementation */
+    public first(predicate?: predicate<T> | T, defaultValue?: T): T | undefined {
+        if (typeof predicate !== 'function')
+            [predicate, defaultValue] = [undefined, predicate];
         for (const value of filter(this, predicate))
             return value;
         return defaultValue;
     }
 
     /**
-     * `Immediate Method` Returns the last element in `this` which matches `predicate`, or `defaultvalue` if there was no match.
-     * If `predicate` is not provided then the last element is returned.
-     * @param predicate The predicate to use
-     * @param defaultValue The value to return if nothing matches `predicate`
+     * `Immediate Method` Returns the last element in `this`. If `this` is empty then `undefined` is returned
      */
     public last(): T | undefined;
-    public last(predicate?: predicate<T>): T | undefined;
-    public last<R extends T>(predicate?: typeGuard<T, R>): R | undefined;
-    public last<R extends T>(predicate?: typeGuard<T, R>, defaultValue?: R): R | undefined;
-    public last(predicate?: predicate<T>, defaultValue?: T): T | undefined;
-    public last(predicate?: predicate<T>, defaultValue?: T): T | undefined {
+
+    /**
+     * `Immediate Method` Returns the last element in `this`. If `this` is empty then `defaultValue` is returned
+     * @param defaultValue The value to return if `this` is empty
+     */
+    public last(defaultValue: T): T;
+
+    /**
+     * `Immediate Method` Returns the last element in `this` which matches `predicate`. If there are no matches then `undefined` is returned
+     * @param predicate The predicate to use
+     */
+    public last(predicate: predicate<T>): T | undefined;
+
+    /**
+     * `Immediate Method` Returns the last element in `this` which matches `predicate`. If there are no matches then `defaultValue` is returned
+     * @param predicate The predicate to use
+     * @param defaultValue The value to return if there are no matches
+     */
+    public last(predicate: predicate<T>, defaultValue: T): T;
+
+    /**
+     * `Immediate Method` Returns the last element in `this` which matches `predicate`. If there are no matches then `undefined` is returned
+     * @param predicate The predicate to use
+     */
+    public last<R extends T>(predicate: typeGuard<T, R>): R | undefined;
+
+    /**
+     * `Immediate Method` Returns the last element in `this` which matches `predicate`. If there are no matches then `defaultValue` is returned
+     * @param predicate The predicate to use
+     * @param defaultValue The value to return if there are no matches
+     */
+    public last<R extends T>(predicate: typeGuard<T, R>, defaultValue: R): R;
+
+    /* implementation */
+    public last(predicate?: predicate<T> | T, defaultValue?: T): T | undefined {
+        if (typeof predicate !== 'function')
+            [predicate, defaultValue] = [undefined, predicate];
         for (const value of filter(this, predicate))
-            defaultValue = value;
+            return value;
         return defaultValue;
     }
 
@@ -357,18 +406,54 @@ export class Enumerable<T> implements Iterable<T> {
     public get(position: number): T | undefined { return this.skip(position).first(); }
 
     /**
+     * `Immediate Method` Returns `true` if any element in `this` is `true`. Otherwise `false`
+     * @param predicate The predicate to use
+     */
+    public any(this: Enumerable<boolean>): boolean;
+
+    /**
      * `Immediate Method` Returns `true` if any element in `this` matches the `predicate`. Otherwise `false`
      * @param predicate The predicate to use
      */
-    public any(predicate: predicate<T>): boolean { return this.first(predicate, secret) !== secret; }
+    public any(predicate: predicate<T>): boolean;
+
+    /* implementation */
+    public any(predicate?: predicate<T>): boolean {
+        predicate = predicate || (v => v as any as boolean);
+        let i = 0;
+        for (const value of this)
+            if (predicate!(value, i++))
+                return true;
+        return false;
+    }
+
+    /**
+     * `Immediate Method` Returns `true` if all elements in `this` are `true`. Otherwise `false`
+     * @param predicate The predicate to use
+     */
+    public all(this: Enumerable<boolean>): boolean;
+
+    /**
+     * `Immediate Method` Returns `true` if all elements in `this` match the `predicate`. Otherwise `false`
+     * @param predicate The predicate to use
+     */
+    public all(predicate: predicate<T>): boolean;
 
     /**
      * `Immediate Method` Returns `true` if all elements in `this` match the `predicate`. Otherwise `false`
      * @param predicate The predicate to use
      */
     public all<R extends T>(predicate: typeGuard<T, R>): this is Enumerable<R>;
-    public all(predicate: predicate<T>): boolean;
-    public all(predicate: predicate<T>): boolean { return this.first((v, i) => !predicate(v, i), secret) === secret; }
+
+    /* implementation */
+    public all(predicate?: predicate<T>): boolean {
+        predicate = predicate || (v => v as any as boolean);
+        let i = 0;
+        for (const value of this)
+            if (!predicate!(value, i++))
+                return false;
+        return true;
+    }
 
     /**
      * `Immediate Method` Returns `true` if `value` is located inside `this`. Otherwise `false`
@@ -398,6 +483,9 @@ export class Enumerable<T> implements Iterable<T> {
      */
     public count(predicate?: predicate<T>): number { return filter(this, predicate).reduce(p => p + 1, 0); }
 
+    /**
+     * `Immediate Method` Returns `true` if `this` does not contain any elements. Otherwise `false`
+     */
     public isEmpty(): boolean { return !this.any(_ => true); }
 
     /**
@@ -413,8 +501,6 @@ export class Enumerable<T> implements Iterable<T> {
     [Symbol.isConcatSpreadable] = true;
     /** ToStringTag */
     [Symbol.toStringTag]() { return 'Enumerable'; }
-    /** Enumerable */
-    [iterableType] = Enumerable;
 }
 
 class ArrayEnumerable<T> extends Enumerable<T> {
@@ -429,8 +515,26 @@ class ArrayEnumerable<T> extends Enumerable<T> {
         return super.count(predicate);
     }
 
-    public last(predicate?: predicate<T>, defaultValue?: T) {
-        if (!predicate) return this.source[this.source.length - 1];
+    public reverse() {
+        let self = this;
+        return new Enumerable(function* () {
+            for (let i = self.source.length; i > 0;)
+                yield self.source[--i];
+        });
+    }
+
+    public last(): T | undefined;
+    public last(defaultValue: T): T;
+    public last(predicate: predicate<T>): T | undefined;
+    public last(predicate: predicate<T>, defaultValue: T): T;
+    public last(predicate?: predicate<T> | T, defaultValue?: T): T | undefined {
+        if (typeof predicate !== 'function')
+            [predicate, defaultValue] = [undefined, predicate];
+        if (!predicate) {
+            if (this.source.length === 0)
+                return defaultValue;
+            return this.source[this.source.length - 1];
+        }
         for (let i = this.source.length - 1; i >= 0; i--)
             if (predicate(this.source[i], i))
                 return this.source[i];

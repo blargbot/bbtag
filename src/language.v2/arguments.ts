@@ -13,7 +13,7 @@ export class ArgumentManager {
 
     public readonly ready: Promise<void>;
 
-    constructor(engine: Engine, converter: Converter, definition: ArgumentDefinition[], subtag: BBSubTag, context: Context) {
+    constructor(engine: Engine, converter: Converter, definition: ReadonlyArray<ArgumentDefinition>, subtag: BBSubTag, context: Context) {
         this.engine = engine;
         this.converter = converter;
         this.subtag = subtag;
@@ -33,13 +33,16 @@ export class ArgumentManager {
         throw errors.argument.named.tooMany(this.context, this.subtag, name, position);
     }
 
+    public hasArg(name: string, position?: number): boolean {
+        throw new Error('Not Implemented');
+    }
+
     /**
      * Retrieves all the values provided to the subtag that have been associated with the `name` argument.
      * @param name The name of the argument to retrieve
      * @param position The position of the argument to retrieve if by name fails
      */
     public async getArgs(name: string, position?: number): Promise<Array<BBString | BBSubTag>> {
-        await this.ready;
         throw new Error('Not Implemented');
     }
 
@@ -52,7 +55,7 @@ export class ArgumentManager {
         let args = await this.getArgs(name, position);
         let result = [];
         for (const arg of args)
-            result.push(await this.engine.execute(arg, context));
+            result.push(await this.engine.execute(arg, this.context));
         return result;
     }
 
