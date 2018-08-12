@@ -2,7 +2,6 @@ import { Engine } from './engine';
 import { Converter } from './converter';
 import { BBSubTag, BBString } from './structure';
 import { Context } from './context';
-import { Variable } from './dataTypes';
 import { errors } from './errors';
 
 export class ArgumentManager {
@@ -24,6 +23,10 @@ export class ArgumentManager {
         });
     }
 
+    public hasArg(name: string, position?: number): boolean {
+        throw new Error('Not Implemented');
+    }
+
     public async getArg(name: string, position?: number): Promise<BBString | BBSubTag> {
         let args = await this.getArgs(name, position);
         if (args.length === 1)
@@ -31,10 +34,6 @@ export class ArgumentManager {
         if (args.length === 0)
             throw errors.argument.missing(this.context, this.subtag, name, position);
         throw errors.argument.named.tooMany(this.context, this.subtag, name, position);
-    }
-
-    public hasArg(name: string, position?: number): boolean {
-        throw new Error('Not Implemented');
     }
 
     /**
@@ -75,10 +74,6 @@ export class ArgumentManager {
     public async getNumberArray(name: string, position?: number): Promise<number[]> {
         let args = await this.getValueArray(name, position);
         return args.map(arg => this.converter.toNumber(arg));
-    }
-
-    public async getReference(name: string, position?: number): Promise<Variable> {
-        throw new Error('Not Implemented');
     }
 }
 
