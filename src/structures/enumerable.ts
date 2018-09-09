@@ -113,6 +113,11 @@ export class Enumerable<T> implements Iterable<T> {
     public mapMany<R>(mapping: mapping<T, Iterable<R>>): Enumerable<R> { return mapMany(this, mapping); }
 
     /**
+     * `Deferred Property` Returns an enumerable containing index, value pairs from `this`
+     */
+    public get withIndex(): Enumerable<{ index: number, value: T }> { return map(this, (v, i) => { return { index: i, value: v }; }); }
+
+    /**
      * `Deferred Method` Returns an Enumerable containing elements from `this` where `predicate(element, index)` returned `true`
      * @param predicate The predicate to use
      */
@@ -482,6 +487,11 @@ export class Enumerable<T> implements Iterable<T> {
      * @param predicate The predicate to use
      */
     public count(predicate?: predicate<T>): number { return filter(this, predicate).reduce(p => p + 1, 0); }
+
+    /**
+     * `Immediate Property` Returns the number of elements in `this`
+     */
+    public get length(): number { return this.count(); }
 
     /**
      * `Immediate Method` Returns `true` if `this` does not contain any elements. Otherwise `false`

@@ -1,6 +1,5 @@
-import { expect, AssertionError } from 'chai';
+import { expect } from 'chai';
 import * as language from '../dist/language.v2';
-import { Location } from '../dist/structures/selection';
 
 type bbString = Array<string | bbSubTag>;
 type bbSubTag = {

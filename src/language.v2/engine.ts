@@ -12,6 +12,6 @@ export class Engine {
     public async execute(content: BBString, context: Context): Promise<string>;
     public async execute(content: BBString | BBSubTag, context: Context): Promise<any>;
     public async execute(content: BBString | BBSubTag, context: Context): Promise<any> {
-
+        return content.content;
     }
 }

@@ -25,21 +25,33 @@ export class ArgumentError extends BBError {
     }
 }
 
-function nameText(argName: string, argPosition?: number) {
-    return `${argName}${argPosition === undefined ? '' : `/${argPosition}`}`;
+export class NamedArgError extends ArgumentError {
+    constructor(context: Context, structure: BBStructure, code: string, message: string) {
+        super(context, structure, 'NAMED-' + code, message);
+    }
 }
 
 export const errors = {
     argument: {
-        missing(context: Context, structure: BBStructure, argName: string, argPosition?: number) {
+        missing(context: Context, structure: BBStructure, argName: string) {
             return new ArgumentError(context, structure, 'MISSING',
-                `The argument ${nameText(argName, argPosition)} is missing`
+                `The argument ${argName} is missing`
+            );
+        },
+        tooMany(context: Context, structure: BBStructure) {
+            return new ArgumentError(context, structure, 'TOOMANY',
+                `Too many arguments`
+            );
+        },
+        notEnough(context: Context, structure: BBStructure) {
+            return new ArgumentError(context, structure, 'NOTENOUGH',
+                `Not enough arguments`
             );
         },
         named: {
-            tooMany(context: Context, structure: BBStructure, argName: string, argPosition?: number) {
-                return new ArgumentError(context, structure, 'TOOMANY',
-                    `Too many values were supplied for the ${nameText(argName, argPosition)} argument`
+            tooMany(context: Context, structure: BBStructure, argName: string) {
+                return new NamedArgError(context, structure, 'TOOMANY',
+                    `Too many values were supplied for the ${argName} argument`
                 );
             }
         }

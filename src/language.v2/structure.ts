@@ -34,6 +34,10 @@ export abstract class BBStructure {
 
     /** Converts this into a minimal form. Useful for debugging. */
     public abstract toBasic(): any;
+
+    public toString(): string {
+        return this.content;
+    }
 }
 
 export class BBString extends BBStructure {
@@ -65,13 +69,14 @@ export class BBSubTag extends BBStructure {
     constructor(source: StringSource, range: Range, positionalArgs: Iterable<BBString | BBSubTag>, namedArgs: Iterable<BBNamedArg>) {
         super(source, range);
 
-        let p = Enumerable.from(positionalArgs);
-        let n = Enumerable.from(namedArgs);
-        this.name = checkName(p.first(), range);
+        let positional = Enumerable.from(positionalArgs);
+        let named = Enumerable.from(namedArgs);
+        this.name = checkName(positional.first(), range);
+        positional = positional.skip(1).exhaust();
         this.args = {
-            all: p.skip(1).concat(n),
-            positional: p.skip(1),
-            named: n
+            all: positional.concat(named),
+            positional,
+            named
         };
     }
 

@@ -15,14 +15,23 @@ export class Converter {
     }
 
     public toString(instance: any): string {
-        throw new Error('Not Implemented');
+        if (typeof instance === 'string')
+            return instance;
+        console.log('Conversion for', instance, 'to string failed');
+        throw new Error('Conversion Not Implemented.');
     }
 
     public toNumber(instance: any): number {
+        if (typeof instance === 'number')
+            return instance;
+        console.log('Conversion for', instance, 'to number failed');
         throw new Error('Not Implemented');
     }
 
     public toArray(instance: any): any[] {
+        if (Array.isArray(instance))
+            return instance;
+        console.log('Conversion for', instance, 'to array failed');
         throw new Error('Not Implemented');
     }
 }
