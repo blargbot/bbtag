@@ -4,8 +4,9 @@
     "description": "The engine behind blargbots custom commands",
     "main": "./dist/index.js",
     "scripts": {
-        "build": "cd ./src && tsc -w",
-        "test": "cd ./src && tsc && cd ../test && tsc && cd .. && mocha --reporter spec"
+        "build": "cd ./src && tsc",
+        "watch": "cd ./src && tsc -w",
+        "test": "cd ./src && tsc && cd ../test && tsc && cd ./out && mocha --reporter spec"
     },
     "repository": {
         "type": "git",
