@@ -4,9 +4,10 @@
     "description": "The engine behind blargbots custom commands",
     "main": "./dist/index.js",
     "scripts": {
-        "build": "cd ./src && tsc",
-        "watch": "cd ./src && tsc -w",
-        "test": "cd ./src && tsc && cd ../test && tsc && cd ./out && mocha --reporter spec"
+        "build": "rimraf ./dist && cd ./src && tsc",
+        "watch": "rimraf ./dist && cd ./src && tsc -w",
+        "test": "rimraf ./dist ./test/out && cd ./test && tsc && cd .. && mocha --reporter spec",
+        "clean": "rimraf ./dist ./test/out"
     },
     "repository": {
         "type": "git",
@@ -23,6 +24,7 @@
         "@types/moment-timezone": "^0.5.4",
         "chai": "^4.1.2",
         "mocha": "^5.2.0",
+        "rimraf": "^2.6.3",
         "tslint": "^5.11.0",
         "typescript": "^2.9.2"
     }
