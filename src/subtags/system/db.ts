@@ -16,7 +16,7 @@ export class GetSubtag extends Subtag<ExecutionContext> {
 export class SetSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
-            name: 'get',
+            name: 'set',
             contextType: ExecutionContext
         });
     }
