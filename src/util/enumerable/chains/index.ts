@@ -5,3 +5,5 @@ export { WhereEnumerable } from './where';
 export { ExceptEnumerable } from './except';
 export { TakeEnumerable } from './take';
 export { SkipEnumerable } from './skip';
+export { GroupByEnumerable } from './groupBy';
+export { OrderEnumerable } from './orderBy';

@@ -1,65 +1,43 @@
+import '../src/';
 import { expect } from 'chai';
 import { Parser } from '../src/parser';
-import '../src/';
+import { tag, str, stripStrToken } from './test helpers/subtag';
 
-function tag(name: any, ...args: any[]) {
-    return { name, args };
-}
+describe('Parse', function () {
+    describe('parse', function () {
+        let testCases: { input: string, expected: any }[] = [
+            { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
+            { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
+            { input: 'this is a test', expected: str('this is a test') },
+            { input: 'this is; a test', expected: str('this is; a test') },
+            { input: 'this {is;a} test', expected: str('this {0} test', tag(str('is'), str('a'))) },
+            { input: ' { this { is ; a parsing } ; test } ', expected: str('{0}', tag(str('this {0}', tag(str('is'), str('a parsing'))), str('test'))) }
+        ];
 
-function str(format: string, ...subtags: any[]) {
-    return { format, subtags }
-}
+        for (const testCase of testCases) {
+            if (testCase.expected instanceof Error) {
+                it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, function () {
+                    // arrange
+                    let parser = new Parser();
+                    let test = () => parser.parse(testCase.input);
 
-function stripStrToken(token: any) {
-    return {
-        format: token.format,
-        subtags: token.subtags.map(stripTagToken)
-    };
-}
+                    // act
 
-function stripTagToken(token: any) {
-    return {
-        name: stripStrToken(token.name),
-        args: token.args.map(stripStrToken)
-    };
-}
+                    // assert
+                    expect(test).to.throw(testCase.expected.message);
+                });
+            } else {
+                it(`should correctly parse ${testCase.input}`, function () {
+                    // arrange
+                    let parser = new Parser();
 
-describe('parse', function () {
-    let testCases: { input: string, expected: any }[] = [
-        { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
-        { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
-        { input: 'this is a test', expected: str('this is a test') },
-        { input: 'this is; a test', expected: str('this is; a test') },
-        { input: 'this {is;a} test', expected: str('this {0} test', tag(str('is'), str('a'))) },
-        { input: ' { this { is ; a parsing } ; test } ', expected: str('{0}', tag(str('this {0}', tag(str('is'), str('a parsing'))), str('test'))) },
-        { input: '  { // ;comment test} aaaa', expected: str('aaaa') },
-        { input: '  { // { // ;why would you do this};comment test} aaaa', expected: str('aaaa') }
-    ];
+                    // act
+                    let result = parser.parse(testCase.input);
 
-    for (const testCase of testCases) {
-        if (testCase.expected instanceof Error) {
-            it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, function () {
-                // arrange
-                let parser = new Parser();
-                let test = () => parser.parse(testCase.input);
-
-                // act
-
-                // assert
-                expect(test).to.throw(testCase.expected.message);
-            });
-        } else {
-            it(`should correctly parse ${testCase.input}`, function () {
-                // arrange
-                let parser = new Parser();
-
-                // act
-                let result = parser.parse(testCase.input);
-
-                // assert
-                expect(result.source).to.be.equal(testCase.input);
-                expect(stripStrToken(result.root)).to.deep.equal(testCase.expected);
-            });
+                    // assert
+                    expect(stripStrToken(result)).to.deep.equal(testCase.expected);
+                });
+            }
         }
-    }
+    });
 });

@@ -12,37 +12,18 @@ interface BBTagToken {
 }
 
 export class Parser {
-    public preProcessors: preProcessor[] = [];
-    public postProcessors: postProcessor[] = [];
-
     public constructor() {
     }
 
-    public parse(source: string): BBTag {
-        let tokens = this.tokenize(this.preProcess(source)).getEnumerator();
+    public parse(source: string): StringToken {
+        let tokens = this.tokenize(source).getEnumerator();
         let root = this.createStringToken(tokens, true);
-        return this.postProcess({ source, root });
+        return root;
     }
 
 
     protected tokenize(source: string): Enumerable<BBTagToken> {
         return Enumerable.from(_tokenize(source));
-    }
-
-    protected preProcess(source: string): string {
-        for (const preProcessor of this.preProcessors) {
-            source = preProcessor(source);
-        }
-
-        return source;
-    }
-
-    protected postProcess(bbtag: BBTag): BBTag {
-        for (const postProcessor of this.postProcessors) {
-            bbtag = postProcessor(bbtag) || bbtag;
-        }
-
-        return bbtag;
     }
 
     protected createStringToken(tokens: Enumerator<BBTagToken>, isTopLevel: boolean = false): StringToken {
@@ -79,11 +60,11 @@ export class Parser {
             end = tokens.current.range.end;
         }
 
-        return removeComments({
+        return {
             subtags,
             format: formatParts.join('').trim(),
             range: new Range(start, end)
-        });
+        };
     }
 
     protected createSubtagToken(tokens: Enumerator<BBTagToken>): SubtagToken {
@@ -141,37 +122,6 @@ function createToken(states: stateTracker): BBTagToken {
     let content = range.slice(states.source);
     states.start = states.end;
     return { range, content };
-}
-
-function removeComments(stringToken: StringToken): StringToken {
-    let replacements = [];
-    let subtags = [];
-    for (let i = 0; i < stringToken.subtags.length; i++) {
-        let subtag = stringToken.subtags[i];
-        removeComments(subtag.name);
-        if (isCommentSubtag(subtag)) {
-            replacements.push('');
-        } else {
-            replacements.push(`{${i}}`);
-            subtags.push(subtag);
-            for (const arg of subtag.args) {
-                removeComments(arg);
-            }
-        }
-    }
-
-    return {
-        subtags,
-        format: stringToken.format.format(...replacements).trim(),
-        range: stringToken.range
-    }
-}
-
-function isCommentSubtag(subtagToken: SubtagToken): boolean {
-    if (subtagToken.name.subtags.length !== 0) {
-        return false;
-    }
-    return ['//', 'comment'].find(v => v === subtagToken.name.format) !== undefined;
 }
 
 function unmatchedOpen(): Error {

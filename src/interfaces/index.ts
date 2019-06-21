@@ -1,0 +1,1 @@
+export { IDatabase } from './database';

@@ -1,11 +1,11 @@
 import { Enumerable } from '..';
 
-export function toArray<T>(this: Enumerable<T>): T[] {
-    let result = [];
+export function toSet<T>(this: Enumerable<T>): Set<T> {
+    let result = new Set<T>();
     let enumerator = this.getEnumerator();
 
     while (enumerator.moveNext()) {
-        result.push(enumerator.current);
+        result.add(enumerator.current);
     }
 
     return result;

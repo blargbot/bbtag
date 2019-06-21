@@ -4,6 +4,7 @@ export class SetEnumerable<T> extends IterableEnumerable<T> {
     public constructor(source: Set<T>) {
         super(source);
         this.toIterable = () => source;
+        this.toSet = () => source;
     }
 }
 

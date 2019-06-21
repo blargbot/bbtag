@@ -35,7 +35,7 @@ export declare namespace Enumerable {
     export function from<T>(source: Set<T>): Adapters.SetEnumerable<T>;
     export function from<Key, Value>(source: Map<Key, Value>): Adapters.MapEnumerable<Key, Value>;
     export function from<T>(source: Iterable<T>): Adapters.IterableEnumerable<T>;
-    export function from<T extends Enumerable<any>>(source: T): T;
+    export function from<T>(source: Enumerable<T>): T;
     export function from<T>(source: EnumerableSource<T>): Enumerable<T>
 
     export function empty<T>(): Generators.EmptyEnumerable<T>;
@@ -50,6 +50,7 @@ export interface Enumerable<T> {
     selectMany<TResult>(selector: selector<T, EnumerableSource<TResult>>): Chains.SelectManyEnumerable<T, TResult>;
     where(predicate: predicate<T>): Chains.WhereEnumerable<T>;
     first(predicate?: predicate<T>, defaultValue?: () => T): T;
+    single(predicate?: predicate<T>, defaultValue?: () => T): T;
     last(predicate?: predicate<T>, defaultValue?: () => T): T;
     any(predicate?: predicate<T>): boolean;
     all(predicate: predicate<T>): boolean;
@@ -59,14 +60,18 @@ export interface Enumerable<T> {
     take(takeWhile: predicate<T>): Chains.TakeEnumerable<T>;
     skip(count: number): Chains.SkipEnumerable<T>;
     skip(skipWhile: predicate<T>): Chains.SkipEnumerable<T>;
+    groupBy<TKey>(selector: selector<T, TKey>): Chains.GroupByEnumerable<T, TKey>;
+    sort(comparer: comparer<T>): Chains.OrderEnumerable<T>;
+    orderBy<TKey>(selector: (source: T) => TKey, descending?: boolean, comparer?: comparer<TKey>): Chains.OrderEnumerable<T>;
 
-    toArray<T>(): T[];
+    toArray(): T[];
+    toSet(): Set<T>;
 }
 
 import * as Adapters from './adapters';
 import * as Generators from './generators';
 import * as Chains from './chains';
-import { selector, predicate, EnumerableSource } from './types';
+import { selector, predicate, comparer, EnumerableSource } from './types';
 import * as Terminators from './terminators';
 
 Enumerable.from = Generators.from;
@@ -83,8 +88,13 @@ Enumerable.prototype.concat = Chains.ConcatEnumerable.create;
 Enumerable.prototype.except = Chains.ExceptEnumerable.create;
 Enumerable.prototype.skip = Chains.SkipEnumerable.create;
 Enumerable.prototype.take = Chains.TakeEnumerable.create;
+Enumerable.prototype.groupBy = Chains.GroupByEnumerable.create;
+Enumerable.prototype.sort = Chains.OrderEnumerable.sort;
+Enumerable.prototype.orderBy = Chains.OrderEnumerable.orderBy;
 Enumerable.prototype.first = Terminators.first;
+Enumerable.prototype.single = Terminators.single;
 Enumerable.prototype.last = Terminators.last;
 Enumerable.prototype.any = Terminators.any;
 Enumerable.prototype.all = Terminators.all;
 Enumerable.prototype.toArray = Terminators.toArray;
+Enumerable.prototype.toSet = Terminators.toSet;

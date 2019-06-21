@@ -4,6 +4,7 @@ export class ArrayEnumerable<T> extends IterableEnumerable<T> {
     public constructor(source: T[]) {
         super(source);
         this.toIterable = () => source;
+        this.toArray = () => source;
     }
 }
 
