@@ -33,6 +33,10 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
     public optimize(token: SubtagToken, context: OptimizationContext): SubtagToken | string {
         return token;
     }
+
+    public toString() {
+        return `{${this.name}}`;
+    }
 }
 
 export type SubtagHandler = () => Promise<string> | string;
