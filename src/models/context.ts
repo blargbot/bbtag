@@ -7,10 +7,10 @@ export interface ExecutionResult {
     toNumber(): number;
 }
 
-export class SubtagContext {
+export abstract class SubtagContext {
     public readonly engine: Engine;
     public readonly overrides: SubtagCollection;
-    private readonly tagName: string;
+    public readonly tagName: string;
     public get database(): IDatabase { return this.engine.database };
 
     public constructor(engine: Engine, tagName: string) {

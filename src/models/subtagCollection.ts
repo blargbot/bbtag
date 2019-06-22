@@ -1,17 +1,17 @@
 import { SubtagContext, OptimizationContext } from './context';
 import { ISubtag } from './subtag';
 import { Enumerable } from '../util/enumerable';
-import { FixedMap } from './fixedMap';
+import { HardMap } from './hardMap';
 
 export class SubtagCollection implements Iterable<ISubtag<any>> {
-    private readonly _nameMap: FixedMap<string, ISubtag<any>>;
-    private readonly _aliasMap: FixedMap<string, ISubtag<any>>;
-    private readonly _contextMap: FixedMap<typeof SubtagContext, Set<ISubtag<any>>>;
+    private readonly _nameMap: HardMap<string, ISubtag<any>>;
+    private readonly _aliasMap: HardMap<string, ISubtag<any>>;
+    private readonly _contextMap: HardMap<typeof SubtagContext, Set<ISubtag<any>>>;
 
     public constructor() {
-        this._nameMap = new FixedMap();
-        this._aliasMap = new FixedMap();
-        this._contextMap = new FixedMap(() => new Set());
+        this._nameMap = new HardMap();
+        this._aliasMap = new HardMap();
+        this._contextMap = new HardMap(() => new Set());
     }
 
     public *[Symbol.iterator]() {
@@ -73,10 +73,10 @@ export class SubtagCollection implements Iterable<ISubtag<any>> {
 }
 
 const rootContext = Object.getPrototypeOf(SubtagContext);
-const contextFamily = new Map<typeof SubtagContext, Array<typeof SubtagContext>>();
+const inheritanceCache = new Map<typeof SubtagContext, Array<typeof SubtagContext>>();
 
 function getInheritance(context: typeof SubtagContext): ReadonlyArray<typeof SubtagContext> {
-    let result = contextFamily.get(context);
+    let result = inheritanceCache.get(context);
     if (result !== undefined) {
         return result;
     } else {
@@ -86,7 +86,7 @@ function getInheritance(context: typeof SubtagContext): ReadonlyArray<typeof Sub
             result.push(context);
             parent = Object.getPrototypeOf(parent);
         } while (parent != rootContext);
-        contextFamily.set(context, result);
+        inheritanceCache.set(context, result);
         return result;
     }
 }
