@@ -1,7 +1,8 @@
 import { Enumerable } from '../util/enumerable';
 import { ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
-import { SubtagExecutionResult } from './results';
+import { SubtagArgumentCollection, SubtagArgumentDefinition, SubtagHandler } from './subtagArguments';
+import { createSubtagResult, SubtagExecutionResult } from './subtagResults';
 
 export interface ISubtag<TContext extends ExecutionContext> {
     readonly contextType: new (...args: any[]) => TContext;
@@ -18,18 +19,27 @@ export interface ISubtagArguments<TContext extends SubtagContext> {
     contextType: new (...args: any[]) => TContext;
 }
 
-export abstract class Subtag<TContext extends ExecutionContext> implements ISubtag<TContext> {
-    public readonly contextType: new (...args: any[]) => TContext;
+export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
+    public readonly contextType: new (...args: any[]) => T;
     public readonly name: string;
     public readonly aliases: Set<string>;
+    protected readonly handlers: SubtagArgumentCollection<T>;
 
-    constructor(args: ISubtagArguments<TContext>) {
+    constructor(args: ISubtagArguments<T>) {
         this.contextType = args.contextType;
         this.name = args.name;
         this.aliases = Enumerable.from(args.aliases as any || []).toSet();
+        this.handlers = new SubtagArgumentCollection();
     }
 
-    public abstract execute(token: ISubtagToken, context: TContext): Promise<SubtagExecutionResult>;
+    public async execute(token: ISubtagToken, context: T): Promise<SubtagExecutionResult> {
+        try {
+            const result = await this.handlers.execute(token, context);
+            return createSubtagResult(result);
+        } catch (ex) {
+            return createSubtagResult(ex);
+        }
+    }
 
     public optimize(token: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
         return token;
@@ -39,5 +49,3 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
         return `{${this.name}}`;
     }
 }
-
-export type SubtagHandler = () => Promise<string> | string;

@@ -8,4 +8,5 @@ export {
     createStringResult,
     StringExecutionResult,
     SubtagExecutionResult
-} from './results';
+} from './subtagResults';
+export { args } from './subtagArguments';
