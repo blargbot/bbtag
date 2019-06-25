@@ -1,5 +1,5 @@
 import { IDatabase } from './interfaces';
-import { BBTag, ExecutionContext, OptimizationContext, StringToken, SubtagCollection, SubtagToken } from './models';
+import { ExecutionContext, IBBTag, IStringToken, ISubtagToken, OptimizationContext, SubtagCollection } from './models';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
 
@@ -14,7 +14,7 @@ export class Engine {
         this.database = database;
     }
 
-    public async execute(input: StringToken, context: ExecutionContext): Promise<string> {
+    public async execute(input: IStringToken, context: ExecutionContext): Promise<string> {
         const parts: string[] = [];
         for (const subtag of input.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
@@ -22,7 +22,7 @@ export class Engine {
         return input.format.format(...parts);
     }
 
-    public process(source: string): BBTag {
+    public process(source: string): IBBTag {
         const root = this.parser.parse(source);
         return {
             source,
@@ -30,7 +30,7 @@ export class Engine {
         };
     }
 
-    private async executeSubtag(input: SubtagToken, context: ExecutionContext): Promise<string> {
+    private async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<string> {
         const name = await this.execute(input.name, context);
         const executor = context.findSubtag(name);
         if (executor === undefined) {

@@ -1,4 +1,4 @@
-import { ExecutionContext, Subtag, SubtagToken } from '../../models';
+import { ExecutionContext, Subtag, ISubtagToken } from '../../models';
 
 export class RBSubtag extends Subtag<ExecutionContext> {
     public constructor() {
@@ -12,7 +12,7 @@ export class RBSubtag extends Subtag<ExecutionContext> {
         throw new Error('This method should never be called');
     }
 
-    public optimize(): SubtagToken | string {
+    public optimize(): ISubtagToken | string {
         return '}';
     }
 }

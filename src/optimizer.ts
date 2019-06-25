@@ -1,6 +1,6 @@
-import { OptimizationContext, StringToken, SubtagToken } from './models';
+import { IStringToken, ISubtagToken, OptimizationContext } from './models';
 
-export function optimizeSubtagToken(input: SubtagToken, context: OptimizationContext): SubtagToken | string {
+export function optimizeSubtagToken(input: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
     const name = optimizeStringToken(input.name, context);
     input = { ...input, name };
     if (name.subtags.length !== 0) {
@@ -15,7 +15,7 @@ export function optimizeSubtagToken(input: SubtagToken, context: OptimizationCon
     return optimiser.optimize(input, context);
 }
 
-export function optimizeStringToken(input: StringToken, context: OptimizationContext): StringToken {
+export function optimizeStringToken(input: IStringToken, context: OptimizationContext): IStringToken {
     const replacements = [];
     const subtags = [];
     for (const subtag of input.subtags) {
