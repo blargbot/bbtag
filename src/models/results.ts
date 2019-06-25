@@ -32,16 +32,16 @@ export function createStringResult(format: string, results: SubtagExecutionResul
 abstract class SubtagSuccess<TRaw> implements ISubtagExecutionSuccess {
     public readonly isSuccess: true = true;
 
-    public abstract getRaw(): TRaw;
-    public abstract getString(): string;
-    public abstract tryGetArray(): TryGetResult<any[]>;
-    public abstract tryGetNumber(): TryGetResult<number>;
-    public abstract tryGetObject(): TryGetResult<IObject>;
+    public abstract getRaw: () => TRaw;
+    public abstract getString: () => string;
+    public abstract tryGetArray: () => TryGetResult<any[]>;
+    public abstract tryGetNumber: () => TryGetResult<number>;
+    public abstract tryGetObject: () => TryGetResult<IObject>;
 }
 
 abstract class SubtagFailure implements ISubtagExecutionFailure {
     public readonly isSuccess: false = false;
-    public abstract getString(): string;
+    public abstract getString: () => string;
 }
 
 class SubtagStringResult extends SubtagSuccess<string> {
