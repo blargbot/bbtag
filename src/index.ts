@@ -1,4 +1,4 @@
-import './util/stringExtensions';
+import './util';
 export { Engine } from './engine';
 export { Subtag } from './models/subtag';
 

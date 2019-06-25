@@ -2,11 +2,6 @@ import { Engine } from '../engine';
 import { IDatabase } from '../interfaces';
 import { ISubtag } from './subtag';
 
-export interface IExecutionResult {
-    toString(): string;
-    toNumber(): number;
-}
-
 export abstract class SubtagContext {
     public readonly engine: Engine;
     public readonly overrides: SubtagCollection;

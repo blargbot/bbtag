@@ -1,13 +1,14 @@
 import { Enumerable } from '../util/enumerable';
 import { ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
+import { ISubtagExecutionSuccess } from './results';
 
 export interface ISubtag<TContext extends ExecutionContext> {
     readonly contextType: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
-    execute(token: ISubtagToken, context: TContext): Promise<string | void> | string | void;
+    execute(token: ISubtagToken, context: TContext): Promise<ISubtagExecutionSuccess>;
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 
@@ -28,7 +29,7 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
         this.aliases = Enumerable.from(args.aliases as any || []).toSet();
     }
 
-    public abstract execute(token: ISubtagToken, context: TContext): Promise<string | void> | string | void;
+    public abstract execute(token: ISubtagToken, context: TContext): Promise<ISubtagExecutionSuccess>;
 
     public optimize(token: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
         return token;
