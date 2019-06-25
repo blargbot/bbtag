@@ -1,4 +1,9 @@
 export class HardMap<TKey, TValue> extends Map<TKey, TValue> {
+    public constructor();
+    public constructor(valueGenerator: () => TValue);
+    public constructor(valueGenerator: () => TValue | undefined);
+    public constructor(valueGenerator: (key: TKey) => TValue);
+    public constructor(valueGenerator: (key: TKey) => TValue | undefined);
     public constructor(valueGenerator?: (key: TKey) => TValue | undefined) {
         super();
 

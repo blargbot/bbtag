@@ -2,6 +2,7 @@ import { IDatabase } from './interfaces';
 import { ExecutionContext, IBBTag, IStringToken, ISubtagToken, OptimizationContext, SubtagCollection } from './models';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
+import { default as util } from './util';
 
 export class Engine {
     public parser: Parser;
@@ -19,7 +20,7 @@ export class Engine {
         for (const subtag of input.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
         }
-        return input.format.format(...parts);
+        return util.format(input.format, parts);
     }
 
     public process(source: string): IBBTag {

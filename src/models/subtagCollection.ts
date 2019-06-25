@@ -4,6 +4,7 @@ import { HardMap } from './hardMap';
 import { ISubtag } from './subtag';
 
 export class SubtagCollection implements Iterable<ISubtag<any>> {
+    public readonly [Symbol.iterator]: () => IterableIterator<ISubtag<any>>;
     private readonly _nameMap: HardMap<string, ISubtag<any>>;
     private readonly _aliasMap: HardMap<string, ISubtag<any>>;
     private readonly _contextMap: HardMap<typeof SubtagContext, Set<ISubtag<any>>>;
@@ -12,10 +13,7 @@ export class SubtagCollection implements Iterable<ISubtag<any>> {
         this._nameMap = new HardMap();
         this._aliasMap = new HardMap();
         this._contextMap = new HardMap(() => new Set());
-    }
-
-    public *[Symbol.iterator](): IterableIterator<ISubtag<any>> {
-        yield* this._nameMap.values();
+        this[Symbol.iterator] = this._nameMap.values;
     }
 
     public register<T extends SubtagContext>(...subtags: Array<ISubtag<T>>): void {

@@ -1,4 +1,5 @@
 import { IStringToken, ISubtagToken, OptimizationContext } from './models';
+import { default as util } from './util';
 
 export function optimizeSubtagToken(input: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
     const name = optimizeStringToken(input.name, context);
@@ -30,7 +31,7 @@ export function optimizeStringToken(input: IStringToken, context: OptimizationCo
 
     return {
         range: input.range,
-        format: input.format.format(replacements).trim(),
+        format: util.format(input.format, replacements).trim(),
         subtags
     };
 }
