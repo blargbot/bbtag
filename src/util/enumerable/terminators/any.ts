@@ -1,13 +1,13 @@
 import { Enumerable } from '..';
-import { predicate } from '../types'
+import { predicateFunc } from '../types';
 
-export function any<T>(this: Enumerable<T>, predicate?: predicate<T>): boolean {
+export function any<T>(this: Enumerable<T>, predicate?: predicateFunc<T>): boolean {
     if (predicate === undefined) {
         predicate = () => true;
     }
 
     let index = 0;
-    let enumerator = this.getEnumerator();
+    const enumerator = this.getEnumerator();
 
     while (enumerator.moveNext()) {
         if (predicate(enumerator.current, index++)) {

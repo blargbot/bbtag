@@ -12,11 +12,12 @@ export class Range {
     }
 
     public isEmpty(): boolean {
-        return this.start.offset == this.end.offset;
+        return this.start.offset === this.end.offset;
     }
 }
 
 export class Position {
+    public static readonly initial: Position = new Position(0, 0, 0);
     public readonly offset: number;
     public readonly line: number;
     public readonly column: number;
@@ -27,13 +28,11 @@ export class Position {
         this.column = column;
     }
 
-    public nextColumn(count = 1): Position {
+    public nextColumn(count: number = 1): Position {
         return new Position(this.offset + count, this.line, this.column + count);
     }
 
     public nextLine(): Position {
         return new Position(this.offset + 1, this.line + 1, 0);
     }
-
-    public static readonly initial: Position = new Position(0, 0, 0);
 }

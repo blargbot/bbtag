@@ -1,25 +1,25 @@
-import { SubtagToken, OptimizationContext, StringToken } from './models';
+import { OptimizationContext, StringToken, SubtagToken } from './models';
 
-export function optimizeSubtagToken(subtag: SubtagToken, context: OptimizationContext): SubtagToken | string {
-    let name = optimizeStringToken(subtag.name, context);
-    subtag = { ...subtag, name };
-    if (name.subtags.length != 0) {
-        return subtag;
+export function optimizeSubtagToken(input: SubtagToken, context: OptimizationContext): SubtagToken | string {
+    const name = optimizeStringToken(input.name, context);
+    input = { ...input, name };
+    if (name.subtags.length !== 0) {
+        return input;
     }
 
-    let optimiser = context.findSubtag(name.format);
+    const optimiser = context.findSubtag(name.format);
     if (optimiser === undefined) {
-        return subtag;
+        return input;
     }
 
-    return optimiser.optimize(subtag, context);
+    return optimiser.optimize(input, context);
 }
 
-export function optimizeStringToken(string: StringToken, context: OptimizationContext): StringToken {
-    let replacements = [];
-    let subtags = [];
-    for (const subtag of string.subtags) {
-        let optimized = optimizeSubtagToken(subtag, context);
+export function optimizeStringToken(input: StringToken, context: OptimizationContext): StringToken {
+    const replacements = [];
+    const subtags = [];
+    for (const subtag of input.subtags) {
+        const optimized = optimizeSubtagToken(subtag, context);
         if (typeof optimized === 'string') {
             replacements.push(optimized);
         } else {
@@ -29,8 +29,8 @@ export function optimizeStringToken(string: StringToken, context: OptimizationCo
     }
 
     return {
-        range: string.range,
-        format: string.format.format(replacements).trim(),
-        subtags: subtags
+        range: input.range,
+        format: input.format.format(replacements).trim(),
+        subtags
     };
 }

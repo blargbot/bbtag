@@ -1,13 +1,10 @@
+// Due to circular dependencies, the classes must be defined before the import statements are called.
+
 export abstract class Enumerable<T> {
     public abstract getEnumerator(): Enumerator<T>;
 
     public toIterable(): Iterable<T> {
-        let self = this;
-        return {
-            [Symbol.iterator]() {
-                return self.getEnumerator().toIterator();
-            }
-        }
+        return { [Symbol.iterator]: () => this.getEnumerator().toIterator() };
     }
 }
 
@@ -16,18 +13,12 @@ export abstract class Enumerator<T> {
     public abstract get current(): T;
 
     public toIterator(): Iterator<T> {
-        let self = this;
-        return {
-            next(): IteratorResult<T> {
-                return {
-                    done: !self.moveNext(),
-                    value: self.current
-                };
-            }
-        }
+        return { next: () => ({ done: !this.moveNext(), value: this.current }) };
     }
 }
 
+// This pattern of declaring is required due to circular dependencies
+// tslint:disable-next-line: no-namespace
 export declare namespace Enumerable {
     export function from<T>(source: string): Adapters.StringEnumerable;
     export function from<T>(source: T[]): Adapters.ArrayEnumerable<T>;
@@ -36,43 +27,45 @@ export declare namespace Enumerable {
     export function from<Key, Value>(source: Map<Key, Value>): Adapters.MapEnumerable<Key, Value>;
     export function from<T>(source: Iterable<T>): Adapters.IterableEnumerable<T>;
     export function from<T>(source: Enumerable<T>): T;
-    export function from<T>(source: EnumerableSource<T>): Enumerable<T>
+    export function from<T>(source: EnumerableSource<T>): Enumerable<T>;
 
     export function empty<T>(): Generators.EmptyEnumerable<T>;
     export function range(start: number, count: number, step?: number): Generators.RangeEnumerable;
     export function infinite(start?: number, step?: number): Generators.InfiniteEnumerable;
     export function repeat<T>(value: T, count: number): Generators.RepeatEnumerable<T>;
-    export function concat<T>(other: EnumerableSource<T>, ...others: EnumerableSource<T>[]): Chains.ConcatEnumerable<T>;
+    export function concat<T>(other: EnumerableSource<T>, ...others: Array<EnumerableSource<T>>): Chains.ConcatEnumerable<T>;
 }
 
+// This pattern of declaring is required due to circular dependencies
+// tslint:disable-next-line: interface-name
 export interface Enumerable<T> {
-    select<TResult>(selector: selector<T, TResult>): Chains.SelectEnumerable<T, TResult>;
-    selectMany<TResult>(selector: selector<T, EnumerableSource<TResult>>): Chains.SelectManyEnumerable<T, TResult>;
-    where(predicate: predicate<T>): Chains.WhereEnumerable<T>;
-    first(predicate?: predicate<T>, defaultValue?: () => T): T;
-    single(predicate?: predicate<T>, defaultValue?: () => T): T;
-    last(predicate?: predicate<T>, defaultValue?: () => T): T;
-    any(predicate?: predicate<T>): boolean;
-    all(predicate: predicate<T>): boolean;
-    concat(other: EnumerableSource<T>, ...others: EnumerableSource<T>[]): Chains.ConcatEnumerable<T>;
+    select<TResult>(selector: selectorFunc<T, TResult>): Chains.SelectEnumerable<T, TResult>;
+    selectMany<TResult>(selector: selectorFunc<T, EnumerableSource<TResult>>): Chains.SelectManyEnumerable<T, TResult>;
+    where(predicate: predicateFunc<T>): Chains.WhereEnumerable<T>;
+    first(predicate?: predicateFunc<T>, defaultValue?: () => T): T;
+    single(predicate?: predicateFunc<T>, defaultValue?: () => T): T;
+    last(predicate?: predicateFunc<T>, defaultValue?: () => T): T;
+    any(predicate?: predicateFunc<T>): boolean;
+    all(predicate: predicateFunc<T>): boolean;
+    concat(other: EnumerableSource<T>, ...others: Array<EnumerableSource<T>>): Chains.ConcatEnumerable<T>;
     except(other: EnumerableSource<T>): Chains.ExceptEnumerable<T>;
     take(count: number): Chains.TakeEnumerable<T>;
-    take(takeWhile: predicate<T>): Chains.TakeEnumerable<T>;
+    take(takeWhile: predicateFunc<T>): Chains.TakeEnumerable<T>;
     skip(count: number): Chains.SkipEnumerable<T>;
-    skip(skipWhile: predicate<T>): Chains.SkipEnumerable<T>;
-    groupBy<TKey>(selector: selector<T, TKey>): Chains.GroupByEnumerable<T, TKey>;
-    sort(comparer: comparer<T>): Chains.OrderEnumerable<T>;
-    orderBy<TKey>(selector: (source: T) => TKey, descending?: boolean, comparer?: comparer<TKey>): Chains.OrderEnumerable<T>;
+    skip(skipWhile: predicateFunc<T>): Chains.SkipEnumerable<T>;
+    groupBy<TKey>(selector: selectorFunc<T, TKey>): Chains.GroupByEnumerable<T, TKey>;
+    sort(comparer: comparerFunc<T>): Chains.OrderEnumerable<T>;
+    orderBy<TKey>(selector: (source: T) => TKey, descending?: boolean, comparer?: comparerFunc<TKey>): Chains.OrderEnumerable<T>;
 
     toArray(): T[];
     toSet(): Set<T>;
 }
 
 import * as Adapters from './adapters';
-import * as Generators from './generators';
 import * as Chains from './chains';
-import { selector, predicate, comparer, EnumerableSource } from './types';
+import * as Generators from './generators';
 import * as Terminators from './terminators';
+import { comparerFunc, EnumerableSource, predicateFunc, selectorFunc } from './types';
 
 Enumerable.from = Generators.from;
 Enumerable.empty = Generators.EmptyEnumerable.create;

@@ -1,39 +1,36 @@
-import { BBTag, Range, Position, SubtagToken, StringToken } from './models';
+import { BBTag, Position, Range, StringToken, SubtagToken } from './models';
 import { Enumerable, Enumerator } from './util/enumerable';
 
-type stateTracker = { source: string, start: Position, end: Position };
+interface IStateTracker { source: string; start: Position; end: Position; }
 
 export type postProcessor = (bbtag: BBTag) => BBTag;
 export type preProcessor = (source: string) => string;
 
-interface BBTagToken {
+interface IBBTagToken {
     range: Range;
     content: string;
 }
 
 export class Parser {
-    public constructor() {
-    }
-
     public parse(source: string): StringToken {
-        let tokens = this.tokenize(source).getEnumerator();
-        let root = this.createStringToken(tokens, true);
+        const tokens = this.tokenize(source).getEnumerator();
+        const root = this.createStringToken(tokens, true);
         return root;
     }
 
-
-    protected tokenize(source: string): Enumerable<BBTagToken> {
+    protected tokenize(source: string): Enumerable<IBBTagToken> {
         return Enumerable.from(_tokenize(source));
     }
 
-    protected createStringToken(tokens: Enumerator<BBTagToken>, isTopLevel: boolean = false): StringToken {
+    protected createStringToken(tokens: Enumerator<IBBTagToken>, isTopLevel: boolean = false): StringToken {
         if (isTopLevel && !tokens.moveNext()) {
             throw new Error('No tokens found');
         }
 
-        let start, end = start = tokens.current.range.start;
-        let formatParts = [tokens.current.content];
-        let subtags: SubtagToken[] = [];
+        let start;
+        let end = start = tokens.current.range.start;
+        const formatParts = [tokens.current.content];
+        const subtags: SubtagToken[] = [];
         let index = 0;
 
         whileLoop:
@@ -67,10 +64,10 @@ export class Parser {
         };
     }
 
-    protected createSubtagToken(tokens: Enumerator<BBTagToken>): SubtagToken {
-        let start = tokens.current.range.start;
+    protected createSubtagToken(tokens: Enumerator<IBBTagToken>): SubtagToken {
+        const start = tokens.current.range.start;
         let closed = false;
-        let parts = [];
+        const parts = [];
 
         while (tokens.moveNext()) {
             parts.push(this.createStringToken(tokens));
@@ -95,8 +92,8 @@ export class Parser {
     }
 }
 
-function* _tokenize(source: string): IterableIterator<BBTagToken> {
-    let states: stateTracker = { source, start: Position.initial, end: Position.initial };
+function* _tokenize(source: string): IterableIterator<IBBTagToken> {
+    const states: IStateTracker = { source, start: Position.initial, end: Position.initial };
     for (const char of source) {
         switch (char) {
             case '\n':
@@ -117,9 +114,9 @@ function* _tokenize(source: string): IterableIterator<BBTagToken> {
     yield createToken(states);
 }
 
-function createToken(states: stateTracker): BBTagToken {
-    let range = new Range(states.start, states.end);
-    let content = range.slice(states.source);
+function createToken(states: IStateTracker): IBBTagToken {
+    const range = new Range(states.start, states.end);
+    const content = range.slice(states.source);
     states.start = states.end;
     return { range, content };
 }

@@ -1,10 +1,10 @@
-import { default as system } from './system';
 import { Subtag } from '..';
+import { default as system } from './system';
 
 export {
     system
-}
+};
 
 export default [
     ...system
-] as Subtag<any>[];
+] as Array<Subtag<any>>;

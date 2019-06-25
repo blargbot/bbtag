@@ -3,11 +3,11 @@ import { Enumerable, Enumerator } from '..';
 export class IterableEnumerable<T> extends Enumerable<T> {
     private readonly _source: Iterable<T>;
 
-    public constructor(source: Iterable<T>) {
+    public constructor(source: Iterable<T> | (() => Iterator<T>)) {
         super();
 
-        this._source = source;
-        this.toIterable = () => source;
+        this._source = typeof source === 'function' ? { [Symbol.iterator]: source } : source;
+        this.toIterable = () => this._source;
     }
 
     public getEnumerator(): IteratorEnumerator<T> {
@@ -33,7 +33,7 @@ export class IteratorEnumerator<T> extends Enumerator<T> {
             return false;
         }
 
-        let next = this._source.next();
+        const next = this._source.next();
         this._complete = next.done;
         this._current = next.value;
 

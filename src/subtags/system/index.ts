@@ -1,10 +1,10 @@
+import { ExecutionContext, Subtag } from '../../models';
 import { default as comment } from './comment';
+import { default as db } from './db';
 import { default as lb } from './lb';
 import { default as rb } from './rb';
 import { default as semi } from './semi';
 import { default as zws } from './zws';
-import { default as db } from './db';
-import { Subtag, ExecutionContext } from '../../models';
 
 export default [
     comment,
@@ -13,4 +13,4 @@ export default [
     semi,
     zws,
     ...db
-] as Subtag<ExecutionContext>[];
+] as Array<Subtag<ExecutionContext>>;

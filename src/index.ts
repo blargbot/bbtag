@@ -6,4 +6,4 @@ import { default as s, system } from './subtags';
 export const subtags = {
     all: s,
     system
-}
+};

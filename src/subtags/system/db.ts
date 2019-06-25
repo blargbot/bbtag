@@ -1,4 +1,4 @@
-import { Subtag, ExecutionContext, SubtagToken } from '../../models';
+import { ExecutionContext, Subtag, SubtagToken } from '../../models';
 
 export class GetSubtag extends Subtag<ExecutionContext> {
     public constructor() {

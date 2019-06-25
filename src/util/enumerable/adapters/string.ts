@@ -2,12 +2,14 @@ import { Enumerable, Enumerator } from '..';
 import { IterableEnumerable } from './iterable';
 
 export class StringEnumerable extends IterableEnumerable<string> {
+    private readonly _raw: string;
+
     public constructor(source: string) {
         super(source);
-        this.toIterable = () => source;
+        this._raw = source;
     }
-}
 
-export interface StringEnumerable extends IterableEnumerable<string> {
-    toIterable(): string;
+    public toIterable(): string {
+        return this._raw;
+    }
 }

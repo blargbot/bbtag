@@ -1,7 +1,7 @@
-import { Parser } from './parser';
-import { SubtagToken, ExecutionContext, SubtagCollection, BBTag, OptimizationContext, StringToken } from './models';
-import { optimizeStringToken } from './optimizer';
 import { IDatabase } from './interfaces';
+import { BBTag, ExecutionContext, OptimizationContext, StringToken, SubtagCollection, SubtagToken } from './models';
+import { optimizeStringToken } from './optimizer';
+import { Parser } from './parser';
 
 export class Engine {
     public parser: Parser;
@@ -14,32 +14,32 @@ export class Engine {
         this.database = database;
     }
 
-    public async execute(string: StringToken, context: ExecutionContext): Promise<string> {
-        let parts: string[] = [];
-        for (const subtag of string.subtags) {
+    public async execute(input: StringToken, context: ExecutionContext): Promise<string> {
+        const parts: string[] = [];
+        for (const subtag of input.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
         }
-        return string.format.format(...parts);
+        return input.format.format(...parts);
     }
 
-    private async executeSubtag(subtag: SubtagToken, context: ExecutionContext): Promise<string> {
-        let name = await this.execute(subtag.name, context);
-        let executor = context.findSubtag(name);
+    public process(source: string): BBTag {
+        const root = this.parser.parse(source);
+        return {
+            source,
+            root: optimizeStringToken(root, new OptimizationContext(this))
+        };
+    }
+
+    private async executeSubtag(input: SubtagToken, context: ExecutionContext): Promise<string> {
+        const name = await this.execute(input.name, context);
+        const executor = context.findSubtag(name);
         if (executor === undefined) {
             return `\`Unknown subtag ${name}\``;
         }
         try {
-            return await executor.execute(subtag, context) || '';
+            return await executor.execute(input, context) || '';
         } catch {
             return '`Internal server error`';
         }
-    }
-
-    public process(source: string): BBTag {
-        let root = this.parser.parse(source);
-        return {
-            source: source,
-            root: optimizeStringToken(root, new OptimizationContext(this))
-        };
     }
 }

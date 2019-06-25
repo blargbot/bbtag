@@ -1,9 +1,9 @@
 {
     "defaultSeverity": "error",
-    "extends": [],
+    "extends": "tslint:latest",
     "jsRules": {},
     "rules": {
-        "strict": 0,
+        "strict": true,
         "semicolon": true,
         "indent": [
             true,
@@ -17,7 +17,41 @@
         "no-undef": 1,
         "no-global-assign": 1,
         "comma-dangle": "warn",
-        "no-trailing-spaces": "warn"
+        "no-trailing-spaces": "warn",
+        "member-access": true,
+        "typedef": [
+            true,
+            "call-signature",
+            "parameter",
+            "property-declaration",
+            "member-variable-declaration"
+        ],
+        "eofline": false,
+        "max-classes-per-file": false,
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "never",
+                "singleline": "never"
+            }
+        ],
+        "variable-name": {
+            "options": [
+                "ban-keywords",
+                "check-format",
+                "allow-leading-underscore",
+                "allow-pascal-case"
+            ]
+        },
+        "object-literal-sort-keys": false,
+        "unified-signatures": false,
+        "no-unused-expression": false,
+        "max-line-length": [
+            true,
+            180
+        ]
     },
-    "rulesDirectory": []
+    "rulesDirectory": [
+        "test"
+    ]
 }

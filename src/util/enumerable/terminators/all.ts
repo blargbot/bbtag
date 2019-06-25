@@ -1,9 +1,9 @@
 import { Enumerable } from '..';
-import { predicate } from '../types'
+import { predicateFunc } from '../types';
 
-export function all<T>(this: Enumerable<T>, predicate: predicate<T>): boolean {
+export function all<T>(this: Enumerable<T>, predicate: predicateFunc<T>): boolean {
     let index = 0;
-    let enumerator = this.getEnumerator();
+    const enumerator = this.getEnumerator();
 
     while (enumerator.moveNext()) {
         if (!predicate(enumerator.current, index++)) {

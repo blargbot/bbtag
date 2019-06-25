@@ -1,13 +1,15 @@
 import { IterableEnumerable } from './iterable';
 
 export class ArrayEnumerable<T> extends IterableEnumerable<T> {
+    private readonly _raw: T[];
+
     public constructor(source: T[]) {
         super(source);
-        this.toIterable = () => source;
         this.toArray = () => source;
+        this._raw = source;
     }
-}
 
-export interface ArrayEnumerable<T> extends IterableEnumerable<T> {
-    toIterable(): T[];
+    public toIterable(): T[] {
+        return this._raw;
+    }
 }

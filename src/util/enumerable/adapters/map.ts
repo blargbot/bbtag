@@ -1,12 +1,14 @@
 import { IterableEnumerable } from './iterable';
 
-export class MapEnumerable<Key, Value> extends IterableEnumerable<[Key, Value]> {
-    public constructor(source: Map<Key, Value>) {
-        super(source);
-        this.toIterable = () => source;
-    }
-}
+export class MapEnumerable<TKey, TValue> extends IterableEnumerable<[TKey, TValue]> {
+    private readonly _raw: Map<TKey, TValue>;
 
-export interface MapEnumerable<Key, Value> extends IterableEnumerable<[Key, Value]> {
-    toIterable(): Map<Key, Value>;
+    public constructor(source: Map<TKey, TValue>) {
+        super(source);
+        this._raw = source;
+    }
+
+    public toIterable(): Map<TKey, TValue> {
+        return this._raw;
+    }
 }

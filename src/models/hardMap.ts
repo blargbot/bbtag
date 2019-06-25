@@ -3,8 +3,8 @@ export class HardMap<TKey, TValue> extends Map<TKey, TValue> {
         super();
 
         if (valueGenerator) {
-            let baseGet = super.get.bind(this);
-            let baseSet = super.set.bind(this);
+            const baseGet = super.get.bind(this);
+            const baseSet = super.set.bind(this);
             this.get = function get(this: HardMap<TKey, TValue>, key: TKey): TValue | undefined {
                 let base = baseGet(key);
                 if (base === undefined) {
@@ -14,7 +14,7 @@ export class HardMap<TKey, TValue> extends Map<TKey, TValue> {
                     }
                 }
                 return base;
-            }
+            };
             this.has = () => true;
         }
     }

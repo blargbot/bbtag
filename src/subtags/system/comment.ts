@@ -1,4 +1,4 @@
-import { Subtag, ExecutionContext, SubtagToken } from '../../models';
+import { ExecutionContext, Subtag, SubtagToken } from '../../models';
 
 export class CommentSubtag extends Subtag<ExecutionContext> {
     public constructor() {
@@ -10,7 +10,7 @@ export class CommentSubtag extends Subtag<ExecutionContext> {
     }
 
     public execute(): Promise<any> {
-        throw new Error("This method should never be called");
+        throw new Error('This method should never be called');
     }
 
     public optimize(): SubtagToken | string {

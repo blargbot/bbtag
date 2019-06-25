@@ -1,18 +1,19 @@
 import { Enumerable } from '..';
-import { predicate } from '../types'
+import { predicateFunc } from '../types';
 
-export function last<T>(this: Enumerable<T>, predicate?: predicate<T>, defaultValue?: () => T): T {
+export function last<T>(this: Enumerable<T>, predicate?: predicateFunc<T>, defaultValue?: () => T): T {
     if (defaultValue === undefined) {
-        defaultValue = () => { throw new Error('Sequence contained no elements'); }
+        defaultValue = () => { throw new Error('Sequence contained no elements'); };
     }
 
-    let source = predicate === undefined ? this : this.where(predicate);
-    let enumerator = source.getEnumerator();
+    const source = predicate === undefined ? this : this.where(predicate);
+    const enumerator = source.getEnumerator();
 
     if (!enumerator.moveNext()) {
         return defaultValue();
     }
 
+    // tslint:disable-next-line: curly
     while (enumerator.moveNext());
 
     return enumerator.current;

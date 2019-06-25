@@ -1,20 +1,20 @@
 import { Range } from './range';
 
-export interface Token {
+export interface IToken {
     range: Range;
 }
 
-export interface BBTag {
+export interface IBBTag {
     source: string;
-    root: StringToken;
+    root: IStringToken;
 }
 
-export interface StringToken extends Token {
+export interface IStringToken extends IToken {
     format: string;
-    subtags: SubtagToken[];
+    subtags: ISubtagToken[];
 }
 
-export interface SubtagToken extends Token {
-    name: StringToken;
-    args: StringToken[];
+export interface ISubtagToken extends IToken {
+    name: IStringToken;
+    args: IStringToken[];
 }

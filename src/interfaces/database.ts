@@ -1,7 +1,7 @@
 import { ExecutionContext } from '../models';
 
-type DatabasePrimative = string | number
-export type DatabaseValue = Array<DatabasePrimative> | DatabasePrimative;
+type DatabasePrimative = string | number;
+export type DatabaseValue = DatabasePrimative[] | DatabasePrimative;
 
 export interface IDatabase {
     get(context: ExecutionContext, key: string): DatabaseValue;

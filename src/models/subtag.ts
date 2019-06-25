@@ -1,17 +1,17 @@
-import { SubtagContext, ExecutionContext, OptimizationContext } from './context';
-import { SubtagToken } from './bbtag';
 import { Enumerable } from '../util/enumerable';
+import { ISubtagToken } from './bbtag';
+import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 
 export interface ISubtag<TContext extends ExecutionContext> {
     readonly contextType: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
-    execute(token: SubtagToken, context: TContext): Promise<string | void> | string | void;
-    optimize(token: SubtagToken, tracker: OptimizationContext): SubtagToken | string;
+    execute(token: ISubtagToken, context: TContext): Promise<string | void> | string | void;
+    optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 
-export interface SubtagArguments<TContext extends SubtagContext> {
+export interface ISubtagArguments<TContext extends SubtagContext> {
     name: string;
     aliases?: Set<string> | string[] | Iterable<string> | Enumerable<string>;
     contextType: new (...args: any[]) => TContext;
@@ -22,19 +22,19 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
     public readonly name: string;
     public readonly aliases: Set<string>;
 
-    constructor(args: SubtagArguments<TContext>) {
+    constructor(args: ISubtagArguments<TContext>) {
         this.contextType = args.contextType;
         this.name = args.name;
-        this.aliases = Enumerable.from(<any>args.aliases || []).toSet();
+        this.aliases = Enumerable.from(args.aliases as any || []).toSet();
     }
 
-    public abstract execute(token: SubtagToken, context: TContext): Promise<string | void> | string | void;
+    public abstract execute(token: ISubtagToken, context: TContext): Promise<string | void> | string | void;
 
-    public optimize(token: SubtagToken, context: OptimizationContext): SubtagToken | string {
+    public optimize(token: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
         return token;
     }
 
-    public toString() {
+    public toString(): string {
         return `{${this.name}}`;
     }
 }
