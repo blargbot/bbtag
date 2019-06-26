@@ -9,4 +9,4 @@ export {
     StringExecutionResult,
     SubtagExecutionResult
 } from './subtagResults';
-export { args } from './subtagArguments';
+export { args, SubtagValue, SubtagArgumentDefinition } from './subtagArguments';

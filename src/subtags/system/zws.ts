@@ -1,4 +1,4 @@
-import { ExecutionContext, ISubtagToken, Subtag } from '../../models';
+import { ExecutionContext, ISubtagToken, Subtag, SubtagValue } from '../../models';
 
 export class ZWSSubtag extends Subtag<ExecutionContext> {
     public constructor() {
@@ -8,7 +8,7 @@ export class ZWSSubtag extends Subtag<ExecutionContext> {
         });
     }
 
-    public execute(): Promise<any> {
+    public execute(): Promise<SubtagValue> {
         throw new Error('This method should never be called');
     }
 

@@ -14,7 +14,6 @@ import {
 import { ChainedError } from './models/errors';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
-import { default as util } from './util';
 
 export class Engine {
     public parser: Parser;
@@ -50,7 +49,7 @@ export class Engine {
             return createSubtagResult(new Error(`Unknown subtag ${name}`));
         }
         try {
-            return await executor.execute(input, context) || '';
+            return createSubtagResult(await executor.execute(input, context));
         } catch (ex) {
             return createSubtagResult(new ChainedError('Internal server error', ex));
         }
