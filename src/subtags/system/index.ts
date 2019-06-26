@@ -5,6 +5,7 @@ import lb from './lb';
 import rb from './rb';
 import semi from './semi';
 import zws from './zws';
+import _if from './if';
 
 export default [
     comment,
@@ -12,5 +13,6 @@ export default [
     rb,
     semi,
     zws,
+    _if,
     ...db
 ] as Array<Subtag<ExecutionContext>>;

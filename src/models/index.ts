@@ -9,4 +9,5 @@ export {
     StringExecutionResult,
     SubtagExecutionResult
 } from './subtagResults';
-export { args, SubtagValue, SubtagArgumentDefinition } from './subtagArguments';
+export { args, SubtagResult as SubtagValue, SubtagArgumentDefinition } from './subtagArguments';
+export { default as errors, SubtagError, ChainedError } from './errors';

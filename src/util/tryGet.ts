@@ -11,7 +11,7 @@ export type TryGetResult<T> = ITryGetFailure | ITryGetSuccess<T>;
 
 export interface ITryGetSuccess<T> {
     readonly success: true;
-    value: T;
+    readonly value: T;
 }
 
 export interface ITryGetFailure {

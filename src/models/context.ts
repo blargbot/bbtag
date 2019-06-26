@@ -15,8 +15,8 @@ export abstract class SubtagContext {
     }
 
     public findSubtag(this: OptimizationContext, name: string): ISubtag<any> | undefined;
-    public findSubtag<TContext extends SubtagContext>(this: TContext, name: string): ISubtag<TContext> | undefined;
-    public findSubtag<TContext extends SubtagContext>(this: TContext, name: string): ISubtag<TContext> | undefined {
+    public findSubtag<TContext extends ExecutionContext>(this: TContext, name: string): ISubtag<TContext> | undefined;
+    public findSubtag<TContext extends ExecutionContext>(this: TContext, name: string): ISubtag<TContext> | undefined {
         return this.overrides.findSubtag(this, name) || this.engine.subtags.findSubtag(this, name);
     }
 }
@@ -24,6 +24,10 @@ export abstract class SubtagContext {
 export class ExecutionContext extends SubtagContext {
     public constructor(engine: Engine, tagName: string) {
         super(engine, tagName);
+    }
+
+    public execute(token: IStringToken): Promise<StringExecutionResult> {
+        return this.engine.execute(token, this);
     }
 }
 
@@ -33,4 +37,6 @@ export class OptimizationContext extends SubtagContext {
     }
 }
 
+import { IStringToken } from './bbtag';
 import { SubtagCollection } from './subtagCollection';
+import { StringExecutionResult, SubtagExecutionResult } from './subtagResults';

@@ -9,9 +9,9 @@ import {
     OptimizationContext,
     StringExecutionResult,
     SubtagCollection,
+    SubtagError,
     SubtagExecutionResult
 } from './models';
-import { ChainedError } from './models/errors';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
 
@@ -43,15 +43,15 @@ export class Engine {
     }
 
     protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagExecutionResult> {
-        const name = await this.execute(input.name, context);
-        const executor = context.findSubtag(name.getString());
+        const name = (await this.execute(input.name, context)).getString();
+        const executor = context.findSubtag(name);
         if (executor === undefined) {
-            return createSubtagResult(new Error(`Unknown subtag ${name}`));
+            return createSubtagResult(new SubtagError(`Unknown subtag ${name}`, input));
         }
         try {
-            return createSubtagResult(await executor.execute(input, context));
+            return await executor.execute(input, context);
         } catch (ex) {
-            return createSubtagResult(new ChainedError('Internal server error', ex));
+            return createSubtagResult(new SubtagError('Internal server error', ex, input));
         }
     }
 }

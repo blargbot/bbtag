@@ -4,6 +4,7 @@
     "description": "The engine behind blargbots custom commands",
     "main": "./dist/index.js",
     "scripts": {
+        "lint": "tslint src/**/*.ts test/**/*.ts",
         "build": "rimraf ./dist && cd ./src && tsc",
         "watch": "rimraf ./dist && cd ./src && tsc -w",
         "test": "rimraf ./dist ./test/out && cd ./test && tsc && cd .. && mocha --reporter spec",
@@ -25,6 +26,7 @@
         "chai": "^4.1.2",
         "mocha": "^5.2.0",
         "rimraf": "^2.6.3",
+        "tslint": "^5.18.0",
         "typescript": "^2.9.2"
     }
 }

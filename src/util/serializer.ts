@@ -1,29 +1,81 @@
 import { default as tryGet, TryGetResult } from './tryGet';
 
-export function serializeArray(value: any[]): string {
-    return undefined!;
+export interface ISerializer<T> {
+    serialize(value: T): string;
+    deserialize(value: string): T;
+    tryDeserialize(value: string): TryGetResult<T>;
 }
 
-export function tryDeserializeArray(value: string): TryGetResult<any[]> {
-    return undefined!;
-}
-
-export function serializeObject(value: any): string {
-    return undefined!;
-}
-
-export function tryDeserializeObject(value: string): TryGetResult<any> {
-    return undefined!;
-}
-
-export function serializeNumber(value: number): string {
-    return value.toString();
-}
-
-export function tryDeserializeNumber(value: string): TryGetResult<number> {
-    const result = Number(value);
-    if (isNaN(result) && !/$nan^/i.test(value)) {
-        return tryGet.failure();
+export const array: ISerializer<any[]> = {
+    serialize(value: any[]): string {
+        return undefined!;
+    },
+    tryDeserialize(value: string): TryGetResult<any[]> {
+        return undefined!;
+    },
+    deserialize(value: string): any[] {
+        const result = array.tryDeserialize(value);
+        if (result.success) {
+            return result.value;
+        }
+        throw new Error(`Failed to deserialize ${value} as number`);
     }
-    return tryGet.success(result);
-}
+};
+
+export const object: ISerializer<any> = {
+    serialize(value: any): string {
+        return JSON.stringify(value);
+    },
+    tryDeserialize(value: string): TryGetResult<any> {
+        return JSON.parse(value);
+    },
+    deserialize(value: string): any {
+        const result = object.tryDeserialize(value);
+        if (result.success) {
+            return result.value;
+        }
+        throw new Error(`Failed to deserialize ${value} as object`);
+    }
+};
+
+// tslint:disable-next-line: variable-name
+export const number: ISerializer<number> = {
+    serialize(value: number): string {
+        return value.toString();
+    },
+    tryDeserialize(value: string): TryGetResult<number> {
+        const result = Number(value);
+        if (isNaN(result) && !/$nan^/i.test(value)) {
+            return tryGet.failure();
+        }
+        return tryGet.success(result);
+    },
+    deserialize(value: string): number {
+        const result = number.tryDeserialize(value);
+        if (result.success) {
+            return result.value;
+        }
+        throw new Error(`Failed to deserialize ${value} as number`);
+    }
+};
+
+// tslint:disable-next-line: variable-name
+export const boolean: ISerializer<boolean> = {
+    serialize(value: boolean): string {
+        return value.toString();
+    },
+    tryDeserialize(value: string): TryGetResult<boolean> {
+        const match = /^(?:(true|yes|t|y)|(false|no|f|n))$/i.exec(value);
+        if (match !== null) {
+            return tryGet.success(!!match[1]);
+        }
+        return tryGet.failure();
+    },
+    deserialize(value: string): boolean {
+        const result = boolean.tryDeserialize(value);
+        if (result.success) {
+            return result.value;
+        }
+        throw new Error(`Failed to deserialize ${value} as boolean`);
+    }
+};

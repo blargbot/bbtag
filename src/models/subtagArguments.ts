@@ -1,10 +1,10 @@
 import util from '../util';
-import { ISubtagToken } from './bbtag';
-import { ExecutionContext } from './context';
-import { IObject } from './subtagResults';
+import { SubtagError } from './errors';
+import { StringExecutionResult } from './subtagResults';
 
 export type SubtagArgumentDefinition = IHandlerArgumentGroup | IHandlerArgumentValue;
-export type SubtagValue = string | number | Array<number | string> | Error | IObject | undefined;
+export type SubtagResultPrimitive = undefined | string | number | boolean;
+export type SubtagResult = SubtagResultPrimitive | SubtagResultPrimitive[] | SubtagError | StringExecutionResult;
 
 function _create(name: string, required: boolean): IHandlerArgumentValue;
 function _create(name: string, required: boolean, type: string): IHandlerArgumentValue;
@@ -39,12 +39,12 @@ function _group(required: boolean | SubtagArgumentDefinition[], values?: SubtagA
 
 function _argsToString(values: SubtagArgumentDefinition[]): string;
 function _argsToString(...values: SubtagArgumentDefinition[]): string;
-function _argsToString(...values: SubtagArgumentDefinition[] | [SubtagArgumentDefinition[]]): string {
+function _argsToString(...values: any[]): string {
     if (values.length === 1 && Array.isArray(values[0])) {
         values = values[0];
     }
 
-    return _argsToStringRecursive(values as SubtagArgumentDefinition[]).trim();
+    return _argsToStringRecursive(values).trim();
 }
 
 function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {

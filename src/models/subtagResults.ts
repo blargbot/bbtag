@@ -1,24 +1,28 @@
 import { TryGetResult, util } from '../util';
-import { SubtagValue } from './subtagArguments';
+import { SubtagError } from './errors';
+import { SubtagResult, SubtagResultPrimitive } from './subtagArguments';
 
 export type StringExecutionResult = IFormattedStringResult | IUnformattedStringResult;
 export type SubtagExecutionResult = ISubtagExecutionFailure | ISubtagExecutionSuccess;
 
 export function createSubtagResult(value: string): SubtagStringResult;
+export function createSubtagResult(value: boolean): SubtagBooleanResult;
 export function createSubtagResult(value: number): SubtagNumberResult;
 export function createSubtagResult(value: Array<string | number>): SubtagArrayResult;
-export function createSubtagResult(value: IObject): SubtagObjectResult;
-export function createSubtagResult(value: Error): SubtagErrorResult;
-export function createSubtagResult(value: SubtagValue): SubtagExecutionResult;
-export function createSubtagResult(value: SubtagValue): SubtagExecutionResult {
+export function createSubtagResult(value: SubtagError): SubtagErrorResult;
+export function createSubtagResult(value: StringExecutionResult): SubtagExecutionResult;
+export function createSubtagResult(value: SubtagResult): SubtagExecutionResult;
+export function createSubtagResult(value: SubtagResult): SubtagExecutionResult {
     switch (typeof value) {
         case 'string': return new SubtagStringResult(value as string);
         case 'number': return new SubtagNumberResult(value as number);
+        case 'boolean': return new SubtagBooleanResult(value as boolean);
         case 'object':
+            if (value === undefined) { return new SubtagStringResult(''); }
             if (Array.isArray(value)) { return new SubtagArrayResult(value); }
-            if (value instanceof Error) { return new SubtagErrorResult(value); }
-            if (value === null) { return new SubtagStringResult(''); }
-            return new SubtagObjectResult(value as IObject);
+            if (value instanceof SubtagError) { return new SubtagErrorResult(value); }
+            if ('isFormatted' in (value as object)) { return new SubtagStringExecutionResult(value as StringExecutionResult); }
+            break;
         case 'undefined':
             return new SubtagStringResult('');
     }
@@ -36,15 +40,15 @@ abstract class ValueSource implements ISubtagValueSource {
     public abstract getString(): string;
 
     public tryGetNumber(): TryGetResult<number> {
-        return util.serialization.tryDeserializeNumber(this.getString());
+        return util.serialization.number.tryDeserialize(this.getString());
     }
 
-    public tryGetArray(): TryGetResult<Array<string | number>> {
-        return util.serialization.tryDeserializeArray(this.getString());
+    public tryGetBoolean(): TryGetResult<boolean> {
+        return util.serialization.boolean.tryDeserialize(this.getString());
     }
 
-    public tryGetObject(): TryGetResult<IObject> {
-        return util.serialization.tryDeserializeObject(this.getString());
+    public tryGetArray(): TryGetResult<SubtagResultPrimitive[]> {
+        return util.serialization.array.tryDeserialize(this.getString());
     }
 }
 
@@ -52,25 +56,8 @@ abstract class SubtagSuccess<TRaw> extends ValueSource implements ISubtagExecuti
     public readonly isSuccess: true = true;
     protected readonly _raw: TRaw;
 
-    constructor(raw: TRaw) {
+    public constructor(raw: TRaw) {
         super();
-        this._raw = raw;
-    }
-
-    public getRaw(): TRaw {
-        return this._raw;
-    }
-
-    public toString(): string {
-        return '' + this._raw;
-    }
-}
-
-abstract class SubtagFailure<TRaw> implements ISubtagExecutionFailure {
-    public readonly isSuccess: false = false;
-    protected readonly _raw: TRaw;
-
-    constructor(raw: TRaw) {
         this._raw = raw;
     }
 
@@ -80,6 +67,36 @@ abstract class SubtagFailure<TRaw> implements ISubtagExecutionFailure {
 
     public getString(): string {
         return '' + this._raw;
+    }
+}
+
+abstract class SubtagFailure<TRaw> extends ValueSource implements ISubtagExecutionFailure {
+    public readonly isSuccess: false = false;
+    protected readonly _raw: TRaw;
+
+    public constructor(raw: TRaw) {
+        super();
+        this._raw = raw;
+    }
+
+    public getRaw(): TRaw {
+        return this._raw;
+    }
+
+    public getString(): string {
+        return '' + this._raw;
+    }
+
+    public tryGetNumber(): TryGetResult<number> {
+        return util.tryGet.failure();
+    }
+
+    public tryGetBoolean(): TryGetResult<boolean> {
+        return util.tryGet.failure();
+    }
+
+    public tryGetArray(): TryGetResult<SubtagResultPrimitive[]> {
+        return util.tryGet.failure();
     }
 }
 
@@ -87,19 +104,19 @@ abstract class StringResult extends ValueSource {
     protected readonly _format: string;
     protected readonly _results: SubtagExecutionResult[];
 
-    constructor(format: string, subtagResults: SubtagExecutionResult[]) {
+    public constructor(format: string, subtagResults: SubtagExecutionResult[]) {
         super();
         this._format = format;
         this._results = subtagResults;
     }
 
     public getString(): string {
-        return util.format(this._format, this._results);
+        return util.format(this._format, this._results.map(r => r.getString()));
     }
 }
 
 class SubtagStringResult extends SubtagSuccess<string> {
-    constructor(value: string) {
+    public constructor(value: string) {
         super(value);
     }
 
@@ -107,69 +124,102 @@ class SubtagStringResult extends SubtagSuccess<string> {
 }
 
 class SubtagNumberResult extends SubtagSuccess<number> {
-    constructor(value: number) {
+    public constructor(value: number) {
         super(value);
     }
 
     public getString(): string {
-        return util.serialization.serializeNumber(this._raw);
+        return util.serialization.number.serialize(this._raw);
     }
 
     public tryGetNumber(): TryGetResult<number> {
         return util.tryGet.success(this._raw);
     }
 
-    public tryGetArray(): TryGetResult<Array<string | number>> {
+    public tryGetBoolean(): TryGetResult<boolean> {
         return util.tryGet.failure();
     }
 
-    public tryGetObject(): TryGetResult<IObject> {
+    public tryGetArray(): TryGetResult<SubtagResultPrimitive[]> {
         return util.tryGet.failure();
     }
 }
 
-class SubtagArrayResult extends SubtagSuccess<Array<string | number>> {
-    constructor(value: Array<string | number>) {
+class SubtagBooleanResult extends SubtagSuccess<boolean> {
+    public constructor(value: boolean) {
         super(value);
     }
 
     public getString(): string {
-        return util.serialization.serializeArray(this._raw);
+        return util.serialization.boolean.serialize(this._raw);
     }
 
     public tryGetNumber(): TryGetResult<number> {
         return util.tryGet.failure();
     }
 
-    public tryGetArray(): TryGetResult<Array<string | number>> {
+    public tryGetBoolean(): TryGetResult<boolean> {
         return util.tryGet.success(this._raw);
     }
 
-    public tryGetObject(): TryGetResult<IObject> {
-        return util.tryGet.success(this._raw as IObject);
+    public tryGetArray(): TryGetResult<Array<string | number>> {
+        return util.tryGet.failure();
     }
 }
 
-class SubtagObjectResult extends SubtagSuccess<IObject> {
-
-    constructor(value: IObject) {
+class SubtagArrayResult extends SubtagSuccess<SubtagResultPrimitive[]> {
+    public constructor(value: SubtagResultPrimitive[]) {
         super(value);
     }
 
     public getString(): string {
-        return util.serialization.serializeObject(this._raw);
+        return util.serialization.array.serialize(this._raw);
     }
 
     public tryGetNumber(): TryGetResult<number> {
         return util.tryGet.failure();
     }
 
-    public tryGetArray(): TryGetResult<Array<string | number>> {
+    public tryGetBoolean(): TryGetResult<boolean> {
         return util.tryGet.failure();
     }
 
-    public tryGetObject(): TryGetResult<IObject> {
+    public tryGetArray(): TryGetResult<SubtagResultPrimitive[]> {
         return util.tryGet.success(this._raw);
+    }
+}
+
+class SubtagStringExecutionResult extends SubtagSuccess<StringExecutionResult> {
+    public constructor(value: StringExecutionResult) {
+        super(value);
+    }
+
+    public getString(): string {
+        return this._raw.getString();
+    }
+
+    public tryGetNumber(): TryGetResult<number> {
+        if (this._raw.isFormatted) {
+            return this._raw.tryGetNumber();
+        } else {
+            return this._raw.subtagResult.tryGetNumber();
+        }
+    }
+
+    public tryGetBoolean(): TryGetResult<boolean> {
+        if (this._raw.isFormatted) {
+            return this._raw.tryGetBoolean();
+        } else {
+            return this._raw.subtagResult.tryGetBoolean();
+        }
+    }
+
+    public tryGetArray(): TryGetResult<SubtagResultPrimitive[]> {
+        if (this._raw.isFormatted) {
+            return this._raw.tryGetArray();
+        } else {
+            return this._raw.subtagResult.tryGetArray();
+        }
     }
 }
 
@@ -204,7 +254,7 @@ class UnformattedStringResult extends StringResult implements IUnformattedString
         return this.subtagResult.getString();
     }
 
-    public tryGetArray(): TryGetResult<Array<number | string>> {
+    public tryGetArray(): TryGetResult<SubtagResultPrimitive[]> {
         if (!this.subtagResult.isSuccess) {
             return util.tryGet.failure();
         }
@@ -217,23 +267,13 @@ class UnformattedStringResult extends StringResult implements IUnformattedString
         }
         return this.subtagResult.tryGetNumber();
     }
-
-    public tryGetObject(): TryGetResult<IObject> {
-        if (!this.subtagResult.isSuccess) {
-            return util.tryGet.failure();
-        }
-        return this.subtagResult.tryGetObject();
-    }
 }
 
-interface ISubtagStringSource {
+export interface ISubtagValueSource {
     getString(): string;
-}
-
-interface ISubtagValueSource extends ISubtagStringSource {
-    tryGetArray(): TryGetResult<Array<number | string>>;
+    tryGetArray(): TryGetResult<SubtagResultPrimitive[]>;
     tryGetNumber(): TryGetResult<number>;
-    tryGetObject(): TryGetResult<IObject>;
+    tryGetBoolean(): TryGetResult<boolean>;
 }
 
 export interface IFormattedStringResult extends ISubtagValueSource {
@@ -245,7 +285,7 @@ export interface IUnformattedStringResult extends ISubtagValueSource {
     readonly subtagResult: SubtagExecutionResult;
 }
 
-export interface ISubtagExecutionFailure extends ISubtagStringSource {
+export interface ISubtagExecutionFailure extends ISubtagValueSource {
     readonly isSuccess: false;
     getRaw(): any;
 }
@@ -253,8 +293,4 @@ export interface ISubtagExecutionFailure extends ISubtagStringSource {
 export interface ISubtagExecutionSuccess extends ISubtagValueSource {
     readonly isSuccess: true;
     getRaw(): any;
-}
-
-export interface IObject {
-    [key: string]: any;
 }

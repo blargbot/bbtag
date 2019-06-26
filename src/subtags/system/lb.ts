@@ -8,7 +8,7 @@ export class LBSubtag extends Subtag<ExecutionContext> {
         });
     }
 
-    public execute(): Promise<SubtagValue> {
+    public execute(): never {
         throw new Error('This method should never be called');
     }
 

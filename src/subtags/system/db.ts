@@ -1,4 +1,4 @@
-import { ExecutionContext, ISubtagToken, Subtag, SubtagValue } from '../../models';
+import { ExecutionContext, Subtag } from '../../models';
 
 export class GetSubtag extends Subtag<ExecutionContext> {
     public constructor() {
@@ -6,10 +6,6 @@ export class GetSubtag extends Subtag<ExecutionContext> {
             name: 'get',
             contextType: ExecutionContext
         });
-    }
-
-    public async execute(subtag: ISubtagToken, context: ExecutionContext): Promise<SubtagValue> {
-        throw new Error('Not implemented');
     }
 }
 
@@ -19,10 +15,6 @@ export class SetSubtag extends Subtag<ExecutionContext> {
             name: 'set',
             contextType: ExecutionContext
         });
-    }
-
-    public async execute(subtag: ISubtagToken, context: ExecutionContext): Promise<SubtagValue> {
-        throw new Error('Not implemented');
     }
 }
 

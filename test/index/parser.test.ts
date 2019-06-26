@@ -1,11 +1,12 @@
-import '../src/';
+import '../../src';
+// tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { Parser } from '../src/parser';
-import { tag, str, stripStrToken } from './test helpers/subtag';
+import { Parser } from '../../src/parser';
+import { tag, str, stripStrToken } from '../test helpers/subtag';
 
-describe('Parse', function () {
-    describe('parse', function () {
-        let testCases: { input: string, expected: any }[] = [
+describe('Parse', () => {
+    describe('parse', () => {
+        const testCases: Array<{ input: string, expected: any }> = [
             { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
             { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
             { input: 'this is a test', expected: str('this is a test') },
@@ -16,10 +17,10 @@ describe('Parse', function () {
 
         for (const testCase of testCases) {
             if (testCase.expected instanceof Error) {
-                it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, function () {
+                it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, () => {
                     // arrange
-                    let parser = new Parser();
-                    let test = () => parser.parse(testCase.input);
+                    const parser = new Parser();
+                    const test = () => parser.parse(testCase.input);
 
                     // act
 
@@ -27,12 +28,12 @@ describe('Parse', function () {
                     expect(test).to.throw(testCase.expected.message);
                 });
             } else {
-                it(`should correctly parse ${testCase.input}`, function () {
+                it(`should correctly parse ${testCase.input}`, () => {
                     // arrange
-                    let parser = new Parser();
+                    const parser = new Parser();
 
                     // act
-                    let result = parser.parse(testCase.input);
+                    const result = parser.parse(testCase.input);
 
                     // assert
                     expect(stripStrToken(result)).to.deep.equal(testCase.expected);
