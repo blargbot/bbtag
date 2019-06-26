@@ -1,19 +1,17 @@
 import { IDatabase } from './interfaces';
 import {
-    createStringResult,
-    createSubtagResult,
     ExecutionContext,
     IBBTag,
     IStringToken,
     ISubtagToken,
     OptimizationContext,
-    StringExecutionResult,
     SubtagCollection,
     SubtagError,
-    SubtagExecutionResult
+    SubtagResult
 } from './models';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
+import { default as util } from './util';
 
 export class Engine {
     public parser: Parser;
@@ -26,12 +24,16 @@ export class Engine {
         this.database = database;
     }
 
-    public async execute(input: IStringToken, context: ExecutionContext): Promise<StringExecutionResult> {
-        const parts: SubtagExecutionResult[] = [];
+    public async execute(input: IStringToken, context: ExecutionContext): Promise<SubtagResult> {
+        const parts: SubtagResult[] = [];
         for (const subtag of input.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
         }
-        return createStringResult(input.format, parts);
+        if (parts.length === 1 && util.format(input.format, '') === '') {
+            return parts[0];
+        } else {
+            return util.format(input.format, parts.map(util.subtag.toString));
+        }
     }
 
     public process(source: string): IBBTag {
@@ -42,16 +44,16 @@ export class Engine {
         };
     }
 
-    protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagExecutionResult> {
-        const name = (await this.execute(input.name, context)).getString();
+    protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
+        const name = util.subtag.toString(await this.execute(input.name, context));
         const executor = context.findSubtag(name);
         if (executor === undefined) {
-            return createSubtagResult(new SubtagError(`Unknown subtag ${name}`, input));
+            return new SubtagError(`Unknown subtag ${name}`, input);
         }
         try {
             return await executor.execute(input, context);
         } catch (ex) {
-            return createSubtagResult(new SubtagError('Internal server error', ex, input));
+            return new SubtagError('Internal server error', ex, input);
         }
     }
 }

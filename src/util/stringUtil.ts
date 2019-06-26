@@ -6,3 +6,7 @@ export function format(pattern: string, ...items: any[]): string {
     }
     return pattern.replace(/\{(\d+)\}/, (match, n) => n in items ? items[n] : match);
 }
+
+export default {
+    format
+};

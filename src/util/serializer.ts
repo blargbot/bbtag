@@ -79,3 +79,10 @@ export const boolean: ISerializer<boolean> = {
         throw new Error(`Failed to deserialize ${value} as boolean`);
     }
 };
+
+export default {
+    array,
+    object,
+    number,
+    boolean
+};

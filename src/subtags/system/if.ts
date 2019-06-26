@@ -1,5 +1,6 @@
-import { errors, ExecutionContext, IStringToken, Subtag, SubtagValue, StringExecutionResult as SER, ISubtagToken } from '../../models';
-import boolSubtag from './bool';
+import { errors, ExecutionContext, IStringToken, Subtag, SubtagResult, ISubtagToken } from '../../models';
+import { default as boolSubtag } from './bool';
+import { default as util } from '../../util';
 
 export class IfSubtag extends Subtag<ExecutionContext> {
     public constructor() {
@@ -14,8 +15,8 @@ export class IfSubtag extends Subtag<ExecutionContext> {
             .default(errors.tooManyArgs);
     }
 
-    public runNoComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: IStringToken[], [bool]: SER[]): Promise<SubtagValue> {
-        const tryBool = bool.tryGetBoolean();
+    public runNoComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: IStringToken[], [bool]: SubtagResult[]): Promise<SubtagResult> {
+        const tryBool = util.subtag.tryToBoolean(bool);
         if (otherwise === undefined) {
             otherwise = this.fakeArgument('');
         }
@@ -29,7 +30,7 @@ export class IfSubtag extends Subtag<ExecutionContext> {
         }
     }
 
-    public runWithComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: IStringToken[], [left, comp, right]: SER[]): Promise<SubtagValue> {
+    public runWithComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: IStringToken[], [left, comp, right]: SubtagResult[]): Promise<SubtagResult> {
         const boolResult = boolSubtag.check(context, left, comp, right);
         if (otherwise === undefined) {
             otherwise = this.fakeArgument('');

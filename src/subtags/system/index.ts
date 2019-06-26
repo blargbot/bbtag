@@ -1,11 +1,11 @@
 import { ExecutionContext, Subtag } from '../../models';
-import comment from './comment';
-import db from './db';
-import lb from './lb';
-import rb from './rb';
-import semi from './semi';
-import zws from './zws';
-import _if from './if';
+import { default as comment } from './comment';
+import { default as db } from './db';
+import { default as lb } from './lb';
+import { default as rb } from './rb';
+import { default as semi } from './semi';
+import { default as zws } from './zws';
+import { default as _if } from './if';
 
 export default [
     comment,

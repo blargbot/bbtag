@@ -1,6 +1,8 @@
 import { Engine } from '../engine';
 import { IDatabase } from '../interfaces';
-import { ISubtag } from './subtag';
+import { ISubtag, SubtagResult } from './subtag';
+import { IStringToken } from './bbtag';
+import { SubtagCollection } from './subtagCollection';
 
 export abstract class SubtagContext {
     public readonly engine: Engine;
@@ -26,7 +28,7 @@ export class ExecutionContext extends SubtagContext {
         super(engine, tagName);
     }
 
-    public execute(token: IStringToken): Promise<StringExecutionResult> {
+    public execute(token: IStringToken): Promise<SubtagResult> {
         return this.engine.execute(token, this);
     }
 }
@@ -36,7 +38,3 @@ export class OptimizationContext extends SubtagContext {
         super(engine, 'system_optimize');
     }
 }
-
-import { IStringToken } from './bbtag';
-import { SubtagCollection } from './subtagCollection';
-import { StringExecutionResult, SubtagExecutionResult } from './subtagResults';

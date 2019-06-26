@@ -1,13 +1,12 @@
-import * as serialization from './serializer';
-import * as stringUtil from './stringUtil';
+export { TryGetResult, ITryGetFailure, ITryGetSuccess } from './tryGet';
+import { default as serialization } from './serializer';
+import { default as stringUtil } from './stringUtil';
+import { default as subtag } from './subtagResults';
 import { default as tryGet } from './tryGet';
 
-export const util = {
+export default {
     ...stringUtil,
     serialization,
-    tryGet
+    tryGet,
+    subtag
 };
-
-export { TryGetResult, ITryGetFailure, ITryGetSuccess } from './tryGet';
-
-export default util;

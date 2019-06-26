@@ -4,7 +4,8 @@ import { expect } from 'chai';
 import { Engine } from '../../src/engine';
 import { tag, str, stripStrToken } from '../test helpers/subtag';
 import { default as subtags } from '../../src/subtags';
-import { ExecutionContext, StringExecutionResult, IBBTag, IStringToken } from '../../src/models';
+import { ExecutionContext, IStringToken, SubtagResult } from '../../src/models';
+import { default as util } from '../../src/util';
 
 describe('engine', () => {
     describe('process', () => {
@@ -51,10 +52,10 @@ describe('engine', () => {
         const engine = new Engine(undefined!);
         engine.subtags.register(...subtags);
 
-        const testCases: Array<{ input: string, token?: IStringToken, assert: (context: ExecutionContext, result: StringExecutionResult) => void }> = [
-            { input: 'hi {if;true;yay!}', assert: (_, r) => expect(r.getString()).to.be.equal('hi yay!') },
-            { input: 'hi {if;true}', assert: (_, r) => expect(r.getString()).to.be.equal('hi `Not enough arguments`') },
-            { input: 'hi {if;false;yay!}', assert: (_, r) => expect(r.getString()).to.be.equal('hi ') }
+        const testCases: Array<{ input: string, token?: IStringToken, assert: (context: ExecutionContext, result: SubtagResult) => void }> = [
+            { input: 'hi {if;true;yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi yay!') },
+            { input: 'hi {if;true}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi `Not enough arguments`') },
+            { input: 'hi {if;false;yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi ') }
         ];
 
         for (const entry of testCases) {

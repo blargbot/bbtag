@@ -4,8 +4,14 @@ function tryGetResult<T>(success: boolean, value: T): TryGetResult<T>;
 function tryGetResult<T>(success: boolean, value: T): TryGetResult<T> {
     return success ? tryGetSuccess(value) : tryGetFailure();
 }
-function tryGetFailure(): ITryGetFailure { return { success: false }; }
-function tryGetSuccess<T>(value: T): ITryGetSuccess<T> { return { success: true, value }; }
+
+function tryGetFailure(): ITryGetFailure {
+    return { success: false };
+}
+
+function tryGetSuccess<T>(value: T): ITryGetSuccess<T> {
+    return { success: true, value };
+}
 
 export type TryGetResult<T> = ITryGetFailure | ITryGetSuccess<T>;
 

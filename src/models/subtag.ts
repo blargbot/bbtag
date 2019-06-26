@@ -1,13 +1,11 @@
-import util from '../util';
+import { default as util } from '../util';
 import { Enumerable } from '../util/enumerable';
 import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
-import { SubtagResult } from './subtagArguments';
-import { createSubtagResult, StringExecutionResult, SubtagExecutionResult } from './subtagResults';
 
 type SubtagConditionFunc = (args: IStringToken[]) => boolean;
-type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: StringExecutionResult[]) => Promise<SubtagResult> | SubtagResult;
+type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Promise<SubtagResult> | SubtagResult;
 type SubtagCondition = SubtagConditionFunc | string | number;
 // tslint:disable-next-line: interface-over-type-literal
 type SubtagConditionParser = { regex: RegExp, parser: (match: RegExpExecArray) => Exclude<SubtagCondition, string> | undefined };
@@ -15,12 +13,15 @@ type SubtagConditionParser = { regex: RegExp, parser: (match: RegExpExecArray) =
 type SubtagConditionalHandler<T, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, autoResolve: Set<number> };
 const defaultParsers: SubtagConditionParser[] = [];
 
+export type SubtagPrimativeResult = undefined | string | number | boolean;
+export type SubtagResult = SubtagPrimativeResult | SubtagPrimativeResult[] | SubtagError;
+
 export interface ISubtag<TContext extends ExecutionContext> {
     readonly contextType: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
-    execute(token: ISubtagToken, context: TContext): Promise<SubtagExecutionResult> | SubtagExecutionResult;
+    execute(token: ISubtagToken, context: TContext): Promise<SubtagResult> | SubtagResult;
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 
@@ -45,7 +46,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         this._conditionals = [];
     }
 
-    public async execute(token: ISubtagToken, context: T): Promise<SubtagExecutionResult> {
+    public async execute(token: ISubtagToken, context: T): Promise<SubtagResult> {
         let action;
         let autoResolve: Set<number> | undefined;
         for (const { condition, handler, autoResolve: ar } of this._conditionals) {
@@ -62,11 +63,11 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
 
         if (action === undefined || autoResolve === undefined) {
-            return createSubtagResult(new SubtagError(`Missing handler for execution of subtag {${[this.name, ...token.args.map(a => '')].join(';')}}`, token));
+            return new SubtagError(`Missing handler for execution of subtag {${[this.name, ...token.args.map(a => '')].join(';')}}`, token);
         }
 
         try {
-            const resolved: StringExecutionResult[] = [];
+            const resolved: SubtagResult[] = [];
             const args: IStringToken[] = [];
             for (let i = 0; i < token.args.length; i++) {
                 if (autoResolve.has(i)) {
@@ -75,14 +76,14 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
                     args.push(token.args[i]);
                 }
             }
-            return createSubtagResult(await action.call(this, context, token, args, resolved));
+            return await action.call(this, context, token, args, resolved);
         } catch (ex) {
             if (!(ex instanceof Error)) {
-                return createSubtagResult(new SubtagError('' + ex, token));
+                return new SubtagError('' + ex, token);
             } else if (!(ex instanceof SubtagError)) {
-                return createSubtagResult(new SubtagError(ex, token));
+                return new SubtagError(ex, token);
             } else {
-                return createSubtagResult(ex);
+                return ex;
             }
         }
     }

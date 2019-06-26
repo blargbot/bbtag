@@ -1,10 +1,6 @@
-import util from '../util';
-import { SubtagError } from './errors';
-import { StringExecutionResult } from './subtagResults';
+import { default as util } from '../util';
 
 export type SubtagArgumentDefinition = IHandlerArgumentGroup | IHandlerArgumentValue;
-export type SubtagResultPrimitive = undefined | string | number | boolean;
-export type SubtagResult = SubtagResultPrimitive | SubtagResultPrimitive[] | SubtagError | StringExecutionResult;
 
 function _create(name: string, required: boolean): IHandlerArgumentValue;
 function _create(name: string, required: boolean, type: string): IHandlerArgumentValue;

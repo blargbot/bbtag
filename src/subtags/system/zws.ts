@@ -1,4 +1,4 @@
-import { ExecutionContext, ISubtagToken, Subtag, SubtagValue } from '../../models';
+import { ExecutionContext, ISubtagToken, Subtag } from '../../models';
 
 export class ZWSSubtag extends Subtag<ExecutionContext> {
     public constructor() {

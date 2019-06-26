@@ -1,4 +1,5 @@
-import { Subtag, ExecutionContext, StringExecutionResult as SER, errors, SubtagValue, ISubtagToken, IStringToken } from '../../models';
+import { Subtag, ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken } from '../../models';
+import { default as util } from '../../util';
 
 export class BoolSubtag extends Subtag<ExecutionContext> {
     public constructor() {
@@ -12,23 +13,23 @@ export class BoolSubtag extends Subtag<ExecutionContext> {
             .default(errors.tooManyArgs);
     }
 
-    public run(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [val1, val2, val3]: SER[]): SubtagValue {
+    public run(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [val1, val2, val3]: SubtagResult[]): SubtagResult {
         return this.check(context, val1, val2, val3);
     }
 
-    public check(context: ExecutionContext, val1: SER, val2: SER, val3: SER): boolean | undefined {
-        let left: SER;
-        let right: SER;
-        let comparer: (left: SER, right: SER) => boolean;
+    public check(context: ExecutionContext, val1: SubtagResult, val2: SubtagResult, val3: SubtagResult): boolean | undefined {
+        let left: SubtagResult;
+        let right: SubtagResult;
+        let comparer: (left: SubtagResult, right: SubtagResult) => boolean;
         let key: string;
 
-        if ((key = val2.getString()) in operators) {
+        if ((key = util.subtag.toString(val2)) in operators) {
             left = val1;
             right = val3;
-        } else if ((key = val1.getString()) in operators) {
+        } else if ((key = util.subtag.toString(val1)) in operators) {
             left = val2;
             right = val3;
-        } else if ((key = val3.getString()) in operators) {
+        } else if ((key = util.subtag.toString(val3)) in operators) {
             left = val1;
             right = val2;
         } else {
@@ -42,5 +43,5 @@ export class BoolSubtag extends Subtag<ExecutionContext> {
 
 export default new BoolSubtag();
 
-const operators: { [key: string]: (left: SER, right: SER) => boolean } = {
+const operators: { [key: string]: (left: SubtagResult, right: SubtagResult) => boolean } = {
 };
