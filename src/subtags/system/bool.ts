@@ -1,6 +1,5 @@
 import { Subtag, ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken } from '../../models';
 import { default as util } from '../../util';
-import { SubtagPrimativeResult } from '../../models/subtag';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
