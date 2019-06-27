@@ -14,7 +14,7 @@ export class WhereEnumerable<T> extends IterableEnumerable<T> {
 
 function* _where<T>(source: Enumerable<T>, predicate: predicateFunc<T>): IterableIterator<T> {
     let index = 0;
-    for (const element of source.toIterable()) {
+    for (const element of source) {
         if (predicate(element, index++)) {
             yield element;
         }

@@ -17,6 +17,6 @@ export class ConcatEnumerable<T> extends IterableEnumerable<T> {
 
 function* _concat<T>(sources: Array<EnumerableSource<T>>): IterableIterator<T> {
     for (const source of sources) {
-        yield* Enumerable.from(source).toIterable();
+        yield* Enumerable.from(source);
     }
 }

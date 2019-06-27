@@ -7,7 +7,6 @@ export class IterableEnumerable<T> extends Enumerable<T> {
         super();
 
         this._source = typeof source === 'function' ? { [Symbol.iterator]: source } : source;
-        this.toIterable = () => this._source;
     }
 
     public getEnumerator(): IteratorEnumerator<T> {

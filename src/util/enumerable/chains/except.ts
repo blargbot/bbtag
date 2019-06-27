@@ -18,7 +18,7 @@ function* _except<T>(source: Enumerable<T>, except: Enumerable<T>): IterableIter
     let done = false;
 
     sourceloop:
-    for (const element of source.toIterable()) {
+    for (const element of source) {
         if (set.has(element)) {
             continue;
         }

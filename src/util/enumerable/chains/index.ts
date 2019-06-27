@@ -7,3 +7,4 @@ export { TakeEnumerable } from './take';
 export { SkipEnumerable } from './skip';
 export { GroupByEnumerable } from './groupBy';
 export { OrderEnumerable } from './orderBy';
+export { ZipEnumerable } from './zip';

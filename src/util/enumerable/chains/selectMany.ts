@@ -14,7 +14,7 @@ export class SelectManyEnumerable<TSource, TResult> extends IterableEnumerable<T
 
 function* _selectMany<TS, TR>(source: Enumerable<TS>, selector: selectorFunc<TS, EnumerableSource<TR>>): IterableIterator<TR> {
     let index = 0;
-    for (const entry of source.toIterable()) {
-        yield* Enumerable.from(selector(entry, index++)).toIterable();
+    for (const entry of source) {
+        yield* Enumerable.from(selector(entry, index++));
     }
 }

@@ -7,8 +7,4 @@ export class MapEnumerable<TKey, TValue> extends IterableEnumerable<[TKey, TValu
         super(source);
         this._raw = source;
     }
-
-    public toIterable(): Map<TKey, TValue> {
-        return this._raw;
-    }
 }

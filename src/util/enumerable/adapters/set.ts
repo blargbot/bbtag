@@ -8,8 +8,4 @@ export class SetEnumerable<T> extends IterableEnumerable<T> {
         this.toSet = () => source;
         this._raw = source;
     }
-
-    public toIterable(): Set<T> {
-        return this._raw;
-    }
 }

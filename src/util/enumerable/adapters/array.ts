@@ -8,8 +8,4 @@ export class ArrayEnumerable<T> extends IterableEnumerable<T> {
         this.toArray = () => source;
         this._raw = source;
     }
-
-    public toIterable(): T[] {
-        return this._raw;
-    }
 }

@@ -18,11 +18,11 @@ export class OrderEnumerable<TSource> extends IterableEnumerable<TSource> {
     }
 
     public constructor(source: Enumerable<TSource>, comparer: comparerFunc<TSource>) {
-        const iterable = source.toIterable();
+        const iterable = source;
         if (iterable instanceof Array) {
             super(iterable.sort(comparer));
         } else {
-            super(quickSort(source.toIterable(), comparer));
+            super(quickSort(source, comparer));
         }
     }
 }

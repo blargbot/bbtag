@@ -14,7 +14,7 @@ export class SelectEnumerable<TSource, TResult> extends IterableEnumerable<TResu
 
 function* _select<TS, TR>(source: Enumerable<TS>, selector: selectorFunc<TS, TR>): IterableIterator<TR> {
     let index = 0;
-    for (const element of source.toIterable()) {
+    for (const element of source) {
         yield selector(element, index++);
     }
 }

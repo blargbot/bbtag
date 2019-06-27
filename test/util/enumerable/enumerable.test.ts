@@ -5,9 +5,8 @@ import { predicateFunc } from '../../../src/util/enumerable/types';
 
 function compare<T>(actual: Enumerable<T>, expected: T[]): void {
     const enumerator = actual.getEnumerator();
-    const iterable = actual.toIterable();
 
-    expect([...iterable]).to.deep.eq(expected);
+    expect([...actual]).to.deep.eq(expected);
     expect(enumerator.current).to.be.undefined;
     for (const expectation of expected) {
         expect(enumerator.moveNext()).to.be.true;

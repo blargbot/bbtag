@@ -8,8 +8,4 @@ export class StringEnumerable extends IterableEnumerable<string> {
         super(source);
         this._raw = source;
     }
-
-    public toIterable(): string {
-        return this._raw;
-    }
 }

@@ -1,19 +1,26 @@
 // Due to circular dependencies, the classes must be defined before the import statements are called.
 
-export abstract class Enumerable<T> {
+export abstract class Enumerable<T> implements Iterable<T> {
     public abstract getEnumerator(): Enumerator<T>;
 
-    public toIterable(): Iterable<T> {
-        return { [Symbol.iterator]: () => this.getEnumerator().toIterator() };
+    public [Symbol.iterator](): IterableIterator<T> {
+        return this.getEnumerator();
     }
 }
 
-export abstract class Enumerator<T> {
+export abstract class Enumerator<T> implements IterableIterator<T> {
     public abstract moveNext(): boolean;
     public abstract get current(): T;
 
-    public toIterator(): Iterator<T> {
-        return { next: () => ({ done: !this.moveNext(), value: this.current }) };
+    public [Symbol.iterator](): IterableIterator<T> {
+        return this;
+    }
+
+    public next(value?: any): IteratorResult<T> {
+        return {
+            done: !this.moveNext(),
+            value: this.current
+        };
     }
 }
 
@@ -26,7 +33,7 @@ export declare namespace Enumerable {
     export function from<T>(source: Set<T>): Adapters.SetEnumerable<T>;
     export function from<Key, Value>(source: Map<Key, Value>): Adapters.MapEnumerable<Key, Value>;
     export function from<T>(source: Iterable<T>): Adapters.IterableEnumerable<T>;
-    export function from<T>(source: Enumerable<T>): T;
+    export function from<T extends Enumerable<R>, R>(source: T): T;
     export function from<T>(source: EnumerableSource<T>): Enumerable<T>;
 
     export function empty<T>(): Generators.EmptyEnumerable<T>;
@@ -56,6 +63,7 @@ export interface Enumerable<T> {
     groupBy<TKey>(selector: selectorFunc<T, TKey>): Chains.GroupByEnumerable<T, TKey>;
     sort(comparer: comparerFunc<T>): Chains.OrderEnumerable<T>;
     orderBy<TKey>(selector: (source: T) => TKey, descending?: boolean, comparer?: comparerFunc<TKey>): Chains.OrderEnumerable<T>;
+    zip<TOther, TResult>(other: EnumerableSource<TOther>, selector: (left: T, right: TOther) => TResult): Chains.ZipEnumerable<T, TOther, TResult>;
 
     toArray(): T[];
     toSet(): Set<T>;
@@ -84,6 +92,7 @@ Enumerable.prototype.take = Chains.TakeEnumerable.create;
 Enumerable.prototype.groupBy = Chains.GroupByEnumerable.create;
 Enumerable.prototype.sort = Chains.OrderEnumerable.sort;
 Enumerable.prototype.orderBy = Chains.OrderEnumerable.orderBy;
+Enumerable.prototype.zip = Chains.ZipEnumerable.create;
 Enumerable.prototype.first = Terminators.first;
 Enumerable.prototype.single = Terminators.single;
 Enumerable.prototype.last = Terminators.last;

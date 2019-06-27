@@ -3,15 +3,11 @@ import { Enumerable } from '../util/enumerable';
 import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
+import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
 
-type SubtagConditionFunc = (args: IStringToken[]) => boolean;
 type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Promise<SubtagResult> | SubtagResult;
-type SubtagCondition = SubtagConditionFunc | string | number;
-// tslint:disable-next-line: interface-over-type-literal
-type SubtagConditionParser = { regex: RegExp, parser: (match: RegExpExecArray) => Exclude<SubtagCondition, string> | undefined };
 // tslint:disable-next-line: interface-over-type-literal
 type SubtagConditionalHandler<T, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, autoResolve: Set<number> };
-const defaultParsers: SubtagConditionParser[] = [];
 
 export type SubtagPrimativeResult = undefined | string | number | boolean;
 export type SubtagResult = SubtagPrimativeResult | SubtagPrimativeResult[] | SubtagError;
@@ -32,7 +28,7 @@ export interface ISubtagArguments<TContext extends SubtagContext> {
 }
 
 export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
-    protected static readonly conditionParseHandlers: SubtagConditionParser[] = defaultParsers;
+    protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
     public readonly contextType: new (...args: any[]) => T;
     public readonly name: string;
     public readonly aliases: Set<string>;
@@ -136,59 +132,4 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
         throw new Error(`Unable to parse condition '${condition}'`);
     }
-}
-
-defaultParsers.push(
-    {
-        regex: /^\s*?(<=?|>=?|={1,3}|!={0,2})\s*?(\d+)\s*?$/, //
-        parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            const num = util.serialization.number.deserialize(match[2]);
-            switch (match[1]) {
-                case '>': return args => args.length > num;
-                case '>=': return args => args.length >= num;
-                case '<': return args => args.length < num;
-                case '<=': return args => args.length <= num;
-                case '!':
-                case '!=':
-                case '!==': return args => args.length !== num;
-                case '=':
-                case '==':
-                case '===': return args => args.length === num;
-            }
-        }
-    }, {
-        regex: /^\s*?(\d+)(!?)\s*?-\s*?(\d+)(!?)\s*?$/, // Matches anything of the form '1!-5!' (1 to 5 exclusive) or '1-5' (1 to 5 inclusive)
-        parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            let from = util.serialization.number.deserialize(match[1]);
-            let to = util.serialization.number.deserialize(match[3]);
-            const includeFrom = !match[2];
-            const includeTo = !match[4];
-            if (from > to) {
-                from = [to, to = from][0];
-            }
-            switch (toNumber(includeFrom, includeTo)) {
-                case toNumber(true, true): return args => from <= args.length && args.length <= to;
-                case toNumber(false, true): return args => from < args.length && args.length <= to;
-                case toNumber(true, false): return args => from <= args.length && args.length < to;
-                case toNumber(false, false): return args => from < args.length && args.length < to;
-            }
-        }
-    }, {
-        regex: /^\s*?\d+(?:\s*?,\s*?\d+)+\s*?$/, // Matches anything of the form '1, 2, 3, 4' etc
-        parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            const counts: number[] = Array.from(match[0].match(/\d+/g) || [], util.serialization.number.deserialize);
-            return args => counts.indexOf(args.length) !== -1;
-        }
-    }
-);
-
-function toNumber(...values: boolean[]): number {
-    let result = 0;
-    let mult = 1;
-    for (const bool of values) {
-        result |= (bool as any as number) * mult;
-        mult *= 2;
-    }
-
-    return result;
 }

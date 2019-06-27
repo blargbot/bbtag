@@ -1,7 +1,22 @@
 import { Subtag, ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken } from '../../models';
 import { default as util } from '../../util';
+import { SubtagPrimativeResult } from '../../models/subtag';
+
+type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
 export class BoolSubtag extends Subtag<ExecutionContext> {
+    public static readonly operators: { readonly [key: string]: operator } = {
+        '==': (l, r) => util.subtag.compare(l, r) === 0,
+        '!=': (l, r) => util.subtag.compare(l, r) !== 0,
+        '>=': (l, r) => util.subtag.compare(l, r) >= 0,
+        '>': (l, r) => util.subtag.compare(l, r) > 0,
+        '<=': (l, r) => util.subtag.compare(l, r) <= 0,
+        '<': (l, r) => util.subtag.compare(l, r) < 0,
+        'startswith': (l, r) => util.subtag.toCollection(l).startsWith(r),
+        'endswith': (l, r) => util.subtag.toCollection(l).endsWith(r),
+        'includes': (l, r) => util.subtag.toCollection(l).includes(r)
+    };
+
     public constructor() {
         super({
             name: 'bool',
@@ -23,25 +38,22 @@ export class BoolSubtag extends Subtag<ExecutionContext> {
         let comparer: (left: SubtagResult, right: SubtagResult) => boolean;
         let key: string;
 
-        if ((key = util.subtag.toString(val2)) in operators) {
+        if ((key = util.subtag.toString(val2)) in BoolSubtag.operators) {
             left = val1;
             right = val3;
-        } else if ((key = util.subtag.toString(val1)) in operators) {
+        } else if ((key = util.subtag.toString(val1)) in BoolSubtag.operators) {
             left = val2;
             right = val3;
-        } else if ((key = util.subtag.toString(val3)) in operators) {
+        } else if ((key = util.subtag.toString(val3)) in BoolSubtag.operators) {
             left = val1;
             right = val2;
         } else {
             return undefined;
         }
 
-        comparer = operators[key];
+        comparer = BoolSubtag.operators[key];
         return comparer(left, right);
     }
 }
 
 export default new BoolSubtag();
-
-const operators: { [key: string]: (left: SubtagResult, right: SubtagResult) => boolean } = {
-};
