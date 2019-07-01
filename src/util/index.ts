@@ -4,6 +4,7 @@ import { default as stringUtil } from './stringUtil';
 import { default as subtag } from './subtagResults';
 import { default as tryGet } from './tryGet';
 import { default as variables } from './variables';
+export { IVariableScope } from './variables';
 
 export default {
     ...stringUtil,

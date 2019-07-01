@@ -10,7 +10,7 @@ export class SetSubtag extends BasicSubtag {
             arguments: [args.r('name'), args.r('values', true)],
             description: 'Stores `value` under `name`. These variables are saved between sessions. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
-                'Valid scopes are: ' + util.variables.map(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') +
+                'Valid scopes are: ' + util.variables.select(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') +
                 '.\nFor performance reasons, variables are not immediately stored to the database. See `{commit}` and `{rollback}`' +
                 'for more information.',
             examples: [
@@ -39,7 +39,7 @@ export class SetSubtag extends BasicSubtag {
     }
 
     public async setKey(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key, ...values]: SubtagResult[]): Promise<void> {
-        await context.variables.set(util.subtag.toString(key), ...values);
+        await context.variables.set(util.subtag.toString(key), values.map(util.subtag.toPrimative));
     }
 }
 

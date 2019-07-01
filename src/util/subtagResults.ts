@@ -67,8 +67,8 @@ export function toPrimative(value: SubtagResult): SubtagPrimativeResult {
         case 'number': return value as number;
         case 'boolean': return value as boolean;
         case 'undefined': return value as undefined;
-        case 'error': return serializer.array.serialize(value as any[]);
-        case 'array': return `\`${(value as SubtagError).message}\``;
+        case 'array': return serializer.array.serialize(value as any[]);
+        case 'error': return `\`${(value as SubtagError).message}\``;
         default: return '';
     }
 }

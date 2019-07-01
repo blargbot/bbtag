@@ -47,7 +47,7 @@ export class ExecutionContext extends SubtagContext {
         super(engine, tagName);
 
         this.scope = args.scope;
-        this.variables = new VariableCollection();
+        this.variables = new VariableCollection(this);
     }
 
     public execute(token: IStringToken): Promise<SubtagResult> {
