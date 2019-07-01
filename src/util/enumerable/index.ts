@@ -1,5 +1,4 @@
 // Due to circular dependencies, the classes must be defined before the import statements are called.
-
 export abstract class Enumerable<T> implements Iterable<T> {
     public abstract getEnumerator(): Enumerator<T>;
 

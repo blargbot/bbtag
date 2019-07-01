@@ -5,3 +5,4 @@ export { SubtagCollection } from './subtagCollection';
 export { SubtagContext, ExecutionContext, OptimizationContext } from './context';
 export { args, SubtagArgumentDefinition } from './subtagArguments';
 export { default as errors, SubtagError, ChainedError } from './errors';
+export { EventManager } from './events';

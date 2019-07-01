@@ -1,4 +1,6 @@
 import { IStringToken, ISubtagToken } from './bbtag';
+import { ExecutionContext } from '.';
+import { SubtagContext } from './context';
 
 export class ChainedError extends Error {
     public readonly innerError?: Error;
@@ -28,12 +30,13 @@ export class ChainedError extends Error {
 
 export class SubtagError extends ChainedError {
     public readonly token: ISubtagToken | IStringToken;
+    public readonly context: SubtagContext;
 
-    constructor(token: ISubtagToken | IStringToken);
-    constructor(message: string, token: ISubtagToken | IStringToken);
-    constructor(innerError: Error, token: ISubtagToken | IStringToken);
-    constructor(message: string, innerError: Error, token: ISubtagToken | IStringToken);
-    constructor(arg1?: any, arg2?: any, arg3?: any) {
+    constructor(context: SubtagContext, token: ISubtagToken | IStringToken);
+    constructor(context: SubtagContext, message: string, token: ISubtagToken | IStringToken);
+    constructor(context: SubtagContext, innerError: Error, token: ISubtagToken | IStringToken);
+    constructor(context: SubtagContext, message: string, innerError: Error, token: ISubtagToken | IStringToken);
+    constructor(context: SubtagContext, arg1?: any, arg2?: any, arg3?: any) {
         switch (typeof arg1) {
             case 'string':
                 break;
@@ -50,16 +53,22 @@ export class SubtagError extends ChainedError {
 
         super(arg1!, arg2!);
         this.token = arg3!;
+        this.context = context;
     }
 }
 
+type TokenType = ISubtagToken | IStringToken;
+
 export default {
-    notEnoughArgs(context: any, token: ISubtagToken): SubtagError { return new SubtagError(`Not enough arguments`, token); },
-    tooManyArgs(context: any, token: ISubtagToken): SubtagError { return new SubtagError(`Too many arguments`, token); },
+    notEnoughArgs(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not enough arguments`, token); },
+    tooManyArgs(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Too many arguments`, token); },
     types: {
-        notNumber(token: IStringToken): SubtagError { return new SubtagError(`Not a number`, token); },
-        notArray(token: IStringToken): SubtagError { return new SubtagError(`Not an array`, token); },
-        notBool(token: IStringToken): SubtagError { return new SubtagError(`Not a boolean`, token); },
-        notOperator(token: ISubtagToken | IStringToken): SubtagError { return new SubtagError(`Invalid operator`, token); }
+        notNumber(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not a number`, token); },
+        notArray(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not an array`, token); },
+        notBool(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not a boolean`, token); },
+        notOperator(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Invalid operator`, token); },
+        array: {
+            outOfRange(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Index out of range`, token); }
+        }
     }
 };

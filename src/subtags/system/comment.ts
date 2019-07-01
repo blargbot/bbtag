@@ -1,19 +1,23 @@
-import { ExecutionContext, ISubtagToken, Subtag } from '../../models';
+import { args } from '../../models';
+import { BasicSubtag } from '../abstract/basicSubtag';
 
-export class CommentSubtag extends Subtag<ExecutionContext> {
+export class CommentSubtag extends BasicSubtag {
     public constructor() {
         super({
             name: 'comment',
             aliases: ['//'],
-            contextType: ExecutionContext
+            category: 'system',
+            arguments: [args.o('text', true)],
+            description: 'A subtag that just gets removed. Useful for documenting your code.',
+            examples: [
+                { code: '{//;this is a comment!', output: '' }
+            ]
         });
+
+        this.default(_ => { });
     }
 
-    public execute(): never {
-        throw new Error('This method should never be called');
-    }
-
-    public optimize(): ISubtagToken | string {
+    public optimize(): string {
         return '';
     }
 }

@@ -2,26 +2,52 @@ import { default as util } from '../util';
 
 export type SubtagArgumentDefinition = IHandlerArgumentGroup | IHandlerArgumentValue;
 
+interface IHandlerArgumentValue {
+    name: string;
+    required: boolean;
+    many: boolean;
+    type?: string;
+}
+
+interface IHandlerArgumentGroup {
+    required: boolean;
+    values: SubtagArgumentDefinition[];
+}
+
 function _create(name: string, required: boolean): IHandlerArgumentValue;
+function _create(name: string, required: boolean, many: boolean): IHandlerArgumentValue;
 function _create(name: string, required: boolean, type: string): IHandlerArgumentValue;
-function _create(name: string, required: boolean, type?: string): IHandlerArgumentValue {
+function _create(name: string, required: boolean, many: boolean, type: string): IHandlerArgumentValue;
+function _create(name: string, required: boolean, typeOrMany?: string | boolean, type?: string): IHandlerArgumentValue {
+    if (typeof typeOrMany === 'string') {
+        type = typeOrMany;
+        typeOrMany = undefined;
+    }
+
+    const many = typeOrMany || false;
+
     return {
         name,
         required,
+        many,
         type
     };
 }
 
 function _require(name: string): IHandlerArgumentValue;
+function _require(name: string, many: boolean): IHandlerArgumentValue;
 function _require(name: string, type: string): IHandlerArgumentValue;
-function _require(name: string, type?: string): any {
-    return _create(name, true, type!);
+function _require(name: string, many: boolean, type: string): IHandlerArgumentValue;
+function _require(name: string, typeOrMany?: string | boolean, type?: string): IHandlerArgumentValue {
+    return _create(name, true, typeOrMany as any, type!);
 }
 
 function _optional(name: string): IHandlerArgumentValue;
+function _optional(name: string, many: boolean): IHandlerArgumentValue;
 function _optional(name: string, type: string): IHandlerArgumentValue;
-function _optional(name: string, type?: string): any {
-    return _create(name, false, type!);
+function _optional(name: string, many: boolean, type: string): IHandlerArgumentValue;
+function _optional(name: string, typeOrMany?: string | boolean, type?: string): IHandlerArgumentValue {
+    return _create(name, false, typeOrMany as any, type!);
 }
 
 function _group(values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
@@ -48,16 +74,19 @@ function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {
 
     for (const entry of values) {
         const brackets = entry.required ? ' <{0}>' : ' [{0}]';
-        let content: string;
+        const content = [];
         if ('name' in entry) {
-            content = entry.name;
+            if (entry.many) {
+                content.push('...');
+            }
+            content.push(entry.name);
             if (entry.type !== undefined) {
-                content += ':' + entry.type;
+                content.push(':', entry.type);
             }
         } else {
-            content = _argsToStringRecursive(entry.values);
+            content.push(_argsToStringRecursive(entry.values));
         }
-        result += util.format(brackets, content!);
+        result += util.format(brackets, content.join());
     }
 
     return result;
@@ -74,14 +103,3 @@ export const args = {
     c: _create,
     g: _group
 };
-
-interface IHandlerArgumentValue {
-    name: string;
-    required: boolean;
-    type?: string;
-}
-
-interface IHandlerArgumentGroup {
-    required: boolean;
-    values: SubtagArgumentDefinition[];
-}

@@ -16,7 +16,10 @@ export function toString(value: SubtagResult): string {
         case 'number': return serializer.number.serialize(value as number);
         case 'boolean': return serializer.boolean.serialize(value as boolean);
         case 'array': return serializer.array.serialize(value as any[]);
-        case 'error': return `\`${(value as SubtagError).message}\``;
+        case 'error':
+            const error = value as SubtagError;
+            if (error.context.fallback !== undefined) { return toString(error.context.fallback); }
+            return `\`${(value as SubtagError).message}\``;
         case 'undefined':
         default: return '';
     }
@@ -85,6 +88,7 @@ export function getType(value: SubtagResult): string | undefined {
         case 'boolean': return 'boolean';
         case 'undefined': return 'undefined';
         case 'object':
+            if (value === null) { return 'undefined'; }
             if (Array.isArray(value)) { return 'array'; }
             if (value instanceof SubtagError) { return 'error'; }
             break;

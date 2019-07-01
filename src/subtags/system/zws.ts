@@ -4,7 +4,10 @@ export class ZWSSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
             name: 'zws',
-            contextType: ExecutionContext
+            contextType: ExecutionContext,
+            arguments: [],
+            category: 'system',
+            description: ''
         });
     }
 

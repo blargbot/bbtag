@@ -1,11 +1,13 @@
-import { ExecutionContext, Subtag } from '../../models';
+import { ExecutionContext, ISubtag } from '../../models';
 import { default as comment } from './comment';
-import { default as db } from './db';
+import { default as get } from './get';
+import { default as set } from './set';
 import { default as lb } from './lb';
 import { default as rb } from './rb';
 import { default as semi } from './semi';
 import { default as zws } from './zws';
 import { default as _if } from './if';
+import { default as bool } from './bool';
 
 export default [
     comment,
@@ -14,5 +16,7 @@ export default [
     semi,
     zws,
     _if,
-    ...db
-] as Array<Subtag<ExecutionContext>>;
+    bool,
+    get,
+    set
+] as Array<ISubtag<ExecutionContext>>;

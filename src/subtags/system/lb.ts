@@ -4,7 +4,10 @@ export class LBSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
             name: 'lb',
-            contextType: ExecutionContext
+            contextType: ExecutionContext,
+            arguments: [],
+            category: 'system',
+            description: ''
         });
     }
 

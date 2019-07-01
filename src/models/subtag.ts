@@ -4,12 +4,13 @@ import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
 import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
+import { SubtagArgumentDefinition } from './subtagArguments';
 
 type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Promise<SubtagResult> | SubtagResult;
 // tslint:disable-next-line: interface-over-type-literal
-type SubtagConditionalHandler<T, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, autoResolve: Set<number> };
-
-export type SubtagPrimativeResult = undefined | string | number | boolean;
+type SubtagConditionalHandler<T, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, autoResolve: AutoResolve };
+type AutoResolve = (value: IStringToken, index: number) => boolean;
+export type SubtagPrimativeResult = void | null | undefined | string | number | boolean;
 export type SubtagResult = SubtagPrimativeResult | SubtagPrimativeResult[] | SubtagError;
 
 export interface ISubtag<TContext extends ExecutionContext> {
@@ -21,30 +22,50 @@ export interface ISubtag<TContext extends ExecutionContext> {
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 
+interface IUsageExample { code: string; arguments?: string[]; output: string; effects?: string; }
+
 export interface ISubtagArguments<TContext extends SubtagContext> {
-    name: string;
-    aliases?: Set<string> | string[] | Iterable<string> | Enumerable<string>;
     contextType: new (...args: any[]) => TContext;
+    name: string;
+    category: string;
+    aliases?: Iterable<string>;
+    arguments: Iterable<SubtagArgumentDefinition>;
+    description: string;
+    examples?: Iterable<IUsageExample>;
+    arraySupport?: boolean;
 }
 
 export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
+
     public readonly contextType: new (...args: any[]) => T;
     public readonly name: string;
+    public readonly category: string;
     public readonly aliases: Set<string>;
+    public readonly description: string;
+    public readonly arguments: SubtagArgumentDefinition[];
+    public readonly examples?: IUsageExample[];
+    public readonly arraySupport: boolean;
+
     private readonly _conditionals: Array<SubtagConditionalHandler<T, this>>;
     private _defaultHandler?: SubtagConditionalHandler<T, this>;
 
     protected constructor(args: ISubtagArguments<T>) {
         this.contextType = args.contextType;
         this.name = args.name;
-        this.aliases = Enumerable.from(args.aliases as any || []).toSet();
+        this.category = args.category;
+        this.aliases = Enumerable.from(args.aliases || []).toSet();
+        this.description = args.description;
+        this.arguments = Enumerable.from(args.arguments).toArray();
+        this.examples = Enumerable.from(args.examples || []).toArray();
+        this.arraySupport = args.arraySupport || false;
+
         this._conditionals = [];
     }
 
     public async execute(token: ISubtagToken, context: T): Promise<SubtagResult> {
         let action;
-        let autoResolve: Set<number> | undefined;
+        let autoResolve: undefined | ((value: IStringToken, index: number) => boolean);
         for (const { condition, handler, autoResolve: ar } of this._conditionals) {
             if (condition(token.args)) {
                 action = handler;
@@ -59,14 +80,14 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
 
         if (action === undefined || autoResolve === undefined) {
-            return new SubtagError(`Missing handler for execution of subtag {${[this.name, ...token.args.map(a => '')].join(';')}}`, token);
+            return context.error(`Missing handler for execution of subtag {${[this.name, ...token.args.map(a => '')].join(';')}}`, token);
         }
 
         try {
             const resolved: SubtagResult[] = [];
             const args: IStringToken[] = [];
             for (let i = 0; i < token.args.length; i++) {
-                if (autoResolve.has(i)) {
+                if (autoResolve(token.args[i], i)) {
                     resolved.push(await context.execute(token.args[i]));
                 } else {
                     args.push(token.args[i]);
@@ -75,9 +96,9 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
             return await action.call(this, context, token, args, resolved);
         } catch (ex) {
             if (!(ex instanceof Error)) {
-                return new SubtagError('' + ex, token);
+                return context.error('' + ex, token);
             } else if (!(ex instanceof SubtagError)) {
-                return new SubtagError(ex, token);
+                return context.error(ex, token);
             } else {
                 return ex;
             }
@@ -100,17 +121,25 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         };
     }
 
-    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: number[] = []): this {
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>): this;
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: Iterable<number>): this;
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: AutoResolve): this;
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: boolean): this;
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: Iterable<number> | AutoResolve | boolean): this {
         switch (typeof condition) {
-            case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
-            case 'string': return this.whenArgs(this.parseCondition(condition as string), handler, autoResolve);
-            case 'function': this._conditionals.push({ condition: condition as SubtagConditionFunc, handler: handler.bind(this as any), autoResolve: new Set(autoResolve) });
+            case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve as any);
+            case 'string': return this.whenArgs(this.parseCondition(condition as string), handler, autoResolve as any);
+            case 'function': this._conditionals.push({ condition: condition as SubtagConditionFunc, handler: handler.bind(this as any), autoResolve: toFunction(autoResolve) });
         }
         return this;
     }
 
-    protected default(handler: SubtagHandler<T, this>, autoResolve: number[] = []): this {
-        this._defaultHandler = { condition: () => true, handler: handler.bind(this as any), autoResolve: new Set(autoResolve) };
+    protected default(handler: SubtagHandler<T, this>): this;
+    protected default(handler: SubtagHandler<T, this>, autoResolve: Iterable<number>): this;
+    protected default(handler: SubtagHandler<T, this>, autoResolve: AutoResolve): this;
+    protected default(handler: SubtagHandler<T, this>, autoResolve: boolean): this;
+    protected default(handler: SubtagHandler<T, this>, autoResolve?: Iterable<number> | AutoResolve | boolean): this {
+        this._defaultHandler = { condition: () => true, handler: handler.bind(this as any), autoResolve: toFunction(autoResolve) };
         return this;
     }
 
@@ -132,4 +161,16 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
         throw new Error(`Unable to parse condition '${condition}'`);
     }
+}
+
+function toFunction(autoResolve?: Iterable<number> | AutoResolve | boolean): AutoResolve {
+    switch (typeof autoResolve) {
+        case 'function': return autoResolve;
+        case 'boolean': return () => autoResolve;
+        case 'undefined': return () => false;
+    }
+
+    const enumerable = Enumerable.from(autoResolve);
+
+    return (_, i) => enumerable.any(e => e === i);
 }

@@ -1,9 +1,10 @@
-import { Subtag, ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken } from '../../models';
+import { Subtag, ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, args } from '../../models';
 import { default as util } from '../../util';
+import { BasicSubtag } from '../abstract/basicSubtag';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
-export class BoolSubtag extends Subtag<ExecutionContext> {
+export class BoolSubtag extends BasicSubtag {
     public static readonly operators: { readonly [key: string]: operator } = {
         '==': (l, r) => util.subtag.compare(l, r) === 0,
         '!=': (l, r) => util.subtag.compare(l, r) !== 0,
@@ -19,11 +20,19 @@ export class BoolSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
             name: 'bool',
-            contextType: ExecutionContext
+            category: 'system',
+            arguments: [args.r('evaluator'), args.r('arg1'), args.r('arg2')],
+            description:
+                'Evaluates `arg1` and `arg2` using the `evaluator` and returns `true` or `false`. ' +
+                'Valid evaluators are `' + Object.keys(BoolSubtag.operators).join('`, `') + '`\n' +
+                'The positions of `evaluator` and `arg1` can be swapped.',
+            examples: [
+                { code: '{bool;<=;5;10}', output: 'true' }
+            ]
         });
 
         this.whenArgs('<=2', errors.notEnoughArgs)
-            .whenArgs('3', this.run, [0, 1, 2]) // {bool;RESOLVE;RESOLVE;RESOLVE}
+            .whenArgs('3', this.run, true) // {bool;RESOLVE;RESOLVE;RESOLVE}
             .default(errors.tooManyArgs);
     }
 

@@ -4,7 +4,10 @@ export class SemiSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
             name: 'semi',
-            contextType: ExecutionContext
+            contextType: ExecutionContext,
+            arguments: [],
+            category: 'system',
+            description: ''
         });
     }
 

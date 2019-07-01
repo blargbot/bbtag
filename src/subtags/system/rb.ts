@@ -4,7 +4,10 @@ export class RBSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
             name: 'rb',
-            contextType: ExecutionContext
+            contextType: ExecutionContext,
+            arguments: [],
+            category: 'system',
+            description: ''
         });
     }
 

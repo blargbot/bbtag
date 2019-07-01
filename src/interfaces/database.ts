@@ -1,9 +1,7 @@
-import { ExecutionContext } from '../models';
-
-type DatabasePrimative = string | number;
-export type DatabaseValue = DatabasePrimative[] | DatabasePrimative;
+import { ExecutionContext, SubtagResult } from '../models';
 
 export interface IDatabase {
-    get(context: ExecutionContext, key: string): DatabaseValue;
-    set(context: ExecutionContext, key: string, value: DatabaseValue): void;
+    delete(path: Iterable<string> | string): Promise<void> | void;
+    get(path: Iterable<string> | string): Promise<SubtagResult> | SubtagResult;
+    set(path: Iterable<string> | string, values: Iterable<SubtagResult>): Promise<void> | void;
 }

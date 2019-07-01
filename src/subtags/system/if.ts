@@ -6,7 +6,10 @@ export class IfSubtag extends Subtag<ExecutionContext> {
     public constructor() {
         super({
             name: 'if',
-            contextType: ExecutionContext
+            contextType: ExecutionContext,
+            arguments: [],
+            category: 'system',
+            description: ''
         });
 
         this.whenArgs('<=1', errors.notEnoughArgs)
@@ -22,7 +25,7 @@ export class IfSubtag extends Subtag<ExecutionContext> {
         }
 
         if (!tryBool.success) {
-            return Promise.resolve(errors.types.notBool(token.args[0]));
+            return Promise.resolve(errors.types.notBool(context, token.args[0]));
         } else if (tryBool.value) {
             return context.execute(then);
         } else {
@@ -37,7 +40,7 @@ export class IfSubtag extends Subtag<ExecutionContext> {
         }
 
         if (boolResult === undefined) {
-            return Promise.resolve(errors.types.notOperator(token));
+            return Promise.resolve(errors.types.notOperator(context, token));
         } else if (boolResult === true) {
             return context.execute(then);
         } else {
