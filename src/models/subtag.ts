@@ -6,7 +6,7 @@ import { SubtagError } from './errors';
 import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
 import { SubtagArgumentDefinition } from './subtagArguments';
 
-type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Promise<SubtagResult> | SubtagResult;
+type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Awaitable<SubtagResult>;
 // tslint:disable-next-line: interface-over-type-literal
 type SubtagConditionalHandler<T, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, autoResolve: AutoResolve };
 type AutoResolve = (value: IStringToken, index: number) => boolean;
@@ -18,7 +18,7 @@ export interface ISubtag<TContext extends ExecutionContext> {
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
-    execute(token: ISubtagToken, context: TContext): Promise<SubtagResult> | SubtagResult;
+    execute(token: ISubtagToken, context: TContext): Awaitable<SubtagResult>;
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 

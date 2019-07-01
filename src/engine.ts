@@ -15,8 +15,8 @@ import { Parser } from './parser';
 import { default as util } from './util';
 
 interface IEngineEvents {
-    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Promise<void> | void;
-    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Promise<void> | void;
+    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable<void>;
+    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable<void>;
 }
 
 export class Engine {

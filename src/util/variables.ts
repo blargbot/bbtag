@@ -5,9 +5,9 @@ export interface IVariableScope {
     name: string;
     prefix: string;
     description: string;
-    set(context: ExecutionContext, key: string, values: DatabaseValue): Promise<void | undefined | SubtagError> | void | undefined | SubtagError;
-    get(context: ExecutionContext, key: string): Promise<DatabaseValue> | DatabaseValue;
-    delete(context: ExecutionContext, key: string): Promise<void> | void;
+    set(context: ExecutionContext, key: string, values: DatabaseValue): Awaitable<void | undefined | SubtagError>;
+    get(context: ExecutionContext, key: string): Awaitable<DatabaseValue>;
+    delete(context: ExecutionContext, key: string): Awaitable<void>;
     getKey(context: ExecutionContext, key: string): string[];
 }
 
