@@ -1,4 +1,4 @@
-import { ExecutionContext, SubtagError, SortedList } from '../models';
+import { ExecutionContext, SubtagError, SortedList, Awaitable } from '../models';
 import { DatabaseValue } from '../interfaces';
 
 export interface IVariableScope {

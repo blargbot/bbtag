@@ -1,7 +1,6 @@
-import { SubtagResult, SubtagError } from '../models';
+import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../models';
 import { default as serializer } from './serializer';
 import { default as tryGet, TryGetResult } from './tryGet';
-import { SubtagPrimativeResult } from '../models/subtag';
 import { compare } from './compare';
 
 export interface ICollection {

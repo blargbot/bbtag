@@ -17,9 +17,7 @@ export class VariableCollection {
     }
 
     public async remove(key: string): Promise<void> {
-        const { name, immediate, scope } = lookup(key);
-        const cached = await this.lookup(key, name, immediate, scope);
-        cached.current = undefined;
+        return this.set(key, undefined);
     }
 
     public async set(key: string, value: DatabaseValue): Promise<void> {

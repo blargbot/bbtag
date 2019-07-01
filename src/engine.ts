@@ -6,9 +6,9 @@ import {
     ISubtagToken,
     OptimizationContext,
     SubtagCollection,
-    SubtagError,
     SubtagResult,
-    EventManager
+    EventManager,
+    Awaitable
 } from './models';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';

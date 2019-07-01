@@ -5,6 +5,7 @@ import { ExecutionContext, OptimizationContext, SubtagContext } from './context'
 import { SubtagError } from './errors';
 import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
 import { SubtagArgumentDefinition } from './subtagArguments';
+import { Awaitable } from './awaitable';
 
 type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Awaitable<SubtagResult>;
 // tslint:disable-next-line: interface-over-type-literal

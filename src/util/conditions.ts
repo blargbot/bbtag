@@ -1,5 +1,5 @@
 import { default as serializer } from './serializer';
-import { IStringToken } from '../models/bbtag';
+import { IStringToken } from '../models';
 
 export type SubtagConditionFunc = (args: IStringToken[]) => boolean;
 // tslint:disable-next-line: interface-over-type-literal
