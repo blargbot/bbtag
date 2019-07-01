@@ -17,16 +17,16 @@
     "author": "blargbot",
     "license": "AGPL-3.0",
     "dependencies": {
-        "moment-timezone": "^0.5.20"
+        "moment-timezone": "^0.5.25"
     },
     "devDependencies": {
-        "@types/chai": "^4.1.4",
-        "@types/mocha": "^5.2.2",
-        "@types/moment-timezone": "^0.5.4",
-        "chai": "^4.1.2",
-        "mocha": "^5.2.0",
+        "@types/chai": "^4.1.7",
+        "@types/mocha": "^5.2.7",
+        "@types/moment-timezone": "^0.5.12",
+        "chai": "^4.2.0",
+        "mocha": "^6.1.4",
         "rimraf": "^2.6.3",
         "tslint": "^5.18.0",
-        "typescript": "^2.9.2"
+        "typescript": "^3.5.2"
     }
 }

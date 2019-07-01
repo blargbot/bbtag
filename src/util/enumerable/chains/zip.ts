@@ -16,9 +16,9 @@ export class ZipEnumerable<TLeft, TRight, TResult> extends IterableEnumerable<TR
         right: EnumerableSource<TRight>,
         selector: (left: TLeft, right: TRight) => TResult
     ) {
-        left = Enumerable.from(left);
-        right = Enumerable.from(right);
-        super(() => _zip(left as Enumerable<TLeft>, right as Enumerable<TRight>, selector));
+        const eLeft = Enumerable.from(left);
+        const eRight = Enumerable.from(right);
+        super(() => _zip(eLeft, eRight, selector));
     }
 }
 

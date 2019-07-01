@@ -56,7 +56,7 @@ function toNumber(...values: boolean[]): number {
     let result = 0;
     let mult = 1;
     for (const bool of values) {
-        result |= (bool as any as number) * mult;
+        result |= (bool ? 1 : 0) * mult;
         mult *= 2;
     }
 

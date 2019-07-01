@@ -125,11 +125,12 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: Iterable<number>): this;
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: AutoResolve): this;
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve: boolean): this;
-    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: Iterable<number> | AutoResolve | boolean): this {
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: Iterable<number> | AutoResolve | boolean): this;
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, Subtag<T>>, autoResolve?: Iterable<number> | AutoResolve | boolean): this {
         switch (typeof condition) {
-            case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve as any);
-            case 'string': return this.whenArgs(this.parseCondition(condition as string), handler, autoResolve as any);
-            case 'function': this._conditionals.push({ condition: condition as SubtagConditionFunc, handler: handler.bind(this as any), autoResolve: toFunction(autoResolve) });
+            case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
+            case 'string': return this.whenArgs(this.parseCondition(condition), handler, autoResolve);
+            case 'function': this._conditionals.push({ condition, handler: handler.bind(this), autoResolve: toFunction(autoResolve) });
         }
         return this;
     }
@@ -138,8 +139,9 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     protected default(handler: SubtagHandler<T, this>, autoResolve: Iterable<number>): this;
     protected default(handler: SubtagHandler<T, this>, autoResolve: AutoResolve): this;
     protected default(handler: SubtagHandler<T, this>, autoResolve: boolean): this;
-    protected default(handler: SubtagHandler<T, this>, autoResolve?: Iterable<number> | AutoResolve | boolean): this {
-        this._defaultHandler = { condition: () => true, handler: handler.bind(this as any), autoResolve: toFunction(autoResolve) };
+    protected default(handler: SubtagHandler<T, this>, autoResolve?: Iterable<number> | AutoResolve | boolean): this;
+    protected default(handler: SubtagHandler<T, Subtag<T>>, autoResolve?: Iterable<number> | AutoResolve | boolean): this {
+        this._defaultHandler = { condition: () => true, handler: handler.bind(this), autoResolve: toFunction(autoResolve) };
         return this;
     }
 

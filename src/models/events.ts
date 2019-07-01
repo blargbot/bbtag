@@ -42,7 +42,7 @@ export class EventManager<TEvents extends EventDeclaration<TEvents> = { [key: st
             return [];
         }
 
-        const results = [] as ReturnType<TEvents[TKey]>;
+        const results: Array<ReturnType<TEvents[TKey]>> = [];
 
         for (const handler of handlers) {
             results.push(handler(...args));
