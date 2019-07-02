@@ -5,11 +5,11 @@
     "main": "./dist/index.js",
     "scripts": {
         "lint": "tslint --project tsconfig.json --format stylish",
-        "build": "tsc",
         "watch": "tsc -w",
-        "test": "tsc && mocha",
-        "coverage": "nyc npm test",
-        "clean": "rimraf src/**/*.js src/**/*.js.map test/**/*.js test/**/*.js.map"
+        "clean": "rimraf src/**/*.js src/**/*.js.map test/**/*.js test/**/*.js.map",
+        "build": "tsc",
+        "test": "mocha",
+        "coverage": "nyc npm test"
     },
     "repository": {
         "type": "git",
@@ -39,7 +39,7 @@
         "all": true,
         "check-coverage": true,
         "silent": true,
-        "lines": 63,
+        "lines": 60,
         "reporter": [
             "text",
             "lcov"
