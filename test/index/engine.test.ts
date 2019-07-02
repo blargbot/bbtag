@@ -1,4 +1,3 @@
-import '../../src';
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { Engine } from '../../src/engine';
