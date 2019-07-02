@@ -1,7 +1,7 @@
 import { ExecutionContext } from './context';
-import { default as util, IVariableScope } from '../util';
 import { DatabaseValue } from '../interfaces';
-import { Enumerable } from '../util/enumerable';
+import { default as variableScopes, IVariableScope } from './variableScopes';
+import { Enumerable } from '../util';
 
 interface IVariableEntry {
     readonly original: DatabaseValue;
@@ -82,7 +82,7 @@ export class VariableCollection<T extends ExecutionContext> {
             key = key.substring(1);
         }
 
-        for (const scope of util.variables) {
+        for (const scope of variableScopes) {
             if (!checkContext(scope, this.context)) {
                 continue;
             }

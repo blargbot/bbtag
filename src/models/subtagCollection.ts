@@ -1,5 +1,4 @@
-import { Enumerable } from '../util/enumerable';
-import { OptimizationContext, ExecutionContext } from './context';
+import { OptimizationContext, ExecutionContext, SubtagContext } from './context';
 import { HardMap } from './hardMap';
 import { ISubtag } from './subtag';
 
@@ -42,10 +41,10 @@ export class SubtagCollection implements Iterable<ISubtag<any>> {
 
     public findSubtag(context: OptimizationContext, name: string): ISubtag<any> | undefined;
     public findSubtag<T extends ExecutionContext>(context: T, name: string): ISubtag<T> | undefined;
-    public findSubtag<T extends ExecutionContext>(context: T, name: string): ISubtag<T> | undefined {
+    public findSubtag(context: SubtagContext, name: string): ISubtag<any> | undefined {
         name = name.toLowerCase();
         const subtag = this._nameMap.get(name) || this._aliasMap.get(name);
-        if (subtag === undefined || context instanceof OptimizationContext || context instanceof subtag.context) {
+        if (subtag === undefined || context instanceof subtag.context || context instanceof OptimizationContext) {
             return subtag;
         }
     }

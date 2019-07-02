@@ -1,5 +1,4 @@
 import { IStringToken, ISubtagToken } from './bbtag';
-import { ExecutionContext } from '.';
 import { SubtagContext } from './context';
 
 export class ChainedError extends Error {

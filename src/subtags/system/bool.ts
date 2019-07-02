@@ -1,4 +1,4 @@
-import { Subtag, ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, args } from '../../models';
+import { ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, args } from '../../models';
 import { default as util } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
 

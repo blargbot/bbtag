@@ -1,4 +1,4 @@
-import { args, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult } from '../../models';
+import { args, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult, variableScopes } from '../../models';
 import { BasicSubtag } from '../abstract/basicSubtag';
 import util from '../../util';
 
@@ -11,7 +11,7 @@ export class GetSubtag extends BasicSubtag {
             description:
                 'Returns the stored variable `varName`, or an index within it if it is a stored array. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
-                'Valid scopes are: ' + util.variables.select(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') + '.',
+                'Valid scopes are: ' + variableScopes.select(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') + '.',
             examples: [
                 {
                     code:
