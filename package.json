@@ -38,7 +38,6 @@
         "extends": "@istanbuljs/nyc-config-typescript",
         "all": true,
         "check-coverage": true,
-        "silent": true,
         "lines": 60,
         "reporter": [
             "text",
