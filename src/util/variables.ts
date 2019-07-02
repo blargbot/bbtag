@@ -8,11 +8,11 @@ export interface IVariableScope<T extends ExecutionContext> {
     name: string;
     prefix: string;
     description: string;
-    set(context: ExecutionContext, key: string, values: DatabaseValue): Awaitable<void | undefined | SubtagError>;
-    setBulk(context: ExecutionContext, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | undefined | SubtagError>;
-    get(context: ExecutionContext, key: string): Awaitable<DatabaseValue>;
-    delete(context: ExecutionContext, key: string): Awaitable<void>;
-    getKey(context: ExecutionContext, key: string): Iterable<string>;
+    set(context: T, key: string, values: DatabaseValue): Awaitable<void | undefined | SubtagError>;
+    setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | undefined | SubtagError>;
+    get(context: T, key: string): Awaitable<DatabaseValue>;
+    delete(context: T, key: string): Awaitable<void>;
+    getKey(context: T, key: string): Iterable<string>;
 }
 
 export interface IPartialVariableScope<T extends ExecutionContext> {
@@ -34,7 +34,7 @@ export class VariableScope<T extends ExecutionContext> implements IVariableScope
     public readonly name: string;
     public readonly prefix: string;
     public readonly description: string;
-    public readonly getKey: (context: ExecutionContext, key: string) => Iterable<string>;
+    public readonly getKey: (context: T, key: string) => Iterable<string>;
 
     public constructor(options: IPartialVariableScope<T>) {
         this.context = options.context;
@@ -49,19 +49,19 @@ export class VariableScope<T extends ExecutionContext> implements IVariableScope
         if (options.delete !== undefined) { this.delete = options.delete; }
     }
 
-    public set(context: ExecutionContext, key: string, values: DatabaseValue): Awaitable<void | SubtagError | undefined> {
+    public set(context: T, key: string, values: DatabaseValue): Awaitable<void | SubtagError | undefined> {
         return context.database.set(this.getKey(context, key), values);
     }
 
-    public setBulk(context: ExecutionContext, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | SubtagError | undefined> {
+    public setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | SubtagError | undefined> {
         return context.database.setBulk(Enumerable.from(entries).select(([key, value]) => [this.getKey(context, key), value]));
     }
 
-    public get(context: ExecutionContext, key: string): Awaitable<DatabaseValue> {
+    public get(context: T, key: string): Awaitable<DatabaseValue> {
         return context.database.get(this.getKey(context, key));
     }
 
-    public delete(context: ExecutionContext, key: string): Awaitable<void> {
+    public delete(context: T, key: string): Awaitable<void> {
         return context.database.delete(this.getKey(context, key));
     }
 }
