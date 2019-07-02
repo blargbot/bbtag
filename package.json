@@ -37,8 +37,9 @@
     "nyc": {
         "extends": "@istanbuljs/nyc-config-typescript",
         "all": true,
-        "check-coverage": false,
+        "check-coverage": true,
         "silent": true,
+        "lines": 63,
         "reporter": [
             "text",
             "lcov"
