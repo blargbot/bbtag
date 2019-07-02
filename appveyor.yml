@@ -9,6 +9,8 @@ build:
   npm run clean
   
   npm run build
+
+  npm run lint
 test_script:
 - cmd: npm run coverage
 artifacts:
