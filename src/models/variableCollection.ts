@@ -1,5 +1,5 @@
 import { ExecutionContext } from './context';
-import { DatabaseValue } from '../interfaces';
+import { DatabaseValue } from '../external';
 import { default as variableScopes, IVariableScope } from './variableScopes';
 import { Enumerable, Awaitable } from '../util';
 

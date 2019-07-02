@@ -1,0 +1,22 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "es2018",
+        "alwaysStrict": true,
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "strict": true,
+        "allowUnusedLabels": false,
+        "allowUnreachableCode": false,
+        "sourceMap": true,
+        "lib": [
+            "es2018.promise",
+            "es2018"
+        ]
+    },
+    "exclude": [
+        "coverage",
+        "node_modules",
+        "!node_modules/@types"
+    ]
+}

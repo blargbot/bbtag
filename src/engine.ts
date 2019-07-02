@@ -1,4 +1,4 @@
-import { IDatabase } from './interfaces';
+import { IDatabase } from './external';
 import {
     ExecutionContext,
     IBBTag,

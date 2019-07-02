@@ -1,4 +1,4 @@
-import { DatabaseValue } from '../interfaces';
+import { DatabaseValue } from '../external';
 import { Awaitable, Enumerable } from '../util';
 import { SortedList } from './sortedList';
 import { ExecutionContext } from './context';

@@ -1,6 +1,10 @@
 node_modules
 *.log
 *.js
+*.js.map
 dist
-.vscode
 package-lock.json
+coverage
+.vscode
+.nyc_output
+!.vscode/settings.json

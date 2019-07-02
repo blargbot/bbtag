@@ -1,5 +1,5 @@
 import { Engine } from '../engine';
-import { IDatabase } from '../interfaces';
+import { IDatabase } from '../external';
 import { ISubtag, SubtagResult } from './subtag';
 import { IStringToken, ISubtagToken } from './bbtag';
 import { SubtagCollection } from './subtagCollection';
