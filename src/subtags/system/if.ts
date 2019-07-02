@@ -1,15 +1,27 @@
-import { errors, ExecutionContext, IStringToken, Subtag, SubtagResult, ISubtagToken } from '../../models';
-import { default as boolSubtag } from './bool';
+import { errors, ExecutionContext, IStringToken, SubtagResult, ISubtagToken, args } from '../../models';
+import { default as boolSubtag, BoolSubtag } from './bool';
 import { default as util } from '../../util';
+import { BasicSubtag } from '../abstract/basicSubtag';
 
-export class IfSubtag extends Subtag<ExecutionContext> {
+export class IfSubtag extends BasicSubtag {
     public constructor() {
         super({
             name: 'if',
-            contextType: ExecutionContext,
-            arguments: [],
             category: 'system',
-            description: ''
+            arguments: [
+                args.r('value1'),
+                args.g(args.r('evaluator'), args.require('value2')),
+                args.r('then'),
+                args.o('else')
+            ],
+            description:
+                'If `evaluator` and `value2` are provided, `value1` is evaluated against `value2` using `evaluator`. ' +
+                'If they are not provided, `value1` is read as `true` or `false`. ' +
+                'If the resulting value is `true` then the tag returns `then`, otherwise it returns `else`.\n' +
+                'Valid evaluators are `' + Object.keys(BoolSubtag.operators).join('`, `') + '`.',
+            examples: [
+                { code: '{if;5;<=;10;5 is less than or equal to 10;5 is greater than 10}.', output: '5 is less than or equal to 10.' }
+            ]
         });
 
         this.whenArgs('<=1', errors.notEnoughArgs)

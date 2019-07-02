@@ -1,22 +1,27 @@
-import { ExecutionContext, ISubtagToken, Subtag } from '../../models';
+import { ISubtagToken, errors } from '../../models';
+import { BasicSubtag } from '../abstract/basicSubtag';
 
-export class SemiSubtag extends Subtag<ExecutionContext> {
+export class SemiSubtag extends BasicSubtag {
     public constructor() {
         super({
             name: 'semi',
-            contextType: ExecutionContext,
-            arguments: [],
             category: 'system',
-            description: ''
+            arguments: [],
+            description: 'Will be replaced by `;` on execution.',
+            examples: [
+                { code: 'This is a semicolon! {semi}', output: 'This is a semicolon! ;' }
+            ]
         });
+
+        this.whenArgs('0', () => ';')
+            .default(errors.tooManyArgs);
     }
 
-    public execute(): never {
-        throw new Error('This method should never be called');
-    }
-
-    public optimize(): ISubtagToken | string {
-        return ';';
+    public optimize(token: ISubtagToken): ISubtagToken | string {
+        if (token.args.length === 0) {
+            return ';';
+        }
+        return token;
     }
 }
 

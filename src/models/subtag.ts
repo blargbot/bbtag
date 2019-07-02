@@ -63,6 +63,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         this._conditionals = [];
     }
 
+    public execute(token: ISubtagToken, context: T): Awaitable<SubtagResult>;
     public async execute(token: ISubtagToken, context: T): Promise<SubtagResult> {
         let action;
         let autoResolve: undefined | ((value: IStringToken, index: number) => boolean);

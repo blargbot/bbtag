@@ -50,13 +50,15 @@ function _optional(name: string, typeOrMany?: string | boolean, type?: string): 
     return _create(name, false, typeOrMany as any, type!);
 }
 
-function _group(values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
-function _group(required: boolean, values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
-function _group(required: boolean | SubtagArgumentDefinition[], values?: SubtagArgumentDefinition[]): IHandlerArgumentGroup {
-    if (typeof required === 'boolean') {
-        return { required, values: values! };
+function _group(...values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
+function _group(required: boolean, ...values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
+function _group(...values: any[]): IHandlerArgumentGroup {
+    let required = false;
+    if (typeof values[0] === 'boolean') {
+        required = values[0];
+        values.shift();
     }
-    return { required: true, values: required };
+    return { required, values };
 }
 
 function _argsToString(values: SubtagArgumentDefinition[]): string;
