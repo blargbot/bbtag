@@ -14,5 +14,5 @@ build_script:
 test_script:
 - cmd: npm run coverage
 artifacts:
-- path: coverage/lcov-report
+- path: coverage\lcov-report
   name: coverage
