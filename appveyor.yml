@@ -4,13 +4,13 @@ init:
 - cmd: node --version && npm --version
 install:
 - cmd: npm install
-build:
-- cmd: >- 
-  npm run clean
-  
-  npm run build
+build_script:
+- cmd: >-
+    npm run clean
 
-  npm run lint
+    npm run build
+
+    npm run lint
 test_script:
 - cmd: npm run coverage
 artifacts:
