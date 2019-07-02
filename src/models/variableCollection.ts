@@ -1,7 +1,7 @@
 import { ExecutionContext } from './context';
 import { DatabaseValue } from '../interfaces';
 import { default as variableScopes, IVariableScope } from './variableScopes';
-import { Enumerable } from '../util';
+import { Enumerable, Awaitable } from '../util';
 
 interface IVariableEntry {
     readonly original: DatabaseValue;
@@ -17,10 +17,12 @@ export class VariableCollection<T extends ExecutionContext> {
         this.cache = new Map();
     }
 
+    public delete(key: string): Awaitable<void>;
     public async delete(key: string): Promise<void> {
         return this.set(key, undefined);
     }
 
+    public set(key: string, value: DatabaseValue): Awaitable<void>;
     public async set(key: string, value: DatabaseValue): Promise<void> {
         const { name, immediate, scope } = this.parseKey(key);
         const cached = await this.findOrCache(name, scope);
@@ -30,6 +32,7 @@ export class VariableCollection<T extends ExecutionContext> {
         }
     }
 
+    public get(key: string): Awaitable<DatabaseValue>;
     public async get(key: string): Promise<DatabaseValue> {
         const { name, immediate, scope } = this.parseKey(key);
         if (immediate) {
@@ -39,6 +42,7 @@ export class VariableCollection<T extends ExecutionContext> {
         return cached.current;
     }
 
+    public commit(keys?: Iterable<string>): Awaitable<void>;
     public async commit(keys?: Iterable<string>): Promise<void> {
         if (keys === undefined) { keys = this.cache.keys(); }
 

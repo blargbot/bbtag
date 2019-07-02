@@ -14,8 +14,8 @@ import { Parser } from './parser';
 import { default as util, Awaitable } from './util';
 
 interface IEngineEvents {
-    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable<void>;
-    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable<void>;
+    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;
+    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable;
 }
 
 export class Engine {
@@ -31,6 +31,7 @@ export class Engine {
         this.events = new EventManager();
     }
 
+    public execute(input: IStringToken, context: ExecutionContext): Awaitable<SubtagResult>;
     public async execute(input: IStringToken, context: ExecutionContext): Promise<SubtagResult> {
         const parts: SubtagResult[] = [];
         for (const subtag of input.subtags) {

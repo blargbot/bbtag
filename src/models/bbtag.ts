@@ -1,7 +1,7 @@
 import { Range } from './range';
 
 export interface IToken {
-    range: Range;
+    readonly range: Range;
 }
 
 export interface IBBTag {

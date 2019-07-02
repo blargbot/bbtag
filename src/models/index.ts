@@ -3,7 +3,7 @@ export { IBBTag, IStringToken, ISubtagToken, IToken } from './bbtag';
 export { ISubtag, ISubtagOptions as ISubtagArguments, Subtag, SubtagResult, SubtagPrimativeResult } from './subtag';
 export { SubtagCollection } from './subtagCollection';
 export { SubtagContext, ExecutionContext, OptimizationContext } from './context';
-export { args, SubtagArgumentDefinition } from './arguments';
+export { argumentBuilder, SubtagArgumentDefinition } from './arguments';
 export { default as errors, SubtagError, ChainedError } from './errors';
 export { EventManager } from './events';
 export { SortedList } from './sortedList';

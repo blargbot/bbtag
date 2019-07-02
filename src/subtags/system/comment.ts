@@ -1,4 +1,4 @@
-import { args } from '../../models';
+import { argumentBuilder as A } from '../../models';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class CommentSubtag extends BasicSubtag {
@@ -7,7 +7,7 @@ export class CommentSubtag extends BasicSubtag {
             name: 'comment',
             aliases: ['//'],
             category: 'system',
-            arguments: [args.o('text', true)],
+            arguments: [A.o('text', true)],
             description: 'A subtag that just gets removed. Useful for documenting your code.',
             examples: [
                 { code: '{//;this is a comment!', output: '' }

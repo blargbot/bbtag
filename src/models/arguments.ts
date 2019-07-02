@@ -94,7 +94,7 @@ function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {
     return result;
 }
 
-export const args = {
+export const argumentBuilder = {
     toString: _argsToString,
     create: _create,
     require: _require,

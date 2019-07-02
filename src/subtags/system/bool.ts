@@ -1,6 +1,7 @@
-import { ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, args } from '../../models';
+import { ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, argumentBuilder as A } from '../../models';
 import { default as util } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
+import { ArgumentCollection } from '../../models/argumentCollection';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
@@ -21,7 +22,7 @@ export class BoolSubtag extends BasicSubtag {
         super({
             name: 'bool',
             category: 'system',
-            arguments: [args.r('evaluator'), args.r('arg1'), args.r('arg2')],
+            arguments: [A.r('evaluator'), A.r('arg1'), A.r('arg2')],
             description:
                 'Evaluates `arg1` and `arg2` using the `evaluator` and returns `true` or `false`. ' +
                 'Valid evaluators are `' + Object.keys(BoolSubtag.operators).join('`, `') + '`\n' +
@@ -36,11 +37,12 @@ export class BoolSubtag extends BasicSubtag {
             .default(errors.tooManyArgs);
     }
 
-    public run(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [val1, val2, val3]: readonly SubtagResult[]): SubtagResult {
-        return this.check(context, val1, val2, val3);
+    public run(args: ArgumentCollection): SubtagResult {
+        const [val1, val2, val3] = args.get(0, 1, 2);
+        return this.check(val1, val2, val3);
     }
 
-    public check(context: ExecutionContext, val1: SubtagResult, val2: SubtagResult, val3: SubtagResult): boolean | undefined {
+    public check(val1: SubtagResult, val2: SubtagResult, val3: SubtagResult): boolean | undefined {
         let left: SubtagResult;
         let right: SubtagResult;
         let comparer: (left: SubtagResult, right: SubtagResult) => boolean;

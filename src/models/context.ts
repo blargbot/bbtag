@@ -5,6 +5,7 @@ import { IStringToken, ISubtagToken } from './bbtag';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCollection } from './variableCollection';
 import { SubtagError } from './errors';
+import { Awaitable } from '../util';
 
 export interface IExecutionContextArgs {
     readonly scope: string;
@@ -50,7 +51,7 @@ export class ExecutionContext extends SubtagContext {
         this.variables = new VariableCollection(this);
     }
 
-    public execute(token: IStringToken): Promise<SubtagResult> {
+    public execute(token: IStringToken): Awaitable<SubtagResult> {
         return this.engine.execute(token, this);
     }
 }

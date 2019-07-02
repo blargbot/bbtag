@@ -1,13 +1,14 @@
-import { args, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult, variableScopes } from '../../models';
+import { argumentBuilder as A, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult, variableScopes } from '../../models';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import util from '../../util';
+import util, { Awaitable } from '../../util';
+import { ArgumentCollection } from '../../models/argumentCollection';
 
 export class GetSubtag extends BasicSubtag {
     public constructor() {
         super({
             name: 'get',
             category: 'system',
-            arguments: [args.r('name'), args.o('index')],
+            arguments: [A.r('name'), A.o('index')],
             description:
                 'Returns the stored variable `varName`, or an index within it if it is a stored array. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
@@ -30,26 +31,28 @@ export class GetSubtag extends BasicSubtag {
         });
 
         this.whenArgs('0', errors.notEnoughArgs)
-            .whenArgs('1', this.getKey)
-            .whenArgs('2', this.getIndex)
+            .whenArgs('1', this.getKey, true)
+            .whenArgs('2', this.getIndex, true)
             .default(errors.tooManyArgs);
     }
 
-    public async getKey(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key]: readonly SubtagResult[]): Promise<SubtagResult> {
-        await context.variables.get(util.subtag.toString(key));
+    public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
+        const key = args.get(0);
+        return args.context.variables.get(util.subtag.toString(key));
     }
 
-    public async getIndex(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key, index]: readonly SubtagResult[]): Promise<SubtagResult> {
-        const value = await context.variables.get(util.subtag.toString(key));
+    public async getIndex(args: ArgumentCollection): Promise<SubtagResult> {
+        const [key, index] = args.get(0, 1);
+        const value = await args.context.variables.get(util.subtag.toString(key));
         const asArray = util.subtag.tryToArray(value);
         const indexAsNumber = util.subtag.tryToNumber(index);
 
         if (!asArray.success) {
             return value;
         } else if (!indexAsNumber.success) {
-            return errors.types.notNumber(context, token.args[1]);
+            return errors.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return errors.types.array.outOfRange(context, token);
+            return errors.types.array.outOfRange(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

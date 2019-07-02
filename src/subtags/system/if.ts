@@ -1,7 +1,8 @@
-import { errors, ExecutionContext, IStringToken, SubtagResult, ISubtagToken, args } from '../../models';
+import { errors, ExecutionContext, IStringToken, SubtagResult, ISubtagToken, argumentBuilder as A } from '../../models';
 import { default as boolSubtag, BoolSubtag } from './bool';
-import { default as util } from '../../util';
+import { default as util, Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
+import { ArgumentCollection } from '../../models/argumentCollection';
 
 export class IfSubtag extends BasicSubtag {
     public constructor() {
@@ -9,10 +10,10 @@ export class IfSubtag extends BasicSubtag {
             name: 'if',
             category: 'system',
             arguments: [
-                args.r('value1'),
-                args.g(args.r('evaluator'), args.require('value2')),
-                args.r('then'),
-                args.o('else')
+                A.r('value1'),
+                A.g(A.r('evaluator'), A.require('value2')),
+                A.r('then'),
+                A.o('else')
             ],
             description:
                 'If `evaluator` and `value2` are provided, `value1` is evaluated against `value2` using `evaluator`. ' +
@@ -30,34 +31,29 @@ export class IfSubtag extends BasicSubtag {
             .default(errors.tooManyArgs);
     }
 
-    public runNoComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: readonly IStringToken[], [bool]: readonly SubtagResult[]): Promise<SubtagResult> {
+    public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
+        const bool = args.get(0);
         const tryBool = util.subtag.tryToBoolean(bool);
-        if (otherwise === undefined) {
-            otherwise = this.fakeArgument('');
-        }
 
         if (!tryBool.success) {
-            return Promise.resolve(errors.types.notBool(context, token.args[0]));
+            return errors.types.notBool(args, args.token.args[0]);
         } else if (tryBool.value) {
-            return context.execute(then);
+            return args.execute(1);
         } else {
-            return context.execute(otherwise);
+            return args.execute(2);
         }
     }
 
-    public runWithComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: readonly IStringToken[], [left, comp, right]: readonly SubtagResult[]):
-        Promise<SubtagResult> {
-        const boolResult = boolSubtag.check(context, left, comp, right);
-        if (otherwise === undefined) {
-            otherwise = this.fakeArgument('');
-        }
+    public runWithComp(args: ArgumentCollection): Awaitable<SubtagResult> {
+        const [left, comp, right] = args.get(0, 1, 2);
+        const bool = boolSubtag.check(left, comp, right);
 
-        if (boolResult === undefined) {
-            return Promise.resolve(errors.types.notOperator(context, token));
-        } else if (boolResult === true) {
-            return context.execute(then);
+        if (bool === undefined) {
+            return errors.types.notOperator(args);
+        } else if (bool === true) {
+            return args.execute(3);
         } else {
-            return context.execute(otherwise);
+            return args.execute(4);
         }
     }
 }

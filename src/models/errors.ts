@@ -1,5 +1,6 @@
 import { IStringToken, ISubtagToken } from './bbtag';
-import { SubtagContext } from './context';
+import { SubtagContext, ExecutionContext } from './context';
+import { ArgumentCollection } from './argumentCollection';
 
 export class ChainedError extends Error {
     public readonly innerError?: Error;
@@ -57,17 +58,19 @@ export class SubtagError extends ChainedError {
 }
 
 type TokenType = ISubtagToken | IStringToken;
+type EXC = ExecutionContext;
+type AC<T extends EXC> = ArgumentCollection<T>;
 
 export default {
-    notEnoughArgs(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not enough arguments`, token); },
-    tooManyArgs(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Too many arguments`, token); },
+    notEnoughArgs<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not enough arguments`, token || args.token); },
+    tooManyArgs<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Too many arguments`, token || args.token); },
     types: {
-        notNumber(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not a number`, token); },
-        notArray(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not an array`, token); },
-        notBool(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Not a boolean`, token); },
-        notOperator(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Invalid operator`, token); },
+        notNumber<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not a number`, token || args.token); },
+        notArray<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not an array`, token || args.token); },
+        notBool<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not a boolean`, token || args.token); },
+        notOperator<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Invalid operator`, token || args.token); },
         array: {
-            outOfRange(context: SubtagContext, token: TokenType): SubtagError { return context.error(`Index out of range`, token); }
+            outOfRange<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Index out of range`, token || args.token); }
         }
     }
 };

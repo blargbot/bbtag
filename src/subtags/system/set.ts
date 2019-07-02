@@ -1,13 +1,14 @@
-import { ExecutionContext, errors, args, SubtagResult, ISubtagToken, IStringToken, variableScopes } from '../../models';
+import { ExecutionContext, errors, argumentBuilder as A, SubtagResult, ISubtagToken, IStringToken, variableScopes } from '../../models';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import util from '../../util';
+import util, { Awaitable } from '../../util';
+import { ArgumentCollection } from '../../models/argumentCollection';
 
 export class SetSubtag extends BasicSubtag {
     public constructor() {
         super({
             name: 'set',
             category: 'system',
-            arguments: [args.r('name'), args.r('values', true)],
+            arguments: [A.r('name'), A.r('values', true)],
             description: 'Stores `value` under `name`. These variables are saved between sessions. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
                 'Valid scopes are: ' + variableScopes.select(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') +
@@ -34,12 +35,14 @@ export class SetSubtag extends BasicSubtag {
             .default(this.setKey, true);
     }
 
-    public async clearKey(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key]: readonly SubtagResult[]): Promise<void> {
-        await context.variables.delete(util.subtag.toString(key));
+    public clearKey(args: ArgumentCollection): Awaitable<void> {
+        const key = args.get(0);
+        return args.context.variables.delete(util.subtag.toString(key));
     }
 
-    public async setKey(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key, ...values]: readonly SubtagResult[]): Promise<void> {
-        await context.variables.set(util.subtag.toString(key), values.map(util.subtag.toPrimative));
+    public setKey(args: ArgumentCollection): Awaitable<void> {
+        const [key, ...values] = args.getAll();
+        return args.context.variables.set(util.subtag.toString(key), values.map(util.subtag.toPrimative));
     }
 }
 
