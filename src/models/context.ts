@@ -41,7 +41,7 @@ export abstract class SubtagContext {
 
 export class ExecutionContext extends SubtagContext {
     public readonly scope: string;
-    public readonly variables: VariableCollection;
+    public readonly variables: VariableCollection<this>;
 
     public constructor(engine: Engine, tagName: string, args: IExecutionContextArgs) {
         super(engine, tagName);

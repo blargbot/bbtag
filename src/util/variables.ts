@@ -1,8 +1,10 @@
-import { ExecutionContext, SubtagError, SortedList, Awaitable } from '../models';
+import { ExecutionContext, SubtagError, SortedList } from '../models';
 import { DatabaseValue } from '../interfaces';
 import { Enumerable } from './enumerable';
+import { Awaitable } from './types';
 
-export interface IVariableScope {
+export interface IVariableScope<T extends ExecutionContext> {
+    context: new (...args: any[]) => T;
     name: string;
     prefix: string;
     description: string;
@@ -13,35 +15,38 @@ export interface IVariableScope {
     getKey(context: ExecutionContext, key: string): Iterable<string>;
 }
 
-export interface IPartialVariableScope {
-    name: IVariableScope['name'];
-    prefix: IVariableScope['prefix'];
-    description: IVariableScope['description'];
-    set?: IVariableScope['set'];
-    setBulk?: IVariableScope['setBulk'];
-    get?: IVariableScope['get'];
-    delete?: IVariableScope['delete'];
-    getKey: IVariableScope['getKey'];
+export interface IPartialVariableScope<T extends ExecutionContext> {
+    context: IVariableScope<T>['context'];
+    name: IVariableScope<T>['name'];
+    prefix: IVariableScope<T>['prefix'];
+    description: IVariableScope<T>['description'];
+    set?: IVariableScope<T>['set'];
+    setBulk?: IVariableScope<T>['setBulk'];
+    get?: IVariableScope<T>['get'];
+    delete?: IVariableScope<T>['delete'];
+    getKey: IVariableScope<T>['getKey'];
 }
 
-export const variableScopes: SortedList<IVariableScope> = new SortedList(scope => scope.prefix.length, false);
+export const variableScopes: SortedList<IVariableScope<ExecutionContext>> = new SortedList(scope => scope.prefix.length, false);
 
-export class VariableScope implements IVariableScope {
+export class VariableScope<T extends ExecutionContext> implements IVariableScope<T> {
+    public readonly context: new (...args: any[]) => T;
     public readonly name: string;
     public readonly prefix: string;
     public readonly description: string;
     public readonly getKey: (context: ExecutionContext, key: string) => Iterable<string>;
 
-    public constructor(overrides: IPartialVariableScope) {
-        this.name = overrides.name;
-        this.prefix = overrides.prefix;
-        this.description = overrides.description;
-        this.getKey = overrides.getKey;
+    public constructor(options: IPartialVariableScope<T>) {
+        this.context = options.context;
+        this.name = options.name;
+        this.prefix = options.prefix;
+        this.description = options.description;
+        this.getKey = options.getKey;
 
-        if (overrides.set !== undefined) { this.set = overrides.set; }
-        if (overrides.setBulk !== undefined) { this.setBulk = overrides.setBulk; }
-        if (overrides.get !== undefined) { this.get = overrides.get; }
-        if (overrides.delete !== undefined) { this.delete = overrides.delete; }
+        if (options.set !== undefined) { this.set = options.set; }
+        if (options.setBulk !== undefined) { this.setBulk = options.setBulk; }
+        if (options.get !== undefined) { this.get = options.get; }
+        if (options.delete !== undefined) { this.delete = options.delete; }
     }
 
     public set(context: ExecutionContext, key: string, values: DatabaseValue): Awaitable<void | SubtagError | undefined> {
@@ -62,6 +67,7 @@ export class VariableScope implements IVariableScope {
 }
 
 variableScopes.add(new VariableScope({ // Global '*'
+    context: ExecutionContext,
     name: 'Global',
     prefix: '*',
     description:
@@ -73,6 +79,7 @@ variableScopes.add(new VariableScope({ // Global '*'
 }));
 
 variableScopes.add(new VariableScope({ // Temporary '~'
+    context: ExecutionContext,
     name: 'Temporary',
     prefix: '~',
     description:
@@ -87,6 +94,7 @@ variableScopes.add(new VariableScope({ // Temporary '~'
 }));
 
 variableScopes.add(new VariableScope({ // Local ''
+    context: ExecutionContext,
     name: 'Local',
     prefix: '',
     description:

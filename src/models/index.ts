@@ -7,4 +7,3 @@ export { args, SubtagArgumentDefinition } from './subtagArguments';
 export { default as errors, SubtagError, ChainedError } from './errors';
 export { EventManager } from './events';
 export { SortedList } from './sortedList';
-export { Awaitable } from './awaitable';

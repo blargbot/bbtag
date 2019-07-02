@@ -6,6 +6,8 @@ import { default as tryGet } from './tryGet';
 import { default as variables } from './variables';
 export { IVariableScope } from './variables';
 
+export * from './types';
+
 export default {
     ...stringUtil,
     serialization,

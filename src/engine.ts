@@ -7,12 +7,11 @@ import {
     OptimizationContext,
     SubtagCollection,
     SubtagResult,
-    EventManager,
-    Awaitable
+    EventManager
 } from './models';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
-import { default as util } from './util';
+import { default as util, Awaitable } from './util';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable<void>;

@@ -8,11 +8,11 @@ interface IVariableEntry {
     current: DatabaseValue;
 }
 
-export class VariableCollection {
-    private readonly context: ExecutionContext;
+export class VariableCollection<T extends ExecutionContext> {
+    private readonly context: T;
     private readonly cache: Map<string, IVariableEntry>;
 
-    public constructor(context: ExecutionContext) {
+    public constructor(context: T) {
         this.context = context;
         this.cache = new Map();
     }
@@ -22,7 +22,7 @@ export class VariableCollection {
     }
 
     public async set(key: string, value: DatabaseValue): Promise<void> {
-        const { name, immediate, scope } = parseKey(key);
+        const { name, immediate, scope } = this.parseKey(key);
         const cached = await this.findOrCache(name, scope);
         cached.current = value;
         if (immediate) {
@@ -31,7 +31,7 @@ export class VariableCollection {
     }
 
     public async get(key: string): Promise<DatabaseValue> {
-        const { name, immediate, scope } = parseKey(key);
+        const { name, immediate, scope } = this.parseKey(key);
         if (immediate) {
             this.cache.delete(scope.prefix + name);
         }
@@ -43,7 +43,7 @@ export class VariableCollection {
         if (keys === undefined) { keys = this.cache.keys(); }
 
         await Promise.all(Enumerable.from(keys)
-            .select(key => ({ ...parseKey(key), entry: this.cache.get(key) }))
+            .select(key => ({ ...this.parseKey(key), entry: this.cache.get(key) }))
             .where(e => e.entry !== undefined)
             .groupBy(g => g.scope)
             .select(g => g.key.setBulk(this.context, g.select(e => [e.name, e.entry!.current]))));
@@ -66,7 +66,7 @@ export class VariableCollection {
         }
     }
 
-    private async findOrCache(name: string, scope: IVariableScope): Promise<IVariableEntry> {
+    private async findOrCache(name: string, scope: IVariableScope<T>): Promise<IVariableEntry> {
         let cached = this.cache.get(scope.prefix + name);
         if (cached === undefined) {
             const value = await scope.get(this.context, name);
@@ -74,20 +74,28 @@ export class VariableCollection {
         }
         return cached;
     }
+
+    private parseKey(key: string): { name: string, immediate: boolean, scope: IVariableScope<T> } {
+        let immediate = false;
+        if (key.substring(0, 1) === '!') {
+            immediate = true;
+            key = key.substring(1);
+        }
+
+        for (const scope of util.variables) {
+            if (!checkContext(scope, this.context)) {
+                continue;
+            }
+
+            if (key.startsWith(scope.prefix)) {
+                return { name: key.substring(scope.prefix.length), scope, immediate };
+            }
+        }
+
+        throw new Error(`Unknown scope for variable ${key}`);
+    }
 }
 
-function parseKey(key: string): { name: string, immediate: boolean, scope: IVariableScope } {
-    let immediate = false;
-    if (key.substring(0, 1) === '!') {
-        immediate = true;
-        key = key.substring(1);
-    }
-
-    for (const scope of util.variables) {
-        if (key.startsWith(scope.prefix)) {
-            return { name: key.substring(scope.prefix.length), scope, immediate };
-        }
-    }
-
-    throw new Error(`Unknown scope for variable ${key}`);
+function checkContext<T extends ExecutionContext>(scope: IVariableScope<any>, context: T): scope is IVariableScope<T> {
+    return context instanceof scope.context;
 }

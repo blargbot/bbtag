@@ -1,11 +1,10 @@
-import { default as util } from '../util';
+import { default as util, Awaitable } from '../util';
 import { Enumerable } from '../util/enumerable';
 import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
 import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
 import { SubtagArgumentDefinition } from './subtagArguments';
-import { Awaitable } from './awaitable';
 
 type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Awaitable<SubtagResult>;
 // tslint:disable-next-line: interface-over-type-literal
@@ -15,7 +14,7 @@ export type SubtagPrimativeResult = void | null | undefined | string | number | 
 export type SubtagResult = SubtagPrimativeResult | SubtagPrimativeResult[] | SubtagError;
 
 export interface ISubtag<TContext extends ExecutionContext> {
-    readonly contextType: new (...args: any[]) => TContext;
+    readonly context: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
@@ -39,7 +38,7 @@ export interface ISubtagArguments<TContext extends SubtagContext> {
 export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
 
-    public readonly contextType: new (...args: any[]) => T;
+    public readonly context: new (...args: any[]) => T;
     public readonly name: string;
     public readonly category: string;
     public readonly aliases: Set<string>;
@@ -52,7 +51,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     private _defaultHandler?: SubtagConditionalHandler<T, this>;
 
     protected constructor(args: ISubtagArguments<T>) {
-        this.contextType = args.contextType;
+        this.context = args.contextType;
         this.name = args.name;
         this.category = args.category;
         this.aliases = Enumerable.from(args.aliases || []).toSet();
