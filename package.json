@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "tslint --project tsconfig.json --format stylish",
         "watch": "tsc -w",
-        "clean": "rimraf src/**/*.js src/**/*.js.map test/**/*.js test/**/*.js.map",
+        "clean": "rimraf src/**/*.js src/**/*.js.map test/**/*.js test/**/*.js.map coverage .nyc_output",
         "build": "tsc",
         "test": "mocha",
         "coverage": "nyc npm test"
@@ -40,8 +40,8 @@
         "check-coverage": true,
         "lines": 60,
         "reporter": [
-            "text",
-            "lcov"
+            "text-summary",
+            "html"
         ]
     }
 }
