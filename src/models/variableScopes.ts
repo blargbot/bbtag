@@ -1,6 +1,8 @@
-import { ExecutionContext, SubtagError, SortedList } from '.';
 import { DatabaseValue } from '../interfaces';
 import { Awaitable, Enumerable } from '../util';
+import { SortedList } from './sortedList';
+import { ExecutionContext } from './context';
+import { SubtagError } from './errors';
 
 export interface IVariableScope<T extends ExecutionContext> {
     context: new (...args: any[]) => T;

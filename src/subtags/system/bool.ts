@@ -36,7 +36,7 @@ export class BoolSubtag extends BasicSubtag {
             .default(errors.tooManyArgs);
     }
 
-    public run(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [val1, val2, val3]: SubtagResult[]): SubtagResult {
+    public run(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [val1, val2, val3]: readonly SubtagResult[]): SubtagResult {
         return this.check(context, val1, val2, val3);
     }
 

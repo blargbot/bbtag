@@ -4,9 +4,9 @@ import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
 import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
-import { SubtagArgumentDefinition } from './subtagArguments';
+import { SubtagArgumentDefinition } from './arguments';
 
-type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: IStringToken[], resolved: SubtagResult[]) => Awaitable<SubtagResult>;
+type SubtagHandler<T, TSelf> = (this: TSelf, context: T, token: ISubtagToken, args: readonly IStringToken[], resolved: readonly SubtagResult[]) => Awaitable<SubtagResult>;
 // tslint:disable-next-line: interface-over-type-literal
 type SubtagConditionalHandler<T, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, autoResolve: AutoResolve };
 type AutoResolve = (value: IStringToken, index: number) => boolean;
@@ -24,7 +24,7 @@ export interface ISubtag<TContext extends ExecutionContext> {
 
 interface IUsageExample { code: string; arguments?: string[]; output: string; effects?: string; }
 
-export interface ISubtagArguments<TContext extends SubtagContext> {
+export interface ISubtagOptions<TContext extends SubtagContext> {
     contextType: new (...args: any[]) => TContext;
     name: string;
     category: string;
@@ -50,7 +50,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     private readonly _conditionals: Array<SubtagConditionalHandler<T, this>>;
     private _defaultHandler?: SubtagConditionalHandler<T, this>;
 
-    protected constructor(args: ISubtagArguments<T>) {
+    protected constructor(args: ISubtagOptions<T>) {
         this.context = args.contextType;
         this.name = args.name;
         this.category = args.category;

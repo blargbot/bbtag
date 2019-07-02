@@ -1,7 +1,7 @@
 import { default as serializer } from './serializer';
 import { IStringToken } from '../models';
 
-export type SubtagConditionFunc = (args: IStringToken[]) => boolean;
+export type SubtagConditionFunc = (args: readonly IStringToken[]) => boolean;
 // tslint:disable-next-line: interface-over-type-literal
 export type SubtagConditionParser = { regex: RegExp, parser: (match: RegExpExecArray) => Exclude<SubtagCondition, string> | undefined };
 export type SubtagCondition = SubtagConditionFunc | string | number;

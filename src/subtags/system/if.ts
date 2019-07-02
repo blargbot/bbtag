@@ -30,7 +30,7 @@ export class IfSubtag extends BasicSubtag {
             .default(errors.tooManyArgs);
     }
 
-    public runNoComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: IStringToken[], [bool]: SubtagResult[]): Promise<SubtagResult> {
+    public runNoComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: readonly IStringToken[], [bool]: readonly SubtagResult[]): Promise<SubtagResult> {
         const tryBool = util.subtag.tryToBoolean(bool);
         if (otherwise === undefined) {
             otherwise = this.fakeArgument('');
@@ -45,7 +45,8 @@ export class IfSubtag extends BasicSubtag {
         }
     }
 
-    public runWithComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: IStringToken[], [left, comp, right]: SubtagResult[]): Promise<SubtagResult> {
+    public runWithComp(context: ExecutionContext, token: ISubtagToken, [then, otherwise]: readonly IStringToken[], [left, comp, right]: readonly SubtagResult[]):
+        Promise<SubtagResult> {
         const boolResult = boolSubtag.check(context, left, comp, right);
         if (otherwise === undefined) {
             otherwise = this.fakeArgument('');

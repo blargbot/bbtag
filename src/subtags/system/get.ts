@@ -35,11 +35,11 @@ export class GetSubtag extends BasicSubtag {
             .default(errors.tooManyArgs);
     }
 
-    public async getKey(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key]: SubtagResult[]): Promise<SubtagResult> {
+    public async getKey(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key]: readonly SubtagResult[]): Promise<SubtagResult> {
         await context.variables.get(util.subtag.toString(key));
     }
 
-    public async getIndex(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key, index]: SubtagResult[]): Promise<SubtagResult> {
+    public async getIndex(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key, index]: readonly SubtagResult[]): Promise<SubtagResult> {
         const value = await context.variables.get(util.subtag.toString(key));
         const asArray = util.subtag.tryToArray(value);
         const indexAsNumber = util.subtag.tryToNumber(index);

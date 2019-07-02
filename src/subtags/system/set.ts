@@ -34,11 +34,11 @@ export class SetSubtag extends BasicSubtag {
             .default(this.setKey, true);
     }
 
-    public async clearKey(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key]: SubtagResult[]): Promise<void> {
+    public async clearKey(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key]: readonly SubtagResult[]): Promise<void> {
         await context.variables.delete(util.subtag.toString(key));
     }
 
-    public async setKey(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key, ...values]: SubtagResult[]): Promise<void> {
+    public async setKey(context: ExecutionContext, token: ISubtagToken, []: readonly IStringToken[], [key, ...values]: readonly SubtagResult[]): Promise<void> {
         await context.variables.set(util.subtag.toString(key), values.map(util.subtag.toPrimative));
     }
 }

@@ -10,11 +10,11 @@ export interface IBBTag {
 }
 
 export interface IStringToken extends IToken {
-    format: string;
-    subtags: ISubtagToken[];
+    readonly format: string;
+    readonly subtags: readonly ISubtagToken[];
 }
 
 export interface ISubtagToken extends IToken {
-    name: IStringToken;
-    args: IStringToken[];
+    readonly name: IStringToken;
+    readonly args: readonly IStringToken[];
 }
