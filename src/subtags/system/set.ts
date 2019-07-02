@@ -35,7 +35,7 @@ export class SetSubtag extends BasicSubtag {
     }
 
     public async clearKey(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key]: SubtagResult[]): Promise<void> {
-        await context.variables.remove(util.subtag.toString(key));
+        await context.variables.delete(util.subtag.toString(key));
     }
 
     public async setKey(context: ExecutionContext, token: ISubtagToken, []: IStringToken[], [key, ...values]: SubtagResult[]): Promise<void> {
