@@ -1,4 +1,4 @@
-import { ISubtagToken, errors } from '../../structures';
+import { ISubtagToken, validation } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class RBSubtag extends BasicSubtag {
@@ -14,7 +14,7 @@ export class RBSubtag extends BasicSubtag {
         });
 
         this.whenArgs('0', () => '}')
-            .default(errors.tooManyArgs);
+            .default(validation.tooManyArgs);
     }
 
     public optimize(token: ISubtagToken): ISubtagToken | string {

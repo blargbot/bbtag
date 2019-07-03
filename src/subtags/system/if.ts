@@ -1,4 +1,4 @@
-import { errors, ExecutionContext, IStringToken, SubtagResult, ISubtagToken, argumentBuilder as A } from '../../structures';
+import { validation, SubtagResult, argumentBuilder as A } from '../../structures';
 import { default as boolSubtag, BoolSubtag } from './bool';
 import { default as util, Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
@@ -25,10 +25,10 @@ export class IfSubtag extends BasicSubtag {
             ]
         });
 
-        this.whenArgs('<=1', errors.notEnoughArgs)
+        this.whenArgs('<=1', validation.notEnoughArgs)
             .whenArgs('2,3', this.runNoComp, [0]) // {if;RESOLVE;DEFER[;DEFER]}
             .whenArgs('4,5', this.runWithComp, [0, 1, 2]) // {if;RESOLVE;RESOLVE;RESOLVE;DEFER[;DEFER]}
-            .default(errors.tooManyArgs);
+            .default(validation.tooManyArgs);
     }
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
@@ -36,7 +36,7 @@ export class IfSubtag extends BasicSubtag {
         const tryBool = util.subtag.tryToBoolean(bool);
 
         if (!tryBool.success) {
-            return errors.types.notBool(args, args.token.args[0]);
+            return validation.types.notBool(args, args.token.args[0]);
         } else if (tryBool.value) {
             return args.execute(1);
         } else {
@@ -49,7 +49,7 @@ export class IfSubtag extends BasicSubtag {
         const bool = boolSubtag.check(left, comp, right);
 
         if (bool === undefined) {
-            return errors.types.notOperator(args);
+            return validation.types.notOperator(args);
         } else if (bool === true) {
             return args.execute(3);
         } else {

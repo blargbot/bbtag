@@ -4,7 +4,8 @@ export { ISubtag, ISubtagOptions as ISubtagArguments, Subtag, SubtagResult, Subt
 export { SubtagCollection } from './subtagCollection';
 export { SubtagContext, ExecutionContext, OptimizationContext } from './context';
 export { argumentBuilder, SubtagArgumentDefinition } from './arguments';
-export { default as errors, SubtagError, ChainedError } from './errors';
+export { SubtagError, ChainedError } from './errors';
+export { default as validation } from './validation';
 export { EventManager } from './events';
 export { SortedList } from './sortedList';
 export { variableScopes, VariableScope } from './variableScopes';

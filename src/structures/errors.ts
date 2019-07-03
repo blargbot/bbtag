@@ -5,26 +5,16 @@ import { ArgumentCollection } from './argumentCollection';
 export class ChainedError extends Error {
     public readonly innerError?: Error;
 
-    constructor();
-    constructor(message: string);
-    constructor(innerError: Error);
-    constructor(message: string, innerError: Error);
-    constructor(arg1?: any, arg2?: any) {
-        switch (typeof arg1) {
-            case 'string':
-                break;
-            case 'object':
-                arg2 = arg1;
-                arg1 = undefined;
-                break;
+    constructor(innerError: Error)
+    constructor(message: string, innerError: Error)
+    constructor(message: string | Error | undefined, innerError?: Error) {
+        if (typeof message !== 'string') {
+            innerError = message;
+            message = undefined;
         }
 
-        if (arg1 === undefined && arg2 !== undefined) {
-            arg1 = arg2.message;
-        }
-
-        super(arg1);
-        this.innerError = arg2;
+        super(message);
+        this.innerError = innerError;
     }
 }
 
@@ -57,20 +47,10 @@ export class SubtagError extends ChainedError {
     }
 }
 
-type TokenType = ISubtagToken | IStringToken;
-type EXC = ExecutionContext;
-type AC<T extends EXC> = ArgumentCollection<T>;
-
-export default {
-    notEnoughArgs<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not enough arguments`, token || args.token); },
-    tooManyArgs<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Too many arguments`, token || args.token); },
-    types: {
-        notNumber<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not a number`, token || args.token); },
-        notArray<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not an array`, token || args.token); },
-        notBool<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not a boolean`, token || args.token); },
-        notOperator<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Invalid operator`, token || args.token); },
-        array: {
-            outOfRange<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Index out of range`, token || args.token); }
-        }
+export class AggregateError extends Error {
+    public readonly innerErrors: readonly any[];
+    constructor(message?: string, ...innerErrors: any[]) {
+        super(message);
+        this.innerErrors = innerErrors;
     }
-};
+}

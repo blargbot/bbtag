@@ -1,3 +1,5 @@
+import { AggregateError } from './errors';
+
 type EventDeclaration<T> = { [P in keyof T]: (...args: any[]) => any };
 
 export class EventManager<TEvents extends EventDeclaration<TEvents> = { [key: string]: (...args: any[]) => any }> {
@@ -38,14 +40,23 @@ export class EventManager<TEvents extends EventDeclaration<TEvents> = { [key: st
 
     public raise<TKey extends keyof TEvents>(event: TKey, ...args: Parameters<TEvents[TKey]>): Array<ReturnType<TEvents[TKey]>> {
         const handlers = this.events.get(event) as Set<TEvents[TKey]> | undefined;
-        if (!handlers || handlers.size === 0) {
+        if (handlers === undefined) {
             return [];
         }
 
         const results: Array<ReturnType<TEvents[TKey]>> = [];
+        const errors: any[] = [];
 
         for (const handler of handlers) {
-            results.push(handler(...args));
+            try {
+                results.push(handler(...args));
+            } catch (ex) {
+                errors.push(ex);
+            }
+        }
+
+        if (errors.length > 0) {
+            throw new AggregateError(`Errors were thrown while invoking event ${event}. See innerErrors for details`, ...errors);
         }
 
         return results;

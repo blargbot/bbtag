@@ -1,4 +1,4 @@
-import { argumentBuilder as A, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult, variableScopes } from '../../structures';
+import { argumentBuilder as A, validation, SubtagResult, variableScopes } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 import util, { Awaitable } from '../../util';
 import { ArgumentCollection } from '../../structures/argumentCollection';
@@ -30,10 +30,10 @@ export class GetSubtag extends BasicSubtag {
             ]
         });
 
-        this.whenArgs('0', errors.notEnoughArgs)
+        this.whenArgs('0', validation.notEnoughArgs)
             .whenArgs('1', this.getKey, true)
             .whenArgs('2', this.getIndex, true)
-            .default(errors.tooManyArgs);
+            .default(validation.tooManyArgs);
     }
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
@@ -50,9 +50,9 @@ export class GetSubtag extends BasicSubtag {
         if (!asArray.success) {
             return value;
         } else if (!indexAsNumber.success) {
-            return errors.types.notNumber(args, args.token.args[1]);
+            return validation.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return errors.types.array.outOfRange(args, args.token);
+            return validation.types.array.outOfRange(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

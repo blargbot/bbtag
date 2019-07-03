@@ -1,4 +1,4 @@
-import { ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, argumentBuilder as A } from '../../structures';
+import { validation, SubtagResult, argumentBuilder as A } from '../../structures';
 import { default as util } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
 import { ArgumentCollection } from '../../structures/argumentCollection';
@@ -32,9 +32,9 @@ export class BoolSubtag extends BasicSubtag {
             ]
         });
 
-        this.whenArgs('<=2', errors.notEnoughArgs)
+        this.whenArgs('<=2', validation.notEnoughArgs)
             .whenArgs('3', this.run, true) // {bool;RESOLVE;RESOLVE;RESOLVE}
-            .default(errors.tooManyArgs);
+            .default(validation.tooManyArgs);
     }
 
     public run(args: ArgumentCollection): SubtagResult {

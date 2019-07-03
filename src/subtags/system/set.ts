@@ -1,4 +1,4 @@
-import { ExecutionContext, errors, argumentBuilder as A, SubtagResult, ISubtagToken, IStringToken, variableScopes } from '../../structures';
+import { validation, argumentBuilder as A, variableScopes } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 import util, { Awaitable } from '../../util';
 import { ArgumentCollection } from '../../structures/argumentCollection';
@@ -30,7 +30,7 @@ export class SetSubtag extends BasicSubtag {
             arraySupport: true
         });
 
-        this.whenArgs('0', errors.notEnoughArgs)
+        this.whenArgs('0', validation.notEnoughArgs)
             .whenArgs('1', this.clearKey, true)
             .default(this.setKey, true);
     }
