@@ -26,29 +26,33 @@ export abstract class SubtagContext {
         this.tagName = tagName;
         this.fallback = undefined;
     }
-
-    public error(token: ISubtagToken | IStringToken): SubtagError;
-    public error(message: string, token: ISubtagToken | IStringToken): SubtagError;
-    public error(innerError: Error, token: ISubtagToken | IStringToken): SubtagError;
-    public error(message: string, innerError: Error, token: ISubtagToken | IStringToken): SubtagError;
-    public error(message: any, innerError?: any, token?: any): SubtagError {
-        return new SubtagError(this, message, innerError, token);
-    }
 }
 
 export class ExecutionContext extends SubtagContext {
     public readonly scope: string;
     public readonly variables: VariableCollection<this>;
+    public readonly errors: SubtagError[];
 
     public constructor(engine: Engine, tagName: string, args: IExecutionContextArgs<ExecutionContext>) {
         super(engine, tagName);
 
         this.scope = args.scope;
         this.variables = new VariableCollection<this>(this, filterVariableScopes(this, args.variableScopes || variableScopes));
+        this.errors = [];
     }
 
     public execute(token: IStringToken): Awaitable<SubtagResult> {
         return this.engine.execute(token, this);
+    }
+
+    public error(token: ISubtagToken | IStringToken): SubtagError;
+    public error(message: string, token: ISubtagToken | IStringToken): SubtagError;
+    public error(innerError: Error, token: ISubtagToken | IStringToken): SubtagError;
+    public error(message: string, innerError: Error, token: ISubtagToken | IStringToken): SubtagError;
+    public error(message: any, innerError?: any, token?: any): SubtagError {
+        const error = new SubtagError(this, message, innerError, token);
+        this.errors.push(error);
+        return error;
     }
 }
 

@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagToken, Position, Range } from '../../src/structures';
+import { IStringToken, ISubtagToken, Range } from '../../src/structures';
 
 export function tag(name: IStringToken, ...args: IStringToken[]): ISubtagToken {
     return { name, args, range: Range.empty };
