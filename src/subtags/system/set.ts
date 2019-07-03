@@ -11,7 +11,7 @@ export class SetSubtag extends BasicSubtag {
             arguments: [A.r('name'), A.r('values', true)],
             description: 'Stores `value` under `name`. These variables are saved between sessions. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
-                'Valid scopes are: ' + variableScopes.select(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') +
+                'Valid scopes are: ' + variableScopes.map(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') +
                 '.\nFor performance reasons, variables are not immediately stored to the database. See `{commit}` and `{rollback}`' +
                 'for more information.',
             examples: [

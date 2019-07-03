@@ -23,7 +23,7 @@ describe('engine', () => {
                 it(`should fail to process '${input}' because ${expected.message}`, () => {
                     // arrange
                     const engine = new Engine(undefined!);
-                    engine.subtags.register(...subtags);
+                    engine.subtags.push(...subtags);
                     const test = () => engine.process(input);
 
                     // act
@@ -35,7 +35,7 @@ describe('engine', () => {
                 it(`should correctly process '${input}'`, () => {
                     // arrange
                     const engine = new Engine(undefined!);
-                    engine.subtags.register(...subtags);
+                    engine.subtags.push(...subtags);
 
                     // act
                     const result = engine.process(input);
@@ -49,7 +49,7 @@ describe('engine', () => {
 
     describe('execute', () => {
         const engine = new Engine(undefined!);
-        engine.subtags.register(...subtags);
+        engine.subtags.push(...subtags);
 
         const testCases: Array<{ input: string, token?: IStringToken, assert: (context: ExecutionContext, result: SubtagResult) => void }> = [
             { input: 'hi {if;true;yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi yay!') },

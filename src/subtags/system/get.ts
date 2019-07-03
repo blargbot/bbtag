@@ -12,7 +12,7 @@ export class GetSubtag extends BasicSubtag {
             description:
                 'Returns the stored variable `varName`, or an index within it if it is a stored array. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
-                'Valid scopes are: ' + variableScopes.select(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') + '.',
+                'Valid scopes are: ' + variableScopes.map(s => '`' + (s.prefix || 'none') + '` (' + s.name + ')').join(', ') + '.',
             examples: [
                 {
                     code:

@@ -7,11 +7,13 @@ import {
     OptimizationContext,
     SubtagCollection,
     SubtagResult,
-    EventManager
+    EventManager,
+    ISubtag
 } from './structures';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
 import { default as util, Awaitable } from './util';
+import { IVariableScope } from './structures/variableScopes';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;
@@ -20,13 +22,13 @@ interface IEngineEvents {
 
 export class Engine {
     public parser: Parser;
-    public readonly subtags: SubtagCollection;
+    public readonly subtags: Array<ISubtag<any>>;
     public readonly database: IDatabase;
     protected readonly events: EventManager<IEngineEvents>;
 
     public constructor(database: IDatabase) {
         this.parser = new Parser();
-        this.subtags = new SubtagCollection();
+        this.subtags = [];
         this.database = database;
         this.events = new EventManager();
     }
@@ -65,7 +67,7 @@ export class Engine {
     protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
         await Promise.all(this.events.raise('before-execute', input, context));
         const name = util.subtag.toString(await this.execute(input.name, context));
-        const executor = context.findSubtag(name);
+        const executor = context.subtags.find(name);
 
         let result: SubtagResult;
 

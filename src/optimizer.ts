@@ -8,7 +8,7 @@ export function optimizeSubtagToken(input: ISubtagToken, context: OptimizationCo
         return input;
     }
 
-    const optimiser = context.findSubtag(name.format);
+    const optimiser = context.subtags.find(name.format);
     if (optimiser === undefined) {
         return input;
     }

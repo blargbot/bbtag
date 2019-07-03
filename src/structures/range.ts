@@ -6,14 +6,6 @@ export class Range {
         this.start = start;
         this.end = end;
     }
-
-    public slice(source: string): string {
-        return source.slice(this.start.offset, this.end.offset);
-    }
-
-    public isEmpty(): boolean {
-        return this.start.offset === this.end.offset;
-    }
 }
 
 export class Position {

@@ -1,10 +1,9 @@
 import { DatabaseValue } from '../external';
 import { Awaitable, Enumerable } from '../util';
-import { SortedList } from './sortedList';
-import { ExecutionContext } from './context';
 import { SubtagError } from './errors';
+import { ExecutionContext } from './context';
 
-export interface IVariableScope<T extends ExecutionContext> {
+export interface IVariableScope<T extends ExecutionContext = ExecutionContext> {
     context: new (...args: any[]) => T;
     name: string;
     prefix: string;
@@ -16,7 +15,7 @@ export interface IVariableScope<T extends ExecutionContext> {
     getKey(context: T, key: string): Iterable<string>;
 }
 
-export interface IPartialVariableScope<T extends ExecutionContext> {
+export interface IPartialVariableScope<T extends ExecutionContext = ExecutionContext> {
     context: IVariableScope<T>['context'];
     name: IVariableScope<T>['name'];
     prefix: IVariableScope<T>['prefix'];
@@ -28,7 +27,7 @@ export interface IPartialVariableScope<T extends ExecutionContext> {
     getKey: IVariableScope<T>['getKey'];
 }
 
-export const variableScopes: SortedList<IVariableScope<ExecutionContext>> = new SortedList(scope => scope.prefix.length, false);
+export const variableScopes: IVariableScope[] = [];
 
 export class VariableScope<T extends ExecutionContext> implements IVariableScope<T> {
     public readonly context: new (...args: any[]) => T;
@@ -67,7 +66,7 @@ export class VariableScope<T extends ExecutionContext> implements IVariableScope
     }
 }
 
-variableScopes.add(new VariableScope({ // Global '*'
+variableScopes.push(new VariableScope({ // Global '*'
     context: ExecutionContext,
     name: 'Global',
     prefix: '*',
@@ -79,7 +78,7 @@ variableScopes.add(new VariableScope({ // Global '*'
     }
 }));
 
-variableScopes.add(new VariableScope({ // Temporary '~'
+variableScopes.push(new VariableScope({ // Temporary '~'
     context: ExecutionContext,
     name: 'Temporary',
     prefix: '~',
@@ -94,7 +93,7 @@ variableScopes.add(new VariableScope({ // Temporary '~'
     getKey(): Iterable<string> { return []; }
 }));
 
-variableScopes.add(new VariableScope({ // Local ''
+variableScopes.push(new VariableScope({ // Local ''
     context: ExecutionContext,
     name: 'Local',
     prefix: '',

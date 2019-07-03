@@ -1,7 +1,8 @@
 import { ExecutionContext } from './context';
 import { DatabaseValue } from '../external';
-import { default as variableScopes, IVariableScope } from './variableScopes';
+import { IVariableScope } from './variableScopes';
 import { Enumerable, Awaitable } from '../util';
+import { SortedList } from './sortedList';
 
 interface IVariableEntry {
     readonly original: DatabaseValue;
@@ -11,10 +12,12 @@ interface IVariableEntry {
 export class VariableCollection<T extends ExecutionContext> {
     private readonly context: T;
     private readonly cache: Map<string, IVariableEntry>;
+    private readonly variableScopes: SortedList<IVariableScope<T>>;
 
-    public constructor(context: T) {
+    public constructor(context: T, variableScopes: SortedList<IVariableScope<T>>) {
         this.context = context;
         this.cache = new Map();
+        this.variableScopes = variableScopes;
     }
 
     public delete(key: string): Awaitable<void>;
@@ -86,7 +89,7 @@ export class VariableCollection<T extends ExecutionContext> {
             key = key.substring(1);
         }
 
-        for (const scope of variableScopes) {
+        for (const scope of this.variableScopes) {
             if (!checkContext(scope, this.context)) {
                 continue;
             }

@@ -116,7 +116,7 @@ function* _tokenize(source: string): IterableIterator<IBBTagToken> {
 
 function createToken(states: IStateTracker): IBBTagToken {
     const range = new Range(states.start, states.end);
-    const content = range.slice(states.source);
+    const content = states.source.slice(range.start.offset, range.end.offset);
     states.start = states.end;
     return { range, content };
 }
