@@ -40,7 +40,6 @@ export class SortedList<T> extends IterableEnumerable<T> {
                     continue nextItem;
                 }
             }
-            this._baseValue.push(item);
         }
     }
 }
