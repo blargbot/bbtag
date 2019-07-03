@@ -40,7 +40,7 @@
         "extends": "@istanbuljs/nyc-config-typescript",
         "all": true,
         "check-coverage": true,
-        "lines": 65,
+        "lines": 70,
         "reporter": [
             "text-summary",
             "html"
