@@ -40,9 +40,9 @@ describe('constant argumentBuilder', () => {
             });
         }
     });
-    describe('#toString', () => {
+    describe('#stringify', () => {
         for (const { structure: input, string: expected } of testCases) {
-            it(`should turn ${JSON.stringify(input)} into ${expected}`, () => {
+            it(`should turn ${input.required ? 'a required' : 'an optional'}${input.many ? ' expandable' : ''} ${input.type || 'typeless'} argument`, () => {
                 // arrange
 
                 // act
@@ -52,7 +52,18 @@ describe('constant argumentBuilder', () => {
                 expect(result).to.equal(expected);
             });
         }
-        it(`should turn ${JSON.stringify({ required: true, values: 2 })} into <x y>`, () => {
+        it('should turn multiple arguments into one space separated string', () => {
+            // arrange
+            const input = testCases.map(c => c.structure);
+            const expected = testCases.map(c => c.string).join(' ');
+
+            // act
+            const result = argumentBuilder.stringify(input);
+
+            // assert
+            expect(result).to.deep.equal(expected);
+        });
+        it(`should turn a required group of 2 arguments into <arg1 arg2>`, () => {
             // arrange
             const parts = [6, 13].map(i => testCases[i]);
 
@@ -62,7 +73,7 @@ describe('constant argumentBuilder', () => {
             // assert
             expect(result).to.equal(`<${parts.map(p => p.string).join(' ')}>`);
         });
-        it(`should turn ${JSON.stringify({ required: false, values: 2 })} into [x y]`, () => {
+        it(`should turn an optional group of 2 arguments into <arg1 arg2>`, () => {
             // arrange
             const parts = [6, 13].map(i => testCases[i]);
 

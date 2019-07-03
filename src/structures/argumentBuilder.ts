@@ -52,17 +52,14 @@ export interface IArgumentSource {
 }
 
 export const argumentBuilder: IArgumentSource = {
-    r: undefined!,
     require(name: string, typeOrMany?: string | boolean, type?: string): IHandlerArgumentValue {
         return this.create(name, true, typeOrMany as any, type!);
     },
 
-    o: undefined!,
     optional(name: string, typeOrMany?: string | boolean, type?: string): IHandlerArgumentValue {
         return this.create(name, false, typeOrMany as any, type!);
     },
 
-    g: undefined!,
     group(...values: any[]): IHandlerArgumentGroup {
         let required = false;
         if (typeof values[0] === 'boolean') {
@@ -72,7 +69,6 @@ export const argumentBuilder: IArgumentSource = {
         return { required, values };
     },
 
-    c: undefined!,
     create(name: string, required: boolean, typeOrMany?: string | boolean, type?: string): IHandlerArgumentValue {
         if (typeof typeOrMany === 'string') {
             type = typeOrMany;
@@ -96,7 +92,7 @@ export const argumentBuilder: IArgumentSource = {
 
         return _argsToStringRecursive(values).trim();
     }
-};
+} as any;
 
 argumentBuilder.r = argumentBuilder.require;
 argumentBuilder.o = argumentBuilder.optional;
@@ -104,7 +100,7 @@ argumentBuilder.g = argumentBuilder.group;
 argumentBuilder.c = argumentBuilder.create;
 
 function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {
-    let result = '';
+    const result = [];
 
     for (const entry of values) {
         const brackets = entry.required ? '<{0}>' : '[{0}]';
@@ -120,8 +116,8 @@ function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {
         } else {
             content.push(_argsToStringRecursive(entry.values));
         }
-        result += util.format(brackets, content.join(''));
+        result.push(util.format(brackets, content.join('')));
     }
 
-    return result;
+    return result.join(' ');
 }
