@@ -7,7 +7,7 @@ type TokenType = ISubtagToken | IStringToken;
 type EXC = ExecutionContext;
 type AC<T extends EXC> = ArgumentCollection<T>;
 
-export default {
+export const validation = {
     notEnoughArgs<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Not enough arguments`, token || args.token); },
     tooManyArgs<T extends EXC>(args: AC<T>, token?: TokenType): SubtagError { return args.context.error(`Too many arguments`, token || args.token); },
     types: {

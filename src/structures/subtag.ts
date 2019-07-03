@@ -1,8 +1,8 @@
 import { Awaitable, default as util } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { Enumerable } from '../util/enumerable';
+import { SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
-import { SubtagArgumentDefinition } from './arguments';
 import { ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
