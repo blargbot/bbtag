@@ -8,6 +8,7 @@
         "watch": "tsc -w",
         "clean": "rimraf src/**/*.js src/**/*.js.map test/**/*.js test/**/*.js.map coverage .nyc_output",
         "build": "tsc",
+        "rebuild": "npm run clean && npm run build && npm run lint",
         "test": "mocha",
         "coverage": "nyc npm test"
     },
@@ -38,7 +39,7 @@
         "extends": "@istanbuljs/nyc-config-typescript",
         "all": true,
         "check-coverage": true,
-        "lines": 60,
+        "lines": 65,
         "reporter": [
             "text-summary",
             "html"

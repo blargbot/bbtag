@@ -6,12 +6,7 @@ init:
 install:
 - cmd: npm install
 build_script:
-- cmd: >-
-    npm run clean
-
-    npm run build
-
-    npm run lint
+- cmd: npm run rebuild
 test_script:
 - cmd: npm run coverage
 artifacts:

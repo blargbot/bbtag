@@ -75,4 +75,4 @@ export class OptimizationContext extends SubtagContext {
 }
 
 // This needs to be at the end due to a circular reference
-import { default as variableScopes, IVariableScope } from './variableScopes';
+import { default as variableScopes, IVariableScope } from './variableScope';

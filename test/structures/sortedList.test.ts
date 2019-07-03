@@ -14,7 +14,7 @@ const testData: readonly ITestData[] = [
 const ascending: readonly ITestData[] = [1, 3, 4, 2, 0].map(i => testData[i]);
 const descending: readonly ITestData[] = [0, 2, 4, 3, 1].map(i => testData[i]);
 
-describe('SortedList', () => {
+describe('class SortedList', () => {
     it('should correctly add elements with default ordering being ascending', () => {
         // arrange
         const list = new SortedList<ITestData>(entry => entry.name);

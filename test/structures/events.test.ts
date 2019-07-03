@@ -9,7 +9,7 @@ interface ITestEvents {
     test2: (arg1: number) => any;
 }
 
-describe('EventManager', () => {
+describe('class EventManager', () => {
     it('should successfully register and invoke handler', () => {
         // arrange
         const manager = new EventManager<ITestEvents>();

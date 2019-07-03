@@ -8,5 +8,5 @@ export { SubtagError, ChainedError } from './errors';
 export { default as validation } from './validation';
 export { EventManager } from './events';
 export { SortedList } from './sortedList';
-export { variableScopes, VariableScope } from './variableScopes';
+export { variableScopes, VariableScope } from './variableScope';
 export { VariableCollection } from './variableCollection';

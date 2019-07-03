@@ -1,6 +1,6 @@
 import { ExecutionContext } from './context';
 import { DatabaseValue } from '../external';
-import { IVariableScope } from './variableScopes';
+import { IVariableScope } from './variableScope';
 import { Enumerable, Awaitable } from '../util';
 import { SortedList } from './sortedList';
 

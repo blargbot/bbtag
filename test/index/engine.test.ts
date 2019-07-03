@@ -6,8 +6,8 @@ import { default as subtags } from '../../src/subtags';
 import { ExecutionContext, IStringToken, SubtagResult, ISubtagToken } from '../../src/structures';
 import { default as util } from '../../src/util';
 
-describe('engine', () => {
-    describe('process', () => {
+describe('class Engine', () => {
+    describe('#process', () => {
         const testCases: Array<{ input: string, expected: any }> = [
             { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
             { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
@@ -47,7 +47,7 @@ describe('engine', () => {
         }
     });
 
-    describe('execute', () => {
+    describe('#execute', () => {
         const engine = new Engine(undefined!);
         engine.subtags.push(...subtags);
 

@@ -13,7 +13,7 @@ import {
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
 import { default as util, Awaitable } from './util';
-import { IVariableScope } from './structures/variableScopes';
+import { IVariableScope } from './structures/variableScope';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;

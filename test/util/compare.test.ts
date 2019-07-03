@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { SubtagResult } from '../../src/structures';
 import { compare } from '../../src/util/compare';
 
-describe('compare', () => {
+describe('function compare', () => {
     const testCases: Array<{ left: SubtagResult, right: SubtagResult, expected: number }> = [
         // number to number
         { left: 0, right: 0, expected: 0 },

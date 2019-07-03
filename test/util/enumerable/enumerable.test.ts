@@ -16,7 +16,7 @@ function compare<T>(actual: Enumerable<T>, expected: T[]): void {
     expect(enumerator.current).to.be.undefined;
 }
 
-describe('Enumerable', () => {
+describe('class Enumerable', () => {
     describe('instance', () => {
         describe('#select', () => {
             const testCases: Array<{ input: any[], selector: (element: any, index: number) => any, expected: any[] }> = [
