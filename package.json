@@ -4,6 +4,7 @@
     "description": "The engine behind blargbots custom commands",
     "main": "./dist/index.js",
     "scripts": {
+        "lint-fix": "tslint --project tsconfig.json --format stylish --fix",
         "lint": "tslint --project tsconfig.json --format stylish",
         "watch": "tsc -w",
         "clean": "rimraf src/**/*.js src/**/*.js.map test/**/*.js test/**/*.js.map coverage .nyc_output",

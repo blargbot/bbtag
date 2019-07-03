@@ -1,7 +1,7 @@
-import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../structures';
+import { SubtagError, SubtagPrimativeResult, SubtagResult } from '../structures';
+import { compare } from './compare';
 import { default as serializer } from './serializer';
 import { default as tryGet, TryGetResult } from './tryGet';
-import { compare } from './compare';
 
 export interface ICollection {
     startsWith(value: SubtagResult): boolean;

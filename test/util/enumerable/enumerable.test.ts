@@ -21,9 +21,9 @@ describe('class Enumerable', () => {
         describe('#select', () => {
             const testCases: Array<{ input: any[], selector: (element: any, index: number) => any, expected: any[] }> = [
                 { input: [1, 2, 3, 4, 5], selector: (e, i) => e + i, expected: [1, 3, 5, 7, 9] },
-                { input: [1, 2, 3, 4, 5], selector: (e, i) => 0, expected: [0, 0, 0, 0, 0] },
-                { input: [], selector: (e, i) => { throw 1; }, expected: [] },
-                { input: [5, 4, 3, 2, 1], selector: (e, i) => i, expected: [0, 1, 2, 3, 4] }
+                { input: [1, 2, 3, 4, 5], selector: () => 0, expected: [0, 0, 0, 0, 0] },
+                { input: [], selector: () => { throw 1; }, expected: [] },
+                { input: [5, 4, 3, 2, 1], selector: (_, i) => i, expected: [0, 1, 2, 3, 4] }
             ];
 
             for (const testCase of testCases) {

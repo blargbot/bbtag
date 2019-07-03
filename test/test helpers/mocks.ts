@@ -1,7 +1,7 @@
 import { Engine } from '../../src';
-import { IDatabase, DatabaseValue } from '../../src/external';
-import { Awaitable } from '../../src/util';
+import { DatabaseValue, IDatabase } from '../../src/external';
 import { ExecutionContext } from '../../src/structures';
+import { Awaitable } from '../../src/util';
 
 export class MockEngine extends Engine {
     public constructor() {

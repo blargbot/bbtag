@@ -1,7 +1,6 @@
-import { validation, argumentBuilder as A, variableScopes } from '../../structures';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { argumentBuilder as A, ArgumentCollection, validation, variableScopes } from '../../structures';
 import util, { Awaitable } from '../../util';
-import { ArgumentCollection } from '../../structures/argumentCollection';
+import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class SetSubtag extends BasicSubtag {
     public constructor() {

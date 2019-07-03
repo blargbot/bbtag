@@ -1,6 +1,6 @@
-import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../structures';
-import { EnumerableSource } from './enumerable/types';
+import { SubtagError, SubtagPrimativeResult, SubtagResult } from '../structures';
 import { Enumerable } from './enumerable';
+import { EnumerableSource } from './enumerable/types';
 import { default as subtag } from './subtagResults';
 
 export function compare(left: SubtagResult, right: SubtagResult): number {

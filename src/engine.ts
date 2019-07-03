@@ -1,19 +1,17 @@
 import { IDatabase } from './external';
+import { optimizeStringToken } from './optimizer';
+import { Parser } from './parser';
 import {
+    EventManager,
     ExecutionContext,
     IBBTag,
     IStringToken,
+    ISubtag,
     ISubtagToken,
     OptimizationContext,
-    SubtagCollection,
-    SubtagResult,
-    EventManager,
-    ISubtag
+    SubtagResult
 } from './structures';
-import { optimizeStringToken } from './optimizer';
-import { Parser } from './parser';
-import { default as util, Awaitable } from './util';
-import { IVariableScope } from './structures/variableScope';
+import { Awaitable, default as util } from './util';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;

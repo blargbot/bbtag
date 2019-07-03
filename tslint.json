@@ -12,7 +12,6 @@
         "no-unused-expression": false,
         "arrow-parens": false,
         "no-bitwise": false,
-        "ordered-imports": false,
         "no-conditional-assignment": false,
         "indent": [
             true,

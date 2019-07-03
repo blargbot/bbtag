@@ -1,7 +1,6 @@
-import { validation, SubtagResult, argumentBuilder as A } from '../../structures';
+import { argumentBuilder as A, ArgumentCollection, SubtagResult, validation } from '../../structures';
 import { default as util } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import { ArgumentCollection } from '../../structures/argumentCollection';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 

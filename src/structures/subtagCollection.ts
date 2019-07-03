@@ -1,6 +1,6 @@
-import { OptimizationContext, ExecutionContext, SubtagContext } from './context';
-import { ISubtag } from './subtag';
 import { Enumerable } from '../util';
+import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
+import { ISubtag } from './subtag';
 
 type SubtagType<T>
     = T extends ExecutionContext ? ISubtag<T>

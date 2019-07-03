@@ -1,10 +1,10 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { Engine } from '../../src/engine';
-import { tag, str, stripStrToken } from '../test helpers/subtag';
+import { ExecutionContext, IStringToken, SubtagResult } from '../../src/structures';
 import { default as subtags } from '../../src/subtags';
-import { ExecutionContext, IStringToken, SubtagResult, ISubtagToken } from '../../src/structures';
 import { default as util } from '../../src/util';
+import { str, stripStrToken, tag } from '../test helpers/subtag';
 
 describe('class Engine', () => {
     describe('#process', () => {

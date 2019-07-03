@@ -7,10 +7,10 @@ export interface ISerializer<T> {
 }
 
 export const array: ISerializer<any[]> = {
-    serialize(value: any[]): string {
+    serialize(_value: any[]): string {
         return undefined!;
     },
-    tryDeserialize(value: string): TryGetResult<any[]> {
+    tryDeserialize(_value: string): TryGetResult<any[]> {
         return undefined!;
     },
     deserialize(value: string): any[] {

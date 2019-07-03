@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { Parser } from '../../src/parser';
-import { tag, str, stripStrToken } from '../test helpers/subtag';
+import { str, stripStrToken, tag } from '../test helpers/subtag';
 
 describe('class Parser', () => {
     const testCases: Array<{ input: string, expected: any }> = [

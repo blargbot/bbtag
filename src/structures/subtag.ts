@@ -1,11 +1,11 @@
-import { default as util, Awaitable } from '../util';
+import { Awaitable, default as util } from '../util';
+import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { Enumerable } from '../util/enumerable';
-import { IStringToken, ISubtagToken } from './bbtag';
+import { ArgumentCollection } from './argumentCollection';
+import { SubtagArgumentDefinition } from './arguments';
+import { ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
-import { conditionParsers, SubtagConditionFunc, SubtagConditionParser, SubtagCondition } from '../util/conditions';
-import { SubtagArgumentDefinition } from './arguments';
-import { ArgumentCollection } from './argumentCollection';
 
 type SubtagHandler<T extends ExecutionContext, TSelf> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
 // tslint:disable-next-line: interface-over-type-literal
@@ -82,7 +82,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
 
         if (action === undefined) {
-            return context.error(`Missing handler for execution of subtag {${[this.name, ...token.args.map(a => '')].join(';')}}`, token);
+            return context.error(`Missing handler for execution of subtag {${[this.name, ...token.args.map(_ => '')].join(';')}}`, token);
         }
 
         try {
@@ -102,7 +102,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
     }
 
-    public optimize(token: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
+    public optimize(token: ISubtagToken, _context: OptimizationContext): ISubtagToken | string {
         return token;
     }
 

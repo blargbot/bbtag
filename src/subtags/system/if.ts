@@ -1,8 +1,7 @@
-import { validation, SubtagResult, argumentBuilder as A } from '../../structures';
-import { default as boolSubtag, BoolSubtag } from './bool';
-import { default as util, Awaitable } from '../../util';
+import { argumentBuilder as A, ArgumentCollection, SubtagResult, validation } from '../../structures';
+import { Awaitable, default as util } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import { ArgumentCollection } from '../../structures/argumentCollection';
+import { BoolSubtag, default as boolSubtag } from './bool';
 
 export class IfSubtag extends BasicSubtag {
     public constructor() {

@@ -1,7 +1,7 @@
 import { DatabaseValue } from '../external';
 import { Awaitable, Enumerable } from '../util';
-import { SubtagError } from './errors';
 import { ExecutionContext } from './context';
+import { SubtagError } from './errors';
 
 export interface IVariableScope<T extends ExecutionContext = ExecutionContext> {
     context: new (...args: any[]) => T;

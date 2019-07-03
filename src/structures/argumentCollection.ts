@@ -1,6 +1,6 @@
+import { Awaitable, Enumerable } from '../util';
+import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext } from './context';
-import { ISubtagToken, IStringToken } from './bbtag';
-import { Enumerable, Awaitable } from '../util';
 import { SubtagResult } from './subtag';
 
 export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {

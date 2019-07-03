@@ -1,12 +1,13 @@
 export { Range, Position } from './range';
 export { IBBTag, IStringToken, ISubtagToken, IToken } from './bbtag';
 export { ISubtag, ISubtagOptions as ISubtagArguments, Subtag, SubtagResult, SubtagPrimativeResult } from './subtag';
-export { SubtagCollection } from './subtagCollection';
 export { SubtagContext, ExecutionContext, OptimizationContext } from './context';
 export { argumentBuilder, SubtagArgumentDefinition } from './arguments';
 export { SubtagError, ChainedError } from './errors';
 export { default as validation } from './validation';
 export { EventManager } from './events';
 export { SortedList } from './sortedList';
-export { variableScopes, VariableScope } from './variableScope';
+export { variableScopes, VariableScope, IVariableScope, IPartialVariableScope } from './variableScope';
+export { SubtagCollection } from './subtagCollection';
 export { VariableCollection } from './variableCollection';
+export { ArgumentCollection } from './argumentCollection';

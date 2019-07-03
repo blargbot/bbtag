@@ -1,12 +1,12 @@
 import { Engine } from '../engine';
 import { IDatabase } from '../external';
-import { SubtagResult } from './subtag';
+import { Awaitable } from '../util';
 import { IStringToken, ISubtagToken } from './bbtag';
+import { SubtagError } from './errors';
+import { SortedList } from './sortedList';
+import { SubtagResult } from './subtag';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCollection } from './variableCollection';
-import { SubtagError } from './errors';
-import { Awaitable } from '../util';
-import { SortedList } from './sortedList';
 
 export interface IExecutionContextArgs<T extends ExecutionContext> {
     readonly scope: string;

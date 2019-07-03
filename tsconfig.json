@@ -7,6 +7,8 @@
         "module": "commonjs",
         "strict": true,
         "allowUnusedLabels": false,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "allowUnreachableCode": false,
         "sourceMap": true,
         "lib": [

@@ -1,8 +1,8 @@
-import { ExecutionContext } from './context';
 import { DatabaseValue } from '../external';
-import { IVariableScope } from './variableScope';
-import { Enumerable, Awaitable } from '../util';
+import { Awaitable, Enumerable } from '../util';
+import { ExecutionContext } from './context';
 import { SortedList } from './sortedList';
+import { IVariableScope } from './variableScope';
 
 interface IVariableEntry {
     readonly original: DatabaseValue;

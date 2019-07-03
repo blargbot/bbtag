@@ -1,6 +1,6 @@
+import { ArgumentCollection } from './argumentCollection';
 import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext } from './context';
-import { ArgumentCollection } from './argumentCollection';
 import { SubtagError } from './errors';
 
 type TokenType = ISubtagToken | IStringToken;

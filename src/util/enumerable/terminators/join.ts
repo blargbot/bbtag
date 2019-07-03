@@ -1,5 +1,4 @@
 import { Enumerable } from '..';
-import { predicateFunc } from '../types';
 
 export function join<T>(this: Enumerable<T>, separator: string): string {
     const elements = this.select(e => '' + e);

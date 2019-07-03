@@ -15,7 +15,7 @@ export abstract class Enumerator<T> implements IterableIterator<T> {
         return this;
     }
 
-    public next(value?: any): IteratorResult<T> {
+    public next(): IteratorResult<T> {
         return {
             done: !this.moveNext(),
             value: this.current
