@@ -2,18 +2,11 @@
 import { expect } from 'chai';
 import { EventManager } from '../../src/structures';
 import { AggregateError } from '../../src/structures/errors';
+import { resultOf } from '../test helpers/utility';
 
 interface ITestEvents {
     test1: (arg1: { name: string }) => string;
     test2: (arg1: number) => any;
-}
-
-function resultOf<T>(func: () => T): any {
-    try {
-        return func();
-    } catch (ex) {
-        return ex;
-    }
 }
 
 describe('EventManager', () => {
