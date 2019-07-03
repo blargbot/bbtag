@@ -1,13 +1,3 @@
-export class Range {
-    public readonly start: Position;
-    public readonly end: Position;
-
-    public constructor(start: Position, end: Position) {
-        this.start = start;
-        this.end = end;
-    }
-}
-
 export class Position {
     public static readonly initial: Position = new Position(0, 0, 0);
     public readonly offset: number;
@@ -26,5 +16,16 @@ export class Position {
 
     public nextLine(): Position {
         return new Position(this.offset + 1, this.line + 1, 0);
+    }
+}
+
+export class Range {
+    public static readonly empty: Range = new Range(Position.initial, Position.initial);
+    public readonly start: Position;
+    public readonly end: Position;
+
+    public constructor(start: Position, end: Position) {
+        this.start = start;
+        this.end = end;
     }
 }

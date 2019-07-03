@@ -6,76 +6,112 @@ import { SubtagResult } from './subtag';
 export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {
     public readonly context: T;
     public readonly token: ISubtagToken;
-    private readonly _executionCache: Map<number, SubtagResult>;
+    private readonly _resultCache: Map<number, SubtagResult>;
+    private readonly _promiseCache: Map<number, Promise<SubtagResult>>;
 
     constructor(context: T, token: ISubtagToken) {
         this.context = context;
         this.token = token;
-        this._executionCache = new Map();
+        this._resultCache = new Map();
+        this._promiseCache = new Map();
     }
 
     public getRaw(key: number): IStringToken | undefined;
-    public getRaw(...keys: number[]): IterableIterator<IStringToken | undefined>;
-    public getRaw(...keys: number[]): IterableIterator<IStringToken | undefined> | IStringToken | undefined {
+    public getRaw(...keys: number[]): Iterable<IStringToken | undefined>;
+    public getRaw(...keys: number[]): Iterable<IStringToken | undefined> | IStringToken | undefined {
         if (keys.length === 1) {
-            return Enumerable.from(this._getRaw(keys)).first();
+            return this._getRaw(keys).first();
         }
         return this._getRaw(keys);
     }
 
     public get(key: number): SubtagResult;
-    public get(...keys: number[]): IterableIterator<SubtagResult>;
-    public get(...keys: number[]): IterableIterator<SubtagResult> | SubtagResult {
+    public get(...keys: number[]): Iterable<SubtagResult>;
+    public get(...keys: number[]): Iterable<SubtagResult> | SubtagResult {
         if (keys.length === 1) {
-            return Enumerable.from(this._get(keys)).first();
+            return this._get(keys).first();
         }
         return this._get(keys);
     }
 
-    public getAll(): IterableIterator<SubtagResult> {
+    public getAll(): Iterable<SubtagResult> {
         return this._get(Enumerable.range(0, this.token.args.length));
     }
 
     public execute(key: number): Awaitable<SubtagResult>;
-    public execute(...keys: number[]): Awaitable<SubtagResult[]>;
-    public execute(...keys: number[]): Awaitable<SubtagResult[] | SubtagResult> {
+    public execute(...keys: number[]): Awaitable<Iterable<SubtagResult>>;
+    public execute(...keys: number[]): Awaitable<Iterable<SubtagResult> | SubtagResult> {
         if (keys.length === 1) {
             return this._execute(keys[0]);
         }
-        return Promise.all(Enumerable.from(keys).select(key => this._execute(key)));
+        return Promise.all(this._execute(keys));
     }
 
-    public executeAll(): Awaitable<SubtagResult[]> {
+    public executeAll(): Awaitable<Iterable<SubtagResult>> {
         return this.execute(...Enumerable.range(0, this.token.args.length));
     }
 
-    public has(index: number): boolean {
-        return this.token.args.length > index && index > 0;
-    }
-
-    private * _getRaw(indexes: Iterable<number>): IterableIterator<IStringToken | undefined> {
+    public has(...indexes: number[]): boolean {
         for (const index of indexes) {
-            yield this.token.args[index];
+            if (index < 0 || index >= this.token.args.length) {
+                return false;
+            }
         }
+        return true;
     }
 
-    private * _get(indexes: Iterable<number>): IterableIterator<SubtagResult> {
+    public hasExecuted(...indexes: number[]): boolean {
         for (const index of indexes) {
-            if (!this._executionCache.has(index)) {
+            if (!this._resultCache.has(index)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private _getRaw(indexes: Iterable<number>): Enumerable<IStringToken | undefined> {
+        return Enumerable.from(indexes).select(index => this.token.args[index]);
+    }
+
+    private _get(indexes: Iterable<number>): Enumerable<SubtagResult> {
+        return Enumerable.from(indexes).select(index => {
+            if (!this._resultCache.has(index)) {
                 throw new Error(`Key ${index} has not yet been executed or does not exist`);
             }
-            yield this._executionCache.get(index);
-        }
+            return this._resultCache.get(index);
+        });
     }
 
-    private async _execute(index: number): Promise<SubtagResult> {
-        if (this._executionCache.has(index)) {
-            return this._executionCache.get(index);
+    private _execute(index: number): Awaitable<SubtagResult>;
+    private _execute(indexes: Iterable<number>): Array<Awaitable<SubtagResult>>;
+    private _execute(indexes: Iterable<number> | number): Array<Awaitable<SubtagResult>> | Awaitable<SubtagResult> {
+        const result = [];
+        for (const index of typeof indexes === 'number' ? [indexes] : indexes) {
+            if (this._resultCache.has(index)) {
+                result.push(this._resultCache.get(index));
+                continue;
+            }
+            if (!this._promiseCache.has(index)) {
+                this._promiseCache.set(index, this._executeSingle(index));
+            }
+            result.push(this._promiseCache.get(index));
         }
 
+        if (typeof indexes === 'number') {
+            return result[0];
+        }
+
+        return result;
+    }
+
+    private async _executeSingle(index: number): Promise<SubtagResult> {
         const token = this.token.args[index];
-        const result = token === undefined ? undefined : await this.context.execute(token);
-        this._executionCache.set(index, result);
+        if (token === undefined) {
+            return undefined;
+        }
+        const result = await this.context.execute(token);
+        this._resultCache.set(index, result);
+        this._promiseCache.delete(index);
         return result;
     }
 }

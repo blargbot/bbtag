@@ -41,7 +41,7 @@ describe('class Engine', () => {
                     const result = engine.process(input);
 
                     // assert
-                    expect(stripStrToken(result.root)).to.deep.equal(expected);
+                    expect(stripStrToken(result.root)).to.deep.equal(stripStrToken(expected));
                 });
             }
         }

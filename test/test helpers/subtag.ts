@@ -1,9 +1,11 @@
-export function tag(name: any, ...args: any[]): any {
-    return { name, args };
+import { IStringToken, ISubtagToken, Position, Range } from '../../src/structures';
+
+export function tag(name: IStringToken, ...args: IStringToken[]): ISubtagToken {
+    return { name, args, range: Range.empty };
 }
 
-export function str(format: string, ...subtags: any[]): any {
-    return { format, subtags };
+export function str(format: string, ...subtags: ISubtagToken[]): IStringToken {
+    return { format, subtags, range: Range.empty };
 }
 
 export function stripStrToken(token: any): any {

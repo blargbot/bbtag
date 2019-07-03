@@ -34,7 +34,7 @@ describe('class Parser', () => {
                 const result = parser.parse(testCase.input);
 
                 // assert
-                expect(stripStrToken(result)).to.deep.equal(testCase.expected);
+                expect(stripStrToken(result)).to.deep.equal(stripStrToken(testCase.expected));
             });
         }
     }
