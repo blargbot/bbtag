@@ -1,15 +1,16 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { argumentBuilder, IArgumentSource, IHandlerArgumentValue } from '../../src/structures';
+import { Enumerable } from '../../src/util';
 
 type TestCaseInput = [string, boolean] | [string, boolean, boolean] | [string, boolean, string] | [string, boolean, boolean, string];
-type TestCases = Array<{ input: TestCaseInput, structure: IHandlerArgumentValue, string: string }>;
+type TestCases = Enumerable<{ input: TestCaseInput, structure: IHandlerArgumentValue, string: string }>;
 
 function easyArg(name: string, required: boolean, many: boolean, type: string | undefined): IHandlerArgumentValue {
     return { name, required, many, type };
 }
 
-const testCases: TestCases = [
+const testCases: TestCases = Enumerable.from([
     { input: ['test1', true], structure: easyArg('test1', true, false, undefined), string: '<test1>' },
     { input: ['test2', true, false], structure: easyArg('test2', true, false, undefined), string: '<test2>' },
     { input: ['test3', true, 'type1'], structure: easyArg('test3', true, false, 'type1'), string: '<test3:type1>' },
@@ -24,12 +25,52 @@ const testCases: TestCases = [
     { input: ['test12', false, false, 'type7'], structure: easyArg('test12', false, false, 'type7'), string: '[test12:type7]' },
     { input: ['test13', false, true], structure: easyArg('test13', false, true, undefined), string: '[...test13]' },
     { input: ['test14', false, true, 'type8'], structure: easyArg('test14', false, true, 'type8'), string: '[...test14:type8]' }
-];
+]);
 
 describe('constant argumentBuilder', () => {
+    describe('#c', () => {
+        it('should be the same as #create', () => {
+            // arrange
+
+            // act
+
+            // assert
+            expect(argumentBuilder.c).to.equal(argumentBuilder.create);
+        });
+    });
+    describe('#r', () => {
+        it('should be the same as #require', () => {
+            // arrange
+
+            // act
+
+            // assert
+            expect(argumentBuilder.r).to.equal(argumentBuilder.require);
+        });
+    });
+    describe('#o', () => {
+        it('should be the same as #optional', () => {
+            // arrange
+
+            // act
+
+            // assert
+            expect(argumentBuilder.o).to.equal(argumentBuilder.optional);
+        });
+    });
+    describe('#g', () => {
+        it('should be the same as #group', () => {
+            // arrange
+
+            // act
+
+            // assert
+            expect(argumentBuilder.g).to.equal(argumentBuilder.group);
+        });
+    });
     describe('#create', () => {
         for (const { input, structure: expected } of testCases) {
-            it(`should create ${expected.required ? 'a required' : 'an optional'}${expected.many ? ' expandable' : ''} ${expected.type || 'typeless'} argument`, () => {
+            it(`should create ${expected.required ? 'a required' : 'an optional'}${expected.many ? ' expandable ' : ' '}${expected.type || 'typeless'} argument`, () => {
                 // arrange
 
                 // act
@@ -37,6 +78,54 @@ describe('constant argumentBuilder', () => {
 
                 // assert
                 expect(result).to.deep.equal(expected);
+            });
+        }
+    });
+    describe('#require', () => {
+        for (const { input: raw, structure: expected } of testCases.where(c => c.input[1])) {
+            it(`should create a required ${expected.many ? 'expandable ' : ''}${expected.type || 'typeless'} argument`, () => {
+                // arrange
+                const input = [raw[0], ...raw.slice(2)];
+
+                // act
+                const result = argumentBuilder.require(...input as Parameters<IArgumentSource['require']>);
+
+                // assert
+                expect(result).to.deep.equal(expected);
+            });
+        }
+    });
+    describe('#optional', () => {
+        for (const { input: raw, structure: expected } of testCases.where(c => !c.input[1])) {
+            it(`should create an optional ${expected.many ? 'expandable ' : ''}${expected.type || 'typeless'} argument`, () => {
+                // arrange
+                const input = [raw[0], ...raw.slice(2)];
+
+                // act
+                const result = argumentBuilder.optional(...input as Parameters<IArgumentSource['optional']>);
+
+                // assert
+                expect(result).to.deep.equal(expected);
+            });
+        }
+    });
+    describe('#group', () => {
+        const cases = [
+            { required: undefined, expected: false },
+            { required: true, expected: true },
+            { required: false, expected: false }
+        ];
+
+        for (const { required, expected } of cases) {
+            it(`should create ${required === undefined ? 'a default' : required ? 'a required' : 'an optional'} group`, () => {
+                // arrange
+                const args = Enumerable.from([required, ...testCases.select(c => c.structure)]).where(a => a !== undefined) as any as Parameters<IArgumentSource['group']>;
+
+                // act
+                const result = argumentBuilder.group(...args);
+
+                // assert
+                expect(result).to.deep.equal({ required: expected, values: testCases.select(c => c.structure).toArray() });
             });
         }
     });
@@ -54,34 +143,34 @@ describe('constant argumentBuilder', () => {
         }
         it('should turn multiple arguments into one space separated string', () => {
             // arrange
-            const input = testCases.map(c => c.structure);
-            const expected = testCases.map(c => c.string).join(' ');
+            const input = testCases.select(c => c.structure);
+            const expected = testCases.select(c => c.string).join(' ');
 
             // act
-            const result = argumentBuilder.stringify(input);
+            const result = argumentBuilder.stringify(input.toArray());
 
             // assert
             expect(result).to.deep.equal(expected);
         });
         it(`should turn a required group of 2 arguments into <arg1 arg2>`, () => {
             // arrange
-            const parts = [6, 13].map(i => testCases[i]);
+            const parts = testCases.where((_, i) => [6, 13].indexOf(i) !== -1);
 
             // act
-            const result = argumentBuilder.stringify({ required: true, values: parts.map(p => p.structure) });
+            const result = argumentBuilder.stringify({ required: true, values: parts.select(p => p.structure).toArray() });
 
             // assert
-            expect(result).to.equal(`<${parts.map(p => p.string).join(' ')}>`);
+            expect(result).to.equal(`<${parts.select(p => p.string).join(' ')}>`);
         });
         it(`should turn an optional group of 2 arguments into <arg1 arg2>`, () => {
             // arrange
-            const parts = [6, 13].map(i => testCases[i]);
+            const parts = testCases.where((_, i) => [6, 13].indexOf(i) !== -1);
 
             // act
-            const result = argumentBuilder.stringify({ required: false, values: parts.map(p => p.structure) });
+            const result = argumentBuilder.stringify({ required: false, values: parts.select(p => p.structure).toArray() });
 
             // assert
-            expect(result).to.equal(`[${parts.map(p => p.string).join(' ')}]`);
+            expect(result).to.equal(`[${parts.select(p => p.string).join(' ')}]`);
         });
     });
 });
