@@ -1,7 +1,7 @@
-import { argumentBuilder as A, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult, variableScopes } from '../../models';
+import { argumentBuilder as A, errors, ExecutionContext, ISubtagToken, IStringToken, SubtagResult, variableScopes } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 import util, { Awaitable } from '../../util';
-import { ArgumentCollection } from '../../models/argumentCollection';
+import { ArgumentCollection } from '../../structures/argumentCollection';
 
 export class GetSubtag extends BasicSubtag {
     public constructor() {

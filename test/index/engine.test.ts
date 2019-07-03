@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Engine } from '../../src/engine';
 import { tag, str, stripStrToken } from '../test helpers/subtag';
 import { default as subtags } from '../../src/subtags';
-import { ExecutionContext, IStringToken, SubtagResult, ISubtagToken } from '../../src/models';
+import { ExecutionContext, IStringToken, SubtagResult, ISubtagToken } from '../../src/structures';
 import { default as util } from '../../src/util';
 
 describe('engine', () => {

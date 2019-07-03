@@ -1,4 +1,4 @@
-import { IBBTag, IStringToken, ISubtagToken, Position, Range } from './models';
+import { IBBTag, IStringToken, ISubtagToken, Position, Range } from './structures';
 import { Enumerable, Enumerator } from './util/enumerable';
 
 interface IStateTracker { source: string; start: Position; end: Position; }

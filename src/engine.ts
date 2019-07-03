@@ -8,7 +8,7 @@ import {
     SubtagCollection,
     SubtagResult,
     EventManager
-} from './models';
+} from './structures';
 import { optimizeStringToken } from './optimizer';
 import { Parser } from './parser';
 import { default as util, Awaitable } from './util';

@@ -1,28 +1,18 @@
 import { IterableEnumerable } from '../util/enumerable/adapters';
 
+type SortedListKey = string | number | boolean;
+
 export class SortedList<T> extends IterableEnumerable<T> {
     private readonly _baseValue: T[];
-    private readonly _keySelector: (item: T) => any;
+    private readonly _keySelector: (item: T) => SortedListKey;
     private readonly _ascending: boolean;
 
-    public constructor()
-    public constructor(keySelector: (item: T) => any)
-    public constructor(ascending: boolean)
-    public constructor(keySelector: (item: T) => any, ascending: boolean)
-    public constructor(arg1?: boolean | ((item: T) => any), arg2?: boolean) {
-        if (typeof arg1 === 'boolean') {
-            arg2 = arg1;
-            arg1 = undefined;
-        } else if (arg1 === undefined) {
-            arg1 = (k: any) => k;
-            arg2 = true;
-        }
-
+    public constructor(keySelector: (item: T) => SortedListKey, ascending: boolean = true) {
         const base: T[] = [];
         super(base);
         this._baseValue = base;
-        this._keySelector = arg1 || (k => k);
-        this._ascending = arg2!;
+        this._keySelector = keySelector;
+        this._ascending = ascending;
         this.toArray = () => base;
     }
 

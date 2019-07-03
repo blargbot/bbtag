@@ -1,4 +1,4 @@
-import { SubtagPrimativeResult } from '../models';
+import { SubtagPrimativeResult } from '../structures';
 import { Awaitable } from '../util';
 
 export interface IDatabase {

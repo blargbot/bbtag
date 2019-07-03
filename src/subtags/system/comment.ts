@@ -1,4 +1,4 @@
-import { argumentBuilder as A } from '../../models';
+import { argumentBuilder as A } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class CommentSubtag extends BasicSubtag {

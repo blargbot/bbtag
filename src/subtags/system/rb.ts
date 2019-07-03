@@ -1,4 +1,4 @@
-import { ISubtagToken, errors } from '../../models';
+import { ISubtagToken, errors } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class RBSubtag extends BasicSubtag {

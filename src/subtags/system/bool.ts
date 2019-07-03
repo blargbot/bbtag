@@ -1,7 +1,7 @@
-import { ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, argumentBuilder as A } from '../../models';
+import { ExecutionContext, errors, SubtagResult, ISubtagToken, IStringToken, argumentBuilder as A } from '../../structures';
 import { default as util } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import { ArgumentCollection } from '../../models/argumentCollection';
+import { ArgumentCollection } from '../../structures/argumentCollection';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 

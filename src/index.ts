@@ -1,5 +1,5 @@
 export { Engine } from './engine';
-export { Subtag } from './models';
+export { Subtag } from './structures';
 export { default as util } from './util';
 
 import { default as s, system } from './subtags';

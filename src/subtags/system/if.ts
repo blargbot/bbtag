@@ -1,8 +1,8 @@
-import { errors, ExecutionContext, IStringToken, SubtagResult, ISubtagToken, argumentBuilder as A } from '../../models';
+import { errors, ExecutionContext, IStringToken, SubtagResult, ISubtagToken, argumentBuilder as A } from '../../structures';
 import { default as boolSubtag, BoolSubtag } from './bool';
 import { default as util, Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import { ArgumentCollection } from '../../models/argumentCollection';
+import { ArgumentCollection } from '../../structures/argumentCollection';
 
 export class IfSubtag extends BasicSubtag {
     public constructor() {

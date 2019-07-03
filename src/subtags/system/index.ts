@@ -1,4 +1,4 @@
-import { ExecutionContext, ISubtag } from '../../models';
+import { ExecutionContext, ISubtag } from '../../structures';
 import { default as comment } from './comment';
 import { default as get } from './get';
 import { default as set } from './set';

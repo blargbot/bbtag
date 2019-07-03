@@ -1,5 +1,5 @@
 import { default as serializer } from './serializer';
-import { IStringToken } from '../models';
+import { IStringToken } from '../structures';
 
 export type SubtagConditionFunc = (args: readonly IStringToken[]) => boolean;
 // tslint:disable-next-line: interface-over-type-literal

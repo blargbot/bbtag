@@ -1,4 +1,4 @@
-import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../models';
+import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../structures';
 import { EnumerableSource } from './enumerable/types';
 import { Enumerable } from './enumerable';
 import { default as subtag } from './subtagResults';

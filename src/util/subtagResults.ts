@@ -1,4 +1,4 @@
-import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../models';
+import { SubtagResult, SubtagError, SubtagPrimativeResult } from '../structures';
 import { default as serializer } from './serializer';
 import { default as tryGet, TryGetResult } from './tryGet';
 import { compare } from './compare';

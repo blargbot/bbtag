@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagResult } from '../../src/models';
+import { SubtagResult } from '../../src/structures';
 import { compare } from '../../src/util/compare';
 
 describe('compare', () => {
