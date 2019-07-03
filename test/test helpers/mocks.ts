@@ -1,6 +1,6 @@
 import { Engine } from '../../src';
 import { DatabaseValue, IDatabase } from '../../src/external';
-import { ExecutionContext } from '../../src/structures';
+import { ExecutionContext, ISubtag, ISubtagToken, SubtagResult } from '../../src/structures';
 import { Awaitable } from '../../src/util';
 
 export class MockEngine extends Engine {
@@ -27,4 +27,24 @@ export class MockExecutionContext extends ExecutionContext {
     public constructor() {
         super(new MockEngine(), 'Tests', { scope: 'TESTS' });
     }
+}
+
+export class MockSubtag<T extends ExecutionContext> implements ISubtag<T> {
+    public context: new (...args: any[]) => T;
+    public name: string;
+    public aliases: Set<string>;
+
+    public constructor(context: new (...args: any[]) => T, name: string) {
+        this.context = context;
+        this.name = name;
+        this.aliases = new Set();
+    }
+
+    public execute(): Awaitable<SubtagResult> {
+        throw new Error('Method not implemented.');
+    }
+    public optimize(): string | ISubtagToken {
+        throw new Error('Method not implemented.');
+    }
+
 }

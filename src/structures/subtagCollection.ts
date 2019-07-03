@@ -8,7 +8,6 @@ type SubtagType<T>
     : never;
 
 export class SubtagCollection<T extends SubtagContext> {
-    public readonly [Symbol.iterator]: () => IterableIterator<SubtagType<T>>;
     private readonly _nameMap: Map<string, Array<SubtagType<T>>>;
     private readonly _aliasMap: Map<string, Array<SubtagType<T>>>;
 
@@ -17,11 +16,15 @@ export class SubtagCollection<T extends SubtagContext> {
     public constructor(context?: T, subtags?: Iterable<ISubtag<any>>) {
         this._nameMap = new Map();
         this._aliasMap = new Map();
-        this[Symbol.iterator] = this._nameMap.values as any as () => IterableIterator<SubtagType<T>>;
 
         if (context !== undefined) {
             this.register(...filterSubtags(context, subtags!));
         }
+    }
+
+    public [Symbol.iterator](): IterableIterator<SubtagType<T>> {
+        return Enumerable.from(this._nameMap.values())
+            .selectMany(x => x)[Symbol.iterator]();
     }
 
     public find(name: string): SubtagType<T> | undefined {

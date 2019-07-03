@@ -40,7 +40,7 @@ describe('function compare', () => {
             if (result !== 0) { result /= Math.abs(result); }
 
             // assert
-            expect(result).to.be.equal(expected);
+            expect(result).to.equal(expected);
         });
     }
 });

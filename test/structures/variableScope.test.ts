@@ -57,16 +57,16 @@ describe('class VariableScope', () => {
             name: 'name',
             prefix: 'x',
             getKey(c: MockExecutionContext, k: string): string[] {
-                expect(c).to.be.equal(context);
-                expect(k).to.be.equal(key);
+                expect(c).to.equal(context);
+                expect(k).to.equal(key);
                 return keys;
             }
         };
         const scope = new VariableScope(options);
         let callCount = 0;
         context.database.set = (p: Iterable<string>, v: DatabaseValue) => {
-            expect(p).to.be.equal(keys);
-            expect(v).to.be.equal(values);
+            expect(p).to.equal(keys);
+            expect(v).to.equal(values);
             callCount++;
         };
 
@@ -75,7 +75,7 @@ describe('class VariableScope', () => {
 
         // assert
         expect(result).to.be.undefined;
-        expect(callCount).to.be.equal(1);
+        expect(callCount).to.equal(1);
     });
     it('should correctly setBulk', async () => {
         // arrange
@@ -88,7 +88,7 @@ describe('class VariableScope', () => {
             name: 'name',
             prefix: 'x',
             getKey(c: MockExecutionContext, k: string): string[] {
-                expect(c).to.be.equal(context);
+                expect(c).to.equal(context);
                 expect(k).to.be.oneOf(values.map(v => v[0]));
                 return keys;
             }
@@ -105,7 +105,7 @@ describe('class VariableScope', () => {
 
         // assert
         expect(result).to.be.undefined;
-        expect(callCount).to.be.equal(1);
+        expect(callCount).to.equal(1);
     });
     it('should correctly get', async () => {
         // arrange
@@ -119,14 +119,14 @@ describe('class VariableScope', () => {
             name: 'name',
             prefix: 'x',
             getKey(c: MockExecutionContext, k: string): string[] {
-                expect(c).to.be.equal(context);
-                expect(k).to.be.equal(key);
+                expect(c).to.equal(context);
+                expect(k).to.equal(key);
                 return keys;
             }
         };
         const scope = new VariableScope(options);
         context.database.get = (p: Iterable<string>) => {
-            expect(p).to.be.equal(keys);
+            expect(p).to.equal(keys);
             return values;
         };
 
@@ -147,15 +147,15 @@ describe('class VariableScope', () => {
             name: 'name',
             prefix: 'x',
             getKey(c: MockExecutionContext, k: string): string[] {
-                expect(c).to.be.equal(context);
-                expect(k).to.be.equal(key);
+                expect(c).to.equal(context);
+                expect(k).to.equal(key);
                 return keys;
             }
         };
         const scope = new VariableScope(options);
         let callCount = 0;
         context.database.delete = (p: Iterable<string>) => {
-            expect(p).to.be.equal(keys);
+            expect(p).to.equal(keys);
             callCount++;
         };
 
@@ -164,7 +164,7 @@ describe('class VariableScope', () => {
 
         // assert
         expect(result).to.be.undefined;
-        expect(callCount).to.be.equal(1);
+        expect(callCount).to.equal(1);
     });
 });
 

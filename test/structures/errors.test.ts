@@ -23,8 +23,8 @@ describe('class ChainedError', () => {
                 const result = new ChainedError(message, innerError);
 
                 // assert
-                expect(result.message).to.be.equal(message || '');
-                expect(result.innerError).to.be.equal(innerError);
+                expect(result.message).to.equal(message || '');
+                expect(result.innerError).to.equal(innerError);
             }
         );
     }
@@ -49,7 +49,7 @@ describe('class AggregateError', () => {
                 const result = new AggregateError(message, ...innerErrors);
 
                 // assert
-                expect(result.message).to.be.equal(message || '');
+                expect(result.message).to.equal(message || '');
                 expect(result.innerErrors).to.have.ordered.members([...innerErrors]);
             }
         );
@@ -81,10 +81,10 @@ describe('class SubtagError', () => {
                 const result = new SubtagError(context, token, message, innerError);
 
                 // assert
-                expect(result.message).to.be.equal(message || '');
-                expect(result.innerError).to.be.equal(innerError);
-                expect(result.context).to.be.equal(context);
-                expect(result.token).to.be.equal(token);
+                expect(result.message).to.equal(message || '');
+                expect(result.innerError).to.equal(innerError);
+                expect(result.context).to.equal(context);
+                expect(result.token).to.equal(token);
             }
         );
     }

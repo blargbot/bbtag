@@ -65,7 +65,7 @@ describe('class ArgumentCollection', () => {
             const arg = testToken.args[index];
             const expected = new SubtagError(context, arg);
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
-                expect(t).to.be.equal(arg);
+                expect(t).to.equal(arg);
                 expect(c).to.equal(context);
                 return expected;
             };
@@ -74,7 +74,7 @@ describe('class ArgumentCollection', () => {
             const result = await args.execute(index);
 
             // assert
-            expect(result).to.be.equal(expected);
+            expect(result).to.equal(expected);
         });
         it('should successfully execute multiple values', async () => {
             // arrange
@@ -208,7 +208,7 @@ describe('class ArgumentCollection', () => {
             const arg = testToken.args[index];
             const expected = new SubtagError(context, arg);
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
-                expect(t).to.be.equal(arg);
+                expect(t).to.equal(arg);
                 expect(c).to.equal(context);
                 return expected;
             };
@@ -218,7 +218,7 @@ describe('class ArgumentCollection', () => {
             const result = args.get(index);
 
             // assert
-            expect(result).to.be.equal(expected);
+            expect(result).to.equal(expected);
         });
         it('should successfully get multiple cached values', async () => {
             // arrange

@@ -52,11 +52,11 @@ describe('class Engine', () => {
         engine.subtags.push(...subtags);
 
         const testCases: Array<{ input: string, token?: IStringToken, assert: (context: ExecutionContext, result: SubtagResult) => void }> = [
-            { input: 'hi {if;true;yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi yay!') },
-            { input: 'hi {if;true}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi `Not enough arguments`') },
-            { input: 'hi {if;false;booo}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi ') },
-            { input: 'hi {if;{bool;a;==;b};booo}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi ') },
-            { input: 'hi {if;{bool;a;!=;b};yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.be.equal('hi yay!') }
+            { input: 'hi {if;true;yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.equal('hi yay!') },
+            { input: 'hi {if;true}', assert: (_, r) => expect(util.subtag.toString(r)).to.equal('hi `Not enough arguments`') },
+            { input: 'hi {if;false;booo}', assert: (_, r) => expect(util.subtag.toString(r)).to.equal('hi ') },
+            { input: 'hi {if;{bool;a;==;b};booo}', assert: (_, r) => expect(util.subtag.toString(r)).to.equal('hi ') },
+            { input: 'hi {if;{bool;a;!=;b};yay!}', assert: (_, r) => expect(util.subtag.toString(r)).to.equal('hi yay!') }
         ];
 
         for (const entry of testCases) {
