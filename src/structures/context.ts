@@ -45,12 +45,8 @@ export class ExecutionContext extends SubtagContext {
         return this.engine.execute(token, this);
     }
 
-    public error(token: ISubtagToken | IStringToken): SubtagError;
-    public error(message: string, token: ISubtagToken | IStringToken): SubtagError;
-    public error(innerError: Error, token: ISubtagToken | IStringToken): SubtagError;
-    public error(message: string, innerError: Error, token: ISubtagToken | IStringToken): SubtagError;
-    public error(message: any, innerError?: any, token?: any): SubtagError {
-        const error = new SubtagError(this, message, innerError, token);
+    public error(token: ISubtagToken | IStringToken, message?: string, innerError?: any): SubtagError {
+        const error = new SubtagError(this, token, message, innerError);
         this.errors.push(error);
         return error;
     }

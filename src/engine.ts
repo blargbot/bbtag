@@ -70,12 +70,12 @@ export class Engine {
         let result: SubtagResult;
 
         if (executor === undefined) {
-            result = context.error(`Unknown subtag ${name}`, input);
+            result = context.error(input, `Unknown subtag ${name}`);
         } else {
             try {
                 result = await executor.execute(input, context);
             } catch (ex) {
-                result = context.error('Internal server error', ex, input);
+                result = context.error(input, 'Internal server error', ex);
             }
         }
 

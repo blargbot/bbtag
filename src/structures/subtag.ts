@@ -82,7 +82,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         }
 
         if (action === undefined) {
-            return context.error(`Missing handler for execution of subtag {${[this.name, ...token.args.map(_ => '')].join(';')}}`, token);
+            return context.error(token, `Missing handler for execution of subtag {${[this.name, ...token.args.map(_ => '')].join(';')}}`);
         }
 
         try {
@@ -93,9 +93,9 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
             return await action.call(this, args);
         } catch (ex) {
             if (!(ex instanceof Error)) {
-                return context.error('' + ex, token);
+                return context.error(token, undefined, ex);
             } else if (!(ex instanceof SubtagError)) {
-                return context.error(ex, token);
+                return context.error(token, ex.message, ex);
             } else {
                 return ex;
             }
