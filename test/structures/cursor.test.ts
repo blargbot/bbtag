@@ -62,7 +62,7 @@ describe('class Cursor', () => {
         }
     ];
     for (const { input, movements } of testCases) {
-        it(`should correctly navigate the string '${input}'`, () => {
+        it(`should correctly navigate the string ${JSON.stringify(input)}`, () => {
             // arrange
             const results = [];
             const expected = [];
