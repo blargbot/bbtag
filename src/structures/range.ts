@@ -1,5 +1,4 @@
 export class Position {
-    public static readonly initial: Position = new Position(0, 0, 0);
     public readonly offset: number;
     public readonly line: number;
     public readonly column: number;
@@ -9,18 +8,9 @@ export class Position {
         this.line = line;
         this.column = column;
     }
-
-    public nextColumn(count: number = 1): Position {
-        return new Position(this.offset + count, this.line, this.column + count);
-    }
-
-    public nextLine(): Position {
-        return new Position(this.offset + 1, this.line + 1, 0);
-    }
 }
 
 export class Range {
-    public static readonly empty: Range = new Range(Position.initial, Position.initial);
     public readonly start: Position;
     public readonly end: Position;
 

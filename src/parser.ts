@@ -1,7 +1,8 @@
 import { IBBTag, IStringToken, ISubtagToken, Position, Range } from './structures';
+import { Cursor } from './structures/cursor';
 import { Enumerable, Enumerator } from './util/enumerable';
 
-interface IStateTracker { source: string; start: Position; end: Position; }
+interface IStateTracker { cursor: Cursor; lastYield: Position; }
 
 export type postProcessor = (bbtag: IBBTag) => IBBTag;
 export type preProcessor = (source: string) => string;
@@ -93,31 +94,32 @@ export class Parser {
 }
 
 function* _tokenize(source: string): IterableIterator<IBBTagToken> {
-    const states: IStateTracker = { source, start: Position.initial, end: Position.initial };
-    for (const char of source) {
-        switch (char) {
-            case '\n':
-                states.end = states.end.nextLine();
-                break;
+    const state = { cursor: new Cursor(source), lastYield: new Position(0, 0, 0) };
+    whileLoop:                               // '[' = lastYield; ']' = cursor;
+    while (true) {                           // initial state: '[]abc;xyz'
+        switch (state.cursor.nextChar) {
             case '{':
             case ';':
             case '}':
-                yield createToken(states);
-                states.end = states.end.nextColumn();
-                yield createToken(states);
+                yield createToken(state);    // '[abc];xyz' => 'abc[];xyz' + { content: 'abc' }
+                state.cursor.move(1);        // 'abc[];xyz' => 'abc[;]xyz'
+                yield createToken(state);    // 'abc[;]xyz' => 'abc;[]xyz' + { content: ';'   }
                 break;
             default:
-                states.end = states.end.nextColumn();
-                break;
+                if (!state.cursor.move(1)) { // 'abc;[xyz]' => cant move
+                    break whileLoop;
+                }
         }
     }
-    yield createToken(states);
+    yield createToken(state);                // 'abc;[xyz]' => 'abc;xyz[]' + { content: 'xyz' }
+    // Final yielded values:
+    // 'abc;xyz' => [{ content: 'abc' }, { content: ';' }, { content: 'xyz' }]
 }
 
-function createToken(states: IStateTracker): IBBTagToken {
-    const range = new Range(states.start, states.end);
-    const content = states.source.slice(range.start.offset, range.end.offset);
-    states.start = states.end;
+function createToken(state: IStateTracker): IBBTagToken {
+    const content = state.cursor.source.slice(state.lastYield.offset, state.cursor.offset);
+    const range = new Range(state.lastYield, state.cursor.position);
+    state.lastYield = state.cursor.position;
     return { range, content };
 }
 
