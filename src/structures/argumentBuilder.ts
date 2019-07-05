@@ -47,8 +47,7 @@ export interface IArgumentSource {
     g(...values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
     g(required: boolean, ...values: SubtagArgumentDefinition[]): IHandlerArgumentGroup;
 
-    stringify(values: SubtagArgumentDefinition[]): string;
-    stringify(...values: SubtagArgumentDefinition[]): string;
+    stringify(separator: string, values: SubtagArgumentDefinition[]): string;
 }
 
 export const argumentBuilder: IArgumentSource = {
@@ -85,12 +84,8 @@ export const argumentBuilder: IArgumentSource = {
         };
     },
 
-    stringify(...values: any[]): string {
-        if (values.length === 1 && Array.isArray(values[0])) {
-            values = values[0];
-        }
-
-        return _argsToStringRecursive(values).trim();
+    stringify(separator: string, values: SubtagArgumentDefinition[]): string {
+        return _argsToStringRecursive(separator, values).trim();
     }
 } as any;
 
@@ -99,7 +94,7 @@ argumentBuilder.o = argumentBuilder.optional;
 argumentBuilder.g = argumentBuilder.group;
 argumentBuilder.c = argumentBuilder.create;
 
-function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {
+function _argsToStringRecursive(separator: string, values: SubtagArgumentDefinition[]): string {
     const result = [];
 
     for (const entry of values) {
@@ -114,10 +109,10 @@ function _argsToStringRecursive(values: SubtagArgumentDefinition[]): string {
                 content.push(':', entry.type);
             }
         } else {
-            content.push(_argsToStringRecursive(entry.values));
+            content.push(_argsToStringRecursive(separator, entry.values));
         }
         result.push(util.format(brackets, content.join('')));
     }
 
-    return result.join(' ');
+    return result.join(separator);
 }

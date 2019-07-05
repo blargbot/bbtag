@@ -1,7 +1,7 @@
 import { Awaitable, default as util } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { Enumerable } from '../util/enumerable';
-import { SubtagArgumentDefinition } from './argumentBuilder';
+import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
 import { ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
@@ -107,7 +107,10 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     }
 
     public toString(): string {
-        return `{${this.name}}`;
+        if (this.arguments.length === 0) {
+            return `{${this.name}}`;
+        }
+        return `{${this.name};${argumentBuilder.stringify(';', this.arguments)}}`;
     }
 
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>): this;
