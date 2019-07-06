@@ -1,10 +1,9 @@
 import { Engine } from '../engine';
 import { IDatabase } from '../external';
+import { IStringToken, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable } from '../util';
-import { IStringToken, ISubtagToken } from './bbtag';
 import { SubtagError } from './errors';
 import { SortedList } from './sortedList';
-import { SubtagResult } from './subtag';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCollection } from './variableCollection';
 

@@ -1,7 +1,6 @@
+import { IStringToken, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable, Enumerable } from '../util';
-import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext } from './context';
-import { SubtagResult } from './subtag';
 
 export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {
     public readonly context: T;

@@ -1,5 +1,5 @@
+import { IStringToken, ISubtagToken } from '../language';
 import { ArgumentCollection } from './argumentCollection';
-import { IStringToken, ISubtagToken } from './bbtag';
 import { ExecutionContext } from './context';
 import { SubtagError } from './errors';
 

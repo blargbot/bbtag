@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagToken } from './bbtag';
+import { IStringToken, ISubtagToken } from '../language';
 import { SubtagContext } from './context';
 
 export class ChainedError extends Error {

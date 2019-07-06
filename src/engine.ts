@@ -1,17 +1,8 @@
 import { IDatabase } from './external';
+import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './language';
 import { optimizeStringToken } from './optimizer';
-import { parse } from './parser';
-import {
-    EventManager,
-    ExecutionContext,
-    IBBTag,
-    IStringToken,
-    ISubtag,
-    ISubtagToken,
-    OptimizationContext,
-    SubtagResult
-} from './structures';
-import { Awaitable, format, subtagValue } from './util';
+import { EventManager, ExecutionContext, ISubtag, OptimizationContext } from './structures';
+import { Awaitable, format } from './util';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;
@@ -38,12 +29,12 @@ export class Engine {
         if (parts.length === 1 && format(input.format, '') === '') {
             return parts[0];
         } else {
-            return format(input.format, parts.map(subtagValue.toString));
+            return format(input.format, parts.map(bbtag.toString));
         }
     }
 
     public process(source: string): IBBTag {
-        const root = parse(source);
+        const root = bbtag.parse(source);
         return {
             source,
             root: optimizeStringToken(root, new OptimizationContext(this))
@@ -62,7 +53,7 @@ export class Engine {
 
     protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
         await Promise.all(this.events.raise('before-execute', input, context));
-        const name = subtagValue.toString(await this.execute(input.name, context));
+        const name = bbtag.toString(await this.execute(input.name, context));
         const executor = context.subtags.find(name);
 
         let result: SubtagResult;

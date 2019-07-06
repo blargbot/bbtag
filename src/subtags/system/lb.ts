@@ -1,4 +1,5 @@
-import { ISubtagToken, validation } from '../../structures';
+import { ISubtagToken } from '../../language';
+import { validation } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class LBSubtag extends BasicSubtag {

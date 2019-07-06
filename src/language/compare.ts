@@ -1,13 +1,13 @@
-import { SubtagError, SubtagPrimativeResult, SubtagResult } from '../structures';
-import { Enumerable } from './enumerable';
-import { EnumerableSource } from './enumerable/types';
-import { subtagValue } from './subtagResults';
+import { SubtagError } from '../structures';
+import { Enumerable, EnumerableSource } from '../util';
+import { getType, toString } from './converter';
+import { SubtagPrimativeResult, SubtagResult } from './types';
 
 export function compare(left: SubtagResult, right: SubtagResult): number {
-    if (subtagValue.getType(left) === subtagValue.getType(right)) {
+    if (getType(left) === getType(right)) {
         return compareSameType(left, right);
     }
-    return compareByBlock(subtagValue.toString(left), subtagValue.toString(right));
+    return compareByBlock(toString(left), toString(right));
 }
 
 function compareByBlock(left: string, right: string): number {
@@ -15,14 +15,14 @@ function compareByBlock(left: string, right: string): number {
 }
 
 function compareSameType<T extends SubtagResult>(left: T, right: T): number {
-    switch (subtagValue.getType(left)) {
+    switch (getType(left)) {
         case 'string': return compareByBlock(left as string, right as string);
         case 'number':
         case 'boolean': return (left as number) - (right as number);
         case 'undefined': return 0;
         case 'error': return compareByBlock((left as SubtagError).message, (right as SubtagError).message);
         case 'array': return compareAsArray(left as any[], right as any[]);
-        default: return compareByBlock(subtagValue.toString(left), subtagValue.toString(right));
+        default: return compareByBlock(toString(left), toString(right));
     }
 }
 
@@ -49,7 +49,7 @@ function* toStringOrNumber(values: SubtagPrimativeResult[]): IterableIterator<st
         if (typeof value === 'number' || typeof value === 'string') {
             yield value;
         } else {
-            yield subtagValue.toString(value);
+            yield toString(value);
         }
     }
 }
@@ -79,9 +79,3 @@ function compareIterable<T extends string | number>(left: EnumerableSource<T>, r
 
     return 0;
 }
-
-export default {
-    byBlock: compareByBlock,
-    sameType: compareSameType,
-    asArray: compareAsArray
-};

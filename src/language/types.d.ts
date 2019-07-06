@@ -1,4 +1,8 @@
-import { Range } from '../util/range';
+import { Range } from '../util';
+import { SubtagError } from '../structures';
+
+export type SubtagPrimativeResult = void | null | undefined | string | number | boolean;
+export type SubtagResult = SubtagPrimativeResult | SubtagPrimativeResult[] | SubtagError;
 
 export interface IToken {
     readonly range: Range;

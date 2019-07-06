@@ -1,7 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagResult } from '../../src/structures';
-import { compare } from '../../src/util/compare';
+import { bbtag, SubtagResult } from '../../src/language';
 
 describe('function compare', () => {
     const testCases: Array<{ left: SubtagResult, right: SubtagResult, expected: number }> = [
@@ -36,7 +35,7 @@ describe('function compare', () => {
             // arrange
 
             // act
-            let result = compare(left, right);
+            let result = bbtag.compare(left, right);
             if (result !== 0) { result /= Math.abs(result); }
 
             // assert

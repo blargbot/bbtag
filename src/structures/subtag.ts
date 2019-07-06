@@ -1,25 +1,22 @@
-import * as util from '../util';
+import { bbtag, ISubtagToken, SubtagResult } from '../language';
+import { Awaitable, Enumerable } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
-import { Enumerable } from '../util/enumerable';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
-import { ISubtagToken } from './bbtag';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
 import { SubtagError } from './errors';
 
-type SubtagHandler<T extends ExecutionContext, TSelf> = (this: TSelf, args: ArgumentCollection<T>) => util.Awaitable<SubtagResult>;
+type SubtagHandler<T extends ExecutionContext, TSelf> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
 // tslint:disable-next-line: interface-over-type-literal
 type SubtagConditionalHandler<T extends ExecutionContext, TSelf> = { condition: SubtagConditionFunc, handler: SubtagHandler<T, TSelf>, preExecute: PreExecute<T> };
-type PreExecute<T extends ExecutionContext> = (args: ArgumentCollection<T>) => util.Awaitable;
-export type SubtagPrimativeResult = void | null | undefined | string | number | boolean;
-export type SubtagResult = SubtagPrimativeResult | SubtagPrimativeResult[] | SubtagError;
+type PreExecute<T extends ExecutionContext> = (args: ArgumentCollection<T>) => Awaitable;
 
 export interface ISubtag<TContext extends ExecutionContext> {
     readonly context: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
-    execute(token: ISubtagToken, context: TContext): util.Awaitable<SubtagResult>;
+    execute(token: ISubtagToken, context: TContext): Awaitable<SubtagResult>;
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 
@@ -64,7 +61,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
         this._conditionals = [];
     }
 
-    public execute(token: ISubtagToken, context: T): util.Awaitable<SubtagResult>;
+    public execute(token: ISubtagToken, context: T): Awaitable<SubtagResult>;
     public async execute(token: ISubtagToken, context: T): Promise<SubtagResult> {
         let action;
         let preExecute: undefined | PreExecute<T>;
@@ -138,7 +135,7 @@ export abstract class Subtag<T extends ExecutionContext> implements ISubtag<T> {
     }
 
     protected parseCondition(condition: string): Exclude<SubtagCondition, string> {
-        const asNumber = util.serializer.number.tryDeserialize(condition);
+        const asNumber = bbtag.number.tryDeserialize(condition);
         if (asNumber.success) {
             return asNumber.value;
         }

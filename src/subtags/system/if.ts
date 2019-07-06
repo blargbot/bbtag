@@ -1,5 +1,6 @@
-import { argumentBuilder as A, ArgumentCollection, SubtagResult, validation } from '../../structures';
-import { Awaitable, subtagValue } from '../../util';
+import { bbtag, SubtagResult } from '../../language';
+import { argumentBuilder as A, ArgumentCollection, validation } from '../../structures';
+import { Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
 import { BoolSubtag, default as boolSubtag } from './bool';
 
@@ -32,7 +33,7 @@ export class IfSubtag extends BasicSubtag {
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
         const bool = args.get(0);
-        const tryBool = subtagValue.tryToBoolean(bool);
+        const tryBool = bbtag.tryToBoolean(bool);
 
         if (!tryBool.success) {
             return validation.types.notBool(args, args.token.args[0]);

@@ -1,9 +1,9 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { Engine } from '../../src/engine';
-import { ExecutionContext, IStringToken, SubtagResult } from '../../src/structures';
+import { bbtag, IStringToken, SubtagResult } from '../../src/language';
+import { ExecutionContext } from '../../src/structures';
 import { default as subtags } from '../../src/subtags';
-import { subtagValue } from '../../src/util';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
 describe('class Engine', () => {
@@ -52,11 +52,11 @@ describe('class Engine', () => {
         engine.subtags.push(...subtags);
 
         const testCases: Array<{ input: string, token?: IStringToken, assert: (context: ExecutionContext, result: SubtagResult) => void }> = [
-            { input: 'hi {if;true;yay!}', assert: (_, r) => expect(subtagValue.toString(r)).to.equal('hi yay!') },
-            { input: 'hi {if;true}', assert: (_, r) => expect(subtagValue.toString(r)).to.equal('hi `Not enough arguments`') },
-            { input: 'hi {if;false;booo}', assert: (_, r) => expect(subtagValue.toString(r)).to.equal('hi ') },
-            { input: 'hi {if;{bool;a;==;b};booo}', assert: (_, r) => expect(subtagValue.toString(r)).to.equal('hi ') },
-            { input: 'hi {if;{bool;a;!=;b};yay!}', assert: (_, r) => expect(subtagValue.toString(r)).to.equal('hi yay!') }
+            { input: 'hi {if;true;yay!}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi yay!') },
+            { input: 'hi {if;true}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi `Not enough arguments`') },
+            { input: 'hi {if;false;booo}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi ') },
+            { input: 'hi {if;{bool;a;==;b};booo}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi ') },
+            { input: 'hi {if;{bool;a;!=;b};yay!}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi yay!') }
         ];
 
         for (const entry of testCases) {

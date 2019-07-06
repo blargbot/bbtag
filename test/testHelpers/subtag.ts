@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagToken } from '../../src/structures';
+import { IStringToken, ISubtagToken } from '../../src/language';
 import { Position, Range } from '../../src/util';
 
 const range = new Range(new Position(0, 0, 0), new Position(0, 0, 0));

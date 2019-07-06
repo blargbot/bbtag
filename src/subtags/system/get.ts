@@ -1,5 +1,6 @@
-import { argumentBuilder as A, ArgumentCollection, SubtagResult, validation, variableScopes } from '../../structures';
-import { Awaitable, subtagValue } from '../../util';
+import { bbtag, SubtagResult } from '../../language';
+import { argumentBuilder as A, ArgumentCollection, validation, variableScopes } from '../../structures';
+import { Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class GetSubtag extends BasicSubtag {
@@ -37,14 +38,14 @@ export class GetSubtag extends BasicSubtag {
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
         const key = args.get(0);
-        return args.context.variables.get(subtagValue.toString(key));
+        return args.context.variables.get(bbtag.toString(key));
     }
 
     public async getIndex(args: ArgumentCollection): Promise<SubtagResult> {
         const [key, index] = args.get(0, 1);
-        const value = await args.context.variables.get(subtagValue.toString(key));
-        const asArray = subtagValue.tryToArray(value);
-        const indexAsNumber = subtagValue.tryToNumber(index);
+        const value = await args.context.variables.get(bbtag.toString(key));
+        const asArray = bbtag.tryToArray(value);
+        const indexAsNumber = bbtag.tryToNumber(index);
 
         if (!asArray.success) {
             return value;

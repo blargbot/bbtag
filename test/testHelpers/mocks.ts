@@ -1,6 +1,7 @@
 import { Engine } from '../../src';
 import { DatabaseValue, IDatabase } from '../../src/external';
-import { ExecutionContext, ISubtag, ISubtagToken, SubtagResult } from '../../src/structures';
+import { ISubtagToken, SubtagResult } from '../../src/language';
+import { ExecutionContext, ISubtag } from '../../src/structures';
 import { Awaitable } from '../../src/util';
 
 export class MockEngine extends Engine {

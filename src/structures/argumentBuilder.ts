@@ -1,4 +1,4 @@
-import * as util from '../util';
+import { format } from '../util';
 
 export type SubtagArgumentDefinition = IHandlerArgumentGroup | IHandlerArgumentValue;
 
@@ -111,7 +111,7 @@ function _argsToStringRecursive(separator: string, values: SubtagArgumentDefinit
         } else {
             content.push(_argsToStringRecursive(separator, entry.values));
         }
-        result.push(util.format(brackets, content.join('')));
+        result.push(format(brackets, content.join('')));
     }
 
     return result.join(separator);

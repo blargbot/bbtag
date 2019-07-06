@@ -1,5 +1,6 @@
+import { bbtag } from '../../language';
 import { argumentBuilder as A, ArgumentCollection, validation, variableScopes } from '../../structures';
-import { Awaitable, subtagValue } from '../../util';
+import { Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 export class SetSubtag extends BasicSubtag {
@@ -36,12 +37,12 @@ export class SetSubtag extends BasicSubtag {
 
     public clearKey(args: ArgumentCollection): Awaitable<void> {
         const key = args.get(0);
-        return args.context.variables.delete(subtagValue.toString(key));
+        return args.context.variables.delete(bbtag.toString(key));
     }
 
     public setKey(args: ArgumentCollection): Awaitable<void> {
         const [key, ...values] = args.getAll();
-        return args.context.variables.set(subtagValue.toString(key), values.map(subtagValue.toPrimative));
+        return args.context.variables.set(bbtag.toString(key), values.map(bbtag.toPrimative));
     }
 }
 

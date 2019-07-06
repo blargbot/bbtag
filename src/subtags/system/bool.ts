@@ -1,20 +1,20 @@
-import { argumentBuilder as A, ArgumentCollection, SubtagResult, validation } from '../../structures';
-import { subtagValue } from '../../util';
+import { bbtag, SubtagResult } from '../../language';
+import { argumentBuilder as A, ArgumentCollection, validation } from '../../structures';
 import { BasicSubtag } from '../abstract/basicSubtag';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
 export class BoolSubtag extends BasicSubtag {
     public static readonly operators: { readonly [key: string]: operator } = {
-        '==': (l, r) => subtagValue.compare(l, r) === 0,
-        '!=': (l, r) => subtagValue.compare(l, r) !== 0,
-        '>=': (l, r) => subtagValue.compare(l, r) >= 0,
-        '>': (l, r) => subtagValue.compare(l, r) > 0,
-        '<=': (l, r) => subtagValue.compare(l, r) <= 0,
-        '<': (l, r) => subtagValue.compare(l, r) < 0,
-        'startswith': (l, r) => subtagValue.toCollection(l).startsWith(r),
-        'endswith': (l, r) => subtagValue.toCollection(l).endsWith(r),
-        'includes': (l, r) => subtagValue.toCollection(l).includes(r)
+        '==': (l, r) => bbtag.compare(l, r) === 0,
+        '!=': (l, r) => bbtag.compare(l, r) !== 0,
+        '>=': (l, r) => bbtag.compare(l, r) >= 0,
+        '>': (l, r) => bbtag.compare(l, r) > 0,
+        '<=': (l, r) => bbtag.compare(l, r) <= 0,
+        '<': (l, r) => bbtag.compare(l, r) < 0,
+        'startswith': (l, r) => bbtag.toCollection(l).startsWith(r),
+        'endswith': (l, r) => bbtag.toCollection(l).endsWith(r),
+        'includes': (l, r) => bbtag.toCollection(l).includes(r)
     };
 
     public constructor() {
@@ -47,13 +47,13 @@ export class BoolSubtag extends BasicSubtag {
         let comparer: (left: SubtagResult, right: SubtagResult) => boolean;
         let key: string;
 
-        if ((key = subtagValue.toString(val2)) in BoolSubtag.operators) {
+        if ((key = bbtag.toString(val2)) in BoolSubtag.operators) {
             left = val1;
             right = val3;
-        } else if ((key = subtagValue.toString(val1)) in BoolSubtag.operators) {
+        } else if ((key = bbtag.toString(val1)) in BoolSubtag.operators) {
             left = val2;
             right = val3;
-        } else if ((key = subtagValue.toString(val3)) in BoolSubtag.operators) {
+        } else if ((key = bbtag.toString(val3)) in BoolSubtag.operators) {
             left = val1;
             right = val2;
         } else {

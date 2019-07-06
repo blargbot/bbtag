@@ -1,7 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { Enumerable } from '../../src/util/enumerable';
-import { predicateFunc } from '../../src/util/enumerable/types';
+import { Enumerable, predicateFunc } from '../../src/util';
 
 function compare<T>(actual: Enumerable<T>, expected: T[]): void {
     const enumerator = actual.getEnumerator();

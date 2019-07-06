@@ -1,5 +1,5 @@
-import { SubtagPrimativeResult } from '../structures';
 import { Awaitable } from '../util';
+import { SubtagPrimativeResult } from '../language';
 
 export interface IDatabase {
     delete(path: Iterable<string>): Awaitable<void>;

@@ -1,1 +1,1 @@
-export { IDatabase, DatabaseValue } from './database';
+export * from './database';

@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { parse } from '../../src/parser';
+import { bbtag } from '../../src/language';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
 describe('function parse', () => {
@@ -18,7 +18,7 @@ describe('function parse', () => {
         if (testCase.expected instanceof Error) {
             it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, () => {
                 // arrange
-                const test = () => parse(testCase.input);
+                const test = () => bbtag.parse(testCase.input);
 
                 // act
 
@@ -30,7 +30,7 @@ describe('function parse', () => {
                 // arrange
 
                 // act
-                const result = parse(testCase.input);
+                const result = bbtag.parse(testCase.input);
 
                 // assert
                 expect(stripStrToken(result)).to.deep.equal(stripStrToken(testCase.expected));
