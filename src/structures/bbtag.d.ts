@@ -1,4 +1,4 @@
-import { Range } from './range';
+import { Range } from '../util/range';
 
 export interface IToken {
     readonly range: Range;

@@ -1,4 +1,4 @@
-import { default as tryGet, TryGetResult } from './tryGet';
+import { tryGet, TryGetResult } from './tryGet';
 
 export interface ISerializer<T> {
     serialize(value: T): string;
@@ -6,7 +6,7 @@ export interface ISerializer<T> {
     tryDeserialize(value: string): TryGetResult<T>;
 }
 
-export const array: ISerializer<any[]> = {
+const array: ISerializer<any[]> = {
     serialize(_value: any[]): string {
         return undefined!;
     },
@@ -22,7 +22,7 @@ export const array: ISerializer<any[]> = {
     }
 };
 
-export const object: ISerializer<any> = {
+const object: ISerializer<any> = {
     serialize(value: any): string {
         return JSON.stringify(value);
     },
@@ -39,7 +39,7 @@ export const object: ISerializer<any> = {
 };
 
 // tslint:disable-next-line: variable-name
-export const number: ISerializer<number> = {
+const number: ISerializer<number> = {
     serialize(value: number): string {
         return value.toString();
     },
@@ -60,7 +60,7 @@ export const number: ISerializer<number> = {
 };
 
 // tslint:disable-next-line: variable-name
-export const boolean: ISerializer<boolean> = {
+const boolean: ISerializer<boolean> = {
     serialize(value: boolean): string {
         return value.toString();
     },
@@ -80,7 +80,7 @@ export const boolean: ISerializer<boolean> = {
     }
 };
 
-export default {
+export const serializer = {
     array,
     object,
     number,

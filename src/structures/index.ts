@@ -1,4 +1,3 @@
-export * from './range';
 export * from './bbtag';
 export * from './subtag';
 export * from './context';

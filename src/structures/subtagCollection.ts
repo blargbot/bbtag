@@ -22,7 +22,7 @@ export class SubtagCollection<T extends SubtagContext> {
         }
     }
 
-    public [Symbol.iterator](): IterableIterator<SubtagType<T>> {
+    public [Symbol.iterator](): Iterator<SubtagType<T>> {
         return Enumerable.from(this._nameMap.values())
             .selectMany(x => x)[Symbol.iterator]();
     }

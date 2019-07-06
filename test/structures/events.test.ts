@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { EventManager } from '../../src/structures';
 import { AggregateError } from '../../src/structures/errors';
-import { resultOf } from '../test helpers/utility';
+import { resultOf } from '../testHelpers/utility';
 
 interface ITestEvents {
     test1: (arg1: { name: string }) => string;

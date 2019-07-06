@@ -1,8 +1,8 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { AggregateError, ChainedError, IStringToken, ISubtagToken, SubtagError } from '../../src/structures';
-import { MockExecutionContext } from '../test helpers/mocks';
-import { str, tag } from '../test helpers/subtag';
+import { MockExecutionContext } from '../testHelpers/mocks';
+import { str, tag } from '../testHelpers/subtag';
 
 describe('class ChainedError', () => {
     const testCases: Array<{ message?: string, innerError?: any }> = [

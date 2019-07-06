@@ -1,7 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { Position } from '../../src/structures';
-import { Cursor } from '../../src/structures/cursor';
+import { Cursor, Position } from '../../src/util';
 
 interface ICursorMovement {
     count: number;

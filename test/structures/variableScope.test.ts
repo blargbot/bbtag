@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { DatabaseValue } from '../../src/external';
 import { IPartialVariableScope, VariableScope, variableScopes } from '../../src/structures';
-import { MockExecutionContext } from '../test helpers/mocks';
+import { MockExecutionContext } from '../testHelpers/mocks';
 
 describe('class VariableScope', () => {
     it('should correctly apply minimal overrides', () => {

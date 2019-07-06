@@ -24,7 +24,7 @@ export interface ITryGetFailure {
     readonly success: false;
 }
 
-export default {
+export const tryGet = {
     result: tryGetResult,
     success: tryGetSuccess,
     failure: tryGetFailure

@@ -1,132 +1,102 @@
-import { IBBTag, IStringToken, ISubtagToken, Position, Range } from './structures';
-import { Cursor } from './structures/cursor';
-import { Enumerable, Enumerator } from './util/enumerable';
+import { IStringToken, ISubtagToken } from './structures';
+import { Cursor, Enumerator, Position, Range } from './util';
 
 interface IStateTracker { cursor: Cursor; lastYield: Position; }
 
-export type postProcessor = (bbtag: IBBTag) => IBBTag;
-export type preProcessor = (source: string) => string;
-
-interface IBBTagToken {
+interface IToken {
     range: Range;
     content: string;
 }
 
-export class Parser {
-    public parse(source: string): IStringToken {
-        const tokens = this.tokenize(source).getEnumerator();
-        const root = this.createStringToken(tokens, true);
-        return root;
+export type BBTagParser = (source: string) => IStringToken;
+
+export function parse(source: string): IStringToken {
+    const tokens = Enumerator.from(createTokenStream(source));
+    const result = readStringToken(tokens, true);
+    if (tokens.moveNext()) {
+        throw new Error('Unpaired \'}\'');
     }
-
-    protected tokenize(source: string): Enumerable<IBBTagToken> {
-        return Enumerable.from(_tokenize(source));
-    }
-
-    protected createStringToken(tokens: Enumerator<IBBTagToken>, isTopLevel: boolean = false): IStringToken {
-        if (isTopLevel && !tokens.moveNext()) {
-            throw new Error('No tokens found');
-        }
-
-        let start;
-        let end = start = tokens.current.range.start;
-        const formatParts = [tokens.current.content];
-        const subtags: ISubtagToken[] = [];
-        let index = 0;
-
-        whileLoop:
-        while (tokens.moveNext()) {
-            switch (tokens.current.content) {
-                case '{':
-                    subtags.push(this.createSubtagToken(tokens));
-                    formatParts.push(`{${index++}}`);
-                    break;
-                case ';':
-                    if (isTopLevel) {
-                        formatParts.push(tokens.current.content);
-                        break;
-                    }
-                case '}':
-                    if (isTopLevel) {
-                        throw unmatchedClosed();
-                    }
-                    break whileLoop;
-                default:
-                    formatParts.push(tokens.current.content);
-                    break;
-            }
-            end = tokens.current.range.end;
-        }
-
-        return {
-            subtags,
-            format: formatParts.join('').trim(),
-            range: new Range(start, end)
-        };
-    }
-
-    protected createSubtagToken(tokens: Enumerator<IBBTagToken>): ISubtagToken {
-        const start = tokens.current.range.start;
-        let closed = false;
-        const parts = [];
-
-        while (tokens.moveNext()) {
-            parts.push(this.createStringToken(tokens));
-            if (tokens.current === undefined) {
-                break;
-            }
-            if (tokens.current.content === '}') {
-                closed = true;
-                break;
-            }
-        }
-
-        if (!closed) {
-            throw unmatchedOpen();
-        }
-
-        return {
-            name: parts[0],
-            args: parts.slice(1),
-            range: new Range(start, tokens.current.range.end)
-        };
-    }
+    return result;
 }
 
-function* _tokenize(source: string): IterableIterator<IBBTagToken> {
+function* createTokenStream(source: string): Iterator<IToken> {
     const state = { cursor: new Cursor(source), lastYield: new Position(0, 0, 0) };
-    whileLoop:                               // '[' = lastYield; ']' = cursor;
-    while (true) {                           // initial state: '[]abc;xyz'
+    do {
         switch (state.cursor.nextChar) {
             case '{':
             case ';':
             case '}':
-                yield createToken(state);    // '[abc];xyz' => 'abc[];xyz' + { content: 'abc' }
-                state.cursor.move(1);        // 'abc[];xyz' => 'abc[;]xyz'
-                yield createToken(state);    // 'abc[;]xyz' => 'abc;[]xyz' + { content: ';'   }
+                yield createToken(state);
+                state.cursor.move(1);
+                yield createToken(state);
                 break;
+            case undefined:
+                yield createToken(state);
+                return;
             default:
-                if (!state.cursor.move(1)) { // 'abc;[xyz]' => cant move
-                    break whileLoop;
-                }
+                state.cursor.move(1);
+                break;
         }
-    }
-    yield createToken(state);                // 'abc;[xyz]' => 'abc;xyz[]' + { content: 'xyz' }
-    // Final yielded values:
-    // 'abc;xyz' => [{ content: 'abc' }, { content: ';' }, { content: 'xyz' }]
+    } while (true);
 }
 
-function createToken(state: IStateTracker): IBBTagToken {
+function createToken(state: IStateTracker): IToken {
     const content = state.cursor.source.slice(state.lastYield.offset, state.cursor.offset);
     const range = new Range(state.lastYield, state.cursor.position);
     state.lastYield = state.cursor.position;
     return { range, content };
 }
 
-function unmatchedOpen(): Error {
-    return new Error('Unpaired \'{\'');
+function readStringToken(tokenStream: Enumerator<IToken>, ignoreSemi: boolean = false): IStringToken {
+    if (!tokenStream.moveNext()) {
+        throw new Error('Empty string token');
+    }
+
+    let end = tokenStream.current.range.start;
+    const start = tokenStream.current.range.start;
+    const formatParts = [tokenStream.current.content];
+    const subtags: ISubtagToken[] = [];
+
+    whileLoop:
+    while (tokenStream.moveNext()) {
+        switch (tokenStream.current.content) {
+            case '{':
+                formatParts.push(`{${subtags.length}}`);
+                subtags.push(readSubtagToken(tokenStream));
+                break;
+            case '}':
+            case ignoreSemi || ';':
+                break whileLoop;
+            default:
+                formatParts.push(tokenStream.current.content);
+        }
+        end = tokenStream.current.range.end;
+    }
+
+    return {
+        subtags,
+        format: formatParts.join('').trim(),
+        range: new Range(start, end)
+    };
 }
 
-function unmatchedClosed(): Error {
-    return new Error('Unpaired \'}\'');
+function readSubtagToken(tokenStream: Enumerator<IToken>): ISubtagToken {
+    const start = tokenStream.current.range.start;
+    const parts = [];
+
+    while (tokenStream.current.content !== undefined) {
+        parts.push(readStringToken(tokenStream));
+        if (tokenStream.current === undefined) {
+            break;
+        }
+        if (tokenStream.current.content === '}') {
+            return {
+                name: parts[0],
+                args: parts.slice(1),
+                range: new Range(start, tokenStream.current.range.end)
+            };
+        }
+    }
+
+    throw new Error('Unpaired \'{\'');
 }

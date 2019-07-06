@@ -1,13 +1,13 @@
 import { SubtagError, SubtagPrimativeResult, SubtagResult } from '../structures';
 import { Enumerable } from './enumerable';
 import { EnumerableSource } from './enumerable/types';
-import { default as subtag } from './subtagResults';
+import { subtagValue } from './subtagResults';
 
 export function compare(left: SubtagResult, right: SubtagResult): number {
-    if (subtag.getType(left) === subtag.getType(right)) {
+    if (subtagValue.getType(left) === subtagValue.getType(right)) {
         return compareSameType(left, right);
     }
-    return compareByBlock(subtag.toString(left), subtag.toString(right));
+    return compareByBlock(subtagValue.toString(left), subtagValue.toString(right));
 }
 
 function compareByBlock(left: string, right: string): number {
@@ -15,14 +15,14 @@ function compareByBlock(left: string, right: string): number {
 }
 
 function compareSameType<T extends SubtagResult>(left: T, right: T): number {
-    switch (subtag.getType(left)) {
+    switch (subtagValue.getType(left)) {
         case 'string': return compareByBlock(left as string, right as string);
         case 'number':
         case 'boolean': return (left as number) - (right as number);
         case 'undefined': return 0;
         case 'error': return compareByBlock((left as SubtagError).message, (right as SubtagError).message);
         case 'array': return compareAsArray(left as any[], right as any[]);
-        default: return compareByBlock(subtag.toString(left), subtag.toString(right));
+        default: return compareByBlock(subtagValue.toString(left), subtagValue.toString(right));
     }
 }
 
@@ -49,7 +49,7 @@ function* toStringOrNumber(values: SubtagPrimativeResult[]): IterableIterator<st
         if (typeof value === 'number' || typeof value === 'string') {
             yield value;
         } else {
-            yield subtag.toString(value);
+            yield subtagValue.toString(value);
         }
     }
 }

@@ -1,12 +1,13 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { Parser } from '../../src/parser';
-import { str, stripStrToken, tag } from '../test helpers/subtag';
+import { parse } from '../../src/parser';
+import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
-describe('class Parser', () => {
+describe('function parse', () => {
     const testCases: Array<{ input: string, expected: any }> = [
         { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
         { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
+        { input: '', expected: str('') },
         { input: 'this is a test', expected: str('this is a test') },
         { input: 'this is; a test', expected: str('this is; a test') },
         { input: 'this {is;a} test', expected: str('this {0} test', tag(str('is'), str('a'))) },
@@ -17,8 +18,7 @@ describe('class Parser', () => {
         if (testCase.expected instanceof Error) {
             it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, () => {
                 // arrange
-                const parser = new Parser();
-                const test = () => parser.parse(testCase.input);
+                const test = () => parse(testCase.input);
 
                 // act
 
@@ -28,10 +28,9 @@ describe('class Parser', () => {
         } else {
             it(`should correctly parse ${testCase.input}`, () => {
                 // arrange
-                const parser = new Parser();
 
                 // act
-                const result = parser.parse(testCase.input);
+                const result = parse(testCase.input);
 
                 // assert
                 expect(stripStrToken(result)).to.deep.equal(stripStrToken(testCase.expected));

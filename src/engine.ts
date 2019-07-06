@@ -1,6 +1,6 @@
 import { IDatabase } from './external';
 import { optimizeStringToken } from './optimizer';
-import { Parser } from './parser';
+import { parse } from './parser';
 import {
     EventManager,
     ExecutionContext,
@@ -11,7 +11,7 @@ import {
     OptimizationContext,
     SubtagResult
 } from './structures';
-import { Awaitable, default as util } from './util';
+import { Awaitable, format, subtagValue } from './util';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;
@@ -19,13 +19,11 @@ interface IEngineEvents {
 }
 
 export class Engine {
-    public parser: Parser;
     public readonly subtags: Array<ISubtag<any>>;
     public readonly database: IDatabase;
     protected readonly events: EventManager<IEngineEvents>;
 
     public constructor(database: IDatabase) {
-        this.parser = new Parser();
         this.subtags = [];
         this.database = database;
         this.events = new EventManager();
@@ -37,15 +35,15 @@ export class Engine {
         for (const subtag of input.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
         }
-        if (parts.length === 1 && util.format(input.format, '') === '') {
+        if (parts.length === 1 && format(input.format, '') === '') {
             return parts[0];
         } else {
-            return util.format(input.format, parts.map(util.subtag.toString));
+            return format(input.format, parts.map(subtagValue.toString));
         }
     }
 
     public process(source: string): IBBTag {
-        const root = this.parser.parse(source);
+        const root = parse(source);
         return {
             source,
             root: optimizeStringToken(root, new OptimizationContext(this))
@@ -64,7 +62,7 @@ export class Engine {
 
     protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
         await Promise.all(this.events.raise('before-execute', input, context));
-        const name = util.subtag.toString(await this.execute(input.name, context));
+        const name = subtagValue.toString(await this.execute(input.name, context));
         const executor = context.subtags.find(name);
 
         let result: SubtagResult;

@@ -2,18 +2,14 @@
 export abstract class Enumerable<T> implements Iterable<T> {
     public abstract getEnumerator(): Enumerator<T>;
 
-    public [Symbol.iterator](): IterableIterator<T> {
+    public [Symbol.iterator](): Iterator<T> {
         return this.getEnumerator();
     }
 }
 
-export abstract class Enumerator<T> implements IterableIterator<T> {
+export abstract class Enumerator<T> implements Iterator<T> {
     public abstract moveNext(): boolean;
     public abstract get current(): T;
-
-    public [Symbol.iterator](): IterableIterator<T> {
-        return this;
-    }
 
     public next(): IteratorResult<T> {
         return {
@@ -32,7 +28,7 @@ export declare namespace Enumerable {
     export function from<T>(source: Set<T>): Adapters.SetEnumerable<T>;
     export function from<Key, Value>(source: Map<Key, Value>): Adapters.MapEnumerable<Key, Value>;
     export function from<T>(source: Iterable<T>): Adapters.IterableEnumerable<T>;
-    export function from<T extends Enumerable<R>, R>(source: T): T;
+    export function from<T extends Enumerable<any>>(source: T): T;
     export function from<T>(source: EnumerableSource<T>): Enumerable<T>;
 
     export function empty<T>(): Generators.EmptyEnumerable<T>;
@@ -40,6 +36,12 @@ export declare namespace Enumerable {
     export function infinite(start?: number, step?: number): Generators.InfiniteEnumerable;
     export function repeat<T>(value: T, count: number): Generators.RepeatEnumerable<T>;
     export function concat<T>(other: EnumerableSource<T>, ...others: Array<EnumerableSource<T>>): Chains.ConcatEnumerable<T>;
+}
+
+// tslint:disable-next-line: no-namespace
+export declare namespace Enumerator {
+    export function from<T>(source: Iterator<T>): Adapters.IteratorEnumerator<T>;
+    export function from<T extends Enumerator<any>>(source: T): T;
 }
 
 // This pattern of declaring is required due to circular dependencies
@@ -75,7 +77,7 @@ import * as Generators from './generators';
 import * as Terminators from './terminators';
 import { comparerFunc, EnumerableSource, predicateFunc, selectorFunc } from './types';
 
-Enumerable.from = Generators.from;
+Enumerable.from = Generators.createEnumerable;
 Enumerable.empty = Generators.EmptyEnumerable.create;
 Enumerable.range = Generators.RangeEnumerable.create;
 Enumerable.infinite = Generators.InfiniteEnumerable.create;
@@ -101,3 +103,5 @@ Enumerable.prototype.all = Terminators.all;
 Enumerable.prototype.toArray = Terminators.toArray;
 Enumerable.prototype.toSet = Terminators.toSet;
 Enumerable.prototype.join = Terminators.join;
+
+Enumerator.from = Generators.createEnumerator;

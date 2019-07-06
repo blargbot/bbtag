@@ -1,15 +1,8 @@
 import { SubtagError, SubtagPrimativeResult, SubtagResult } from '../structures';
-import { compare } from './compare';
-import { default as serializer } from './serializer';
-import { default as tryGet, TryGetResult } from './tryGet';
+import { serializer } from './serializer';
+import { tryGet, TryGetResult } from './tryGet';
 
-export interface ICollection {
-    startsWith(value: SubtagResult): boolean;
-    endsWith(value: SubtagResult): boolean;
-    includes(value: SubtagResult): boolean;
-}
-
-export function toString(value: SubtagResult): string {
+function toString(value: SubtagResult): string {
     switch (getType(value)) {
         case 'string': return value as string;
         case 'number': return serializer.number.serialize(value as number);
@@ -24,7 +17,7 @@ export function toString(value: SubtagResult): string {
     }
 }
 
-export function tryToBoolean(value: SubtagResult): TryGetResult<boolean> {
+function tryToBoolean(value: SubtagResult): TryGetResult<boolean> {
     switch (getType(value)) {
         case 'string': return serializer.boolean.tryDeserialize(value as string);
         case 'boolean': return tryGet.success(value as boolean);
@@ -36,7 +29,7 @@ export function tryToBoolean(value: SubtagResult): TryGetResult<boolean> {
     }
 }
 
-export function tryToNumber(value: SubtagResult): TryGetResult<number> {
+function tryToNumber(value: SubtagResult): TryGetResult<number> {
     switch (getType(value)) {
         case 'string': return serializer.number.tryDeserialize(value as string);
         case 'number': return tryGet.success(value as number);
@@ -48,7 +41,7 @@ export function tryToNumber(value: SubtagResult): TryGetResult<number> {
     }
 }
 
-export function tryToArray(value: SubtagResult): TryGetResult<SubtagPrimativeResult[]> {
+function tryToArray(value: SubtagResult): TryGetResult<SubtagPrimativeResult[]> {
     switch (getType(value)) {
         case 'string': return serializer.array.tryDeserialize(value as string);
         case 'array': return tryGet.success(value as SubtagPrimativeResult[]);
@@ -60,7 +53,7 @@ export function tryToArray(value: SubtagResult): TryGetResult<SubtagPrimativeRes
     }
 }
 
-export function toPrimative(value: SubtagResult): SubtagPrimativeResult {
+function toPrimative(value: SubtagResult): SubtagPrimativeResult {
     switch (getType(value)) {
         case 'string': return value as string;
         case 'number': return value as number;
@@ -72,7 +65,7 @@ export function toPrimative(value: SubtagResult): SubtagPrimativeResult {
     }
 }
 
-export function toCollection(value: SubtagResult): ICollection {
+function toCollection(value: SubtagResult): ICollection {
     const asArray = tryToArray(value);
     if (asArray.success) {
         return new ArrayCollection(asArray.value);
@@ -80,7 +73,7 @@ export function toCollection(value: SubtagResult): ICollection {
     return toString(value);
 }
 
-export function getType(value: SubtagResult): string | undefined {
+function getType(value: SubtagResult): string | undefined {
     switch (typeof value) {
         case 'string': return 'string';
         case 'number': return 'number';
@@ -96,18 +89,24 @@ export function getType(value: SubtagResult): string | undefined {
     return undefined;
 }
 
-export { compare } from './compare';
+import { compare } from './compare';
 
-export default {
+export const subtagValue = {
     toString,
     toPrimative,
-    tryToNumber,
-    tryToBoolean,
-    tryToArray,
-    compare,
     toCollection,
+    tryToNumber,
+    tryToArray,
+    tryToBoolean,
+    compare,
     getType
 };
+
+export interface ICollection {
+    startsWith(value: SubtagResult): boolean;
+    endsWith(value: SubtagResult): boolean;
+    includes(value: SubtagResult): boolean;
+}
 
 class ArrayCollection implements ICollection {
     private readonly _array: SubtagPrimativeResult[];
