@@ -5,8 +5,8 @@ import { EventManager, ExecutionContext, ISubtag, OptimizationContext } from './
 import { Awaitable, format } from './util';
 
 interface IEngineEvents {
-    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable;
-    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable;
+    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable<void>;
+    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable<void>;
 }
 
 export class Engine {

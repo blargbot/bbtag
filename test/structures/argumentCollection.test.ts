@@ -94,7 +94,7 @@ describe('class ArgumentCollection', () => {
             const result = await args.execute(...indexes);
 
             // assert
-            expect(result).to.have.ordered.members(expected);
+            expect([...result]).to.have.ordered.members(expected);
         });
         it('should gracefully fail to execute when out of bounds', async () => {
             // arrange
@@ -127,7 +127,7 @@ describe('class ArgumentCollection', () => {
             const result = await args.execute(index, index, index, index);
 
             // assert
-            expect(result).to.have.ordered.members([expected, expected, expected, expected]);
+            expect([...result]).to.have.ordered.members([expected, expected, expected, expected]);
             expect(callCount).to.equal(1);
         });
         it('should not execute values more than once', async () => {

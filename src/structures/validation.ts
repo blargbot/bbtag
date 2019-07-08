@@ -50,7 +50,7 @@ function cloneAndThrow(source: { [key: string]: any }, ...ignores: string[]): an
     for (const key of Enumerable.from(Object.keys(source)).except(ignores)) {
         switch (typeof source[key]) {
             case 'object':
-                result[key] = cloneAndThrow(source);
+                result[key] = cloneAndThrow(source[key]);
                 break;
             case 'function':
                 result[key] = (...args: any[]) => {
