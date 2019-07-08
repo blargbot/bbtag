@@ -3,6 +3,21 @@ import { tryGet, TryGetResult } from '../util';
 import { array, boolean, number } from './serializer';
 import { SubtagPrimativeResult, SubtagResult } from './types';
 
+function convertError(type: string): (value: SubtagResult) => never {
+    return (value: SubtagResult) => {
+        throw new Error(`${value} is not convertable to ${type}`);
+    };
+}
+
+function createDefiniteConverter<T>(tryConvert: (value: SubtagResult) => TryGetResult<T>, typeName: string):
+    (value: SubtagResult, defaultValue?: (value: SubtagResult) => T) => T {
+    const errorHandler = convertError(typeName);
+    return (value: SubtagResult, defaultValue: (value: SubtagResult) => T = errorHandler): T => {
+        const result = tryConvert(value);
+        return result.success ? result.value : defaultValue(value);
+    };
+}
+
 export function toString(value: SubtagResult): string {
     switch (getType(value)) {
         case 'string': return value as string;
@@ -18,6 +33,7 @@ export function toString(value: SubtagResult): string {
     }
 }
 
+export let toBoolean = createDefiniteConverter(tryToBoolean, 'boolean');
 export function tryToBoolean(value: SubtagResult): TryGetResult<boolean> {
     switch (getType(value)) {
         case 'string': return boolean.tryDeserialize(value as string);
@@ -30,6 +46,7 @@ export function tryToBoolean(value: SubtagResult): TryGetResult<boolean> {
     }
 }
 
+export let toNumber = createDefiniteConverter(tryToNumber, 'number');
 export function tryToNumber(value: SubtagResult): TryGetResult<number> {
     switch (getType(value)) {
         case 'string': return number.tryDeserialize(value as string);
@@ -42,6 +59,7 @@ export function tryToNumber(value: SubtagResult): TryGetResult<number> {
     }
 }
 
+export let toArray = createDefiniteConverter(tryToArray, 'array');
 export function tryToArray(value: SubtagResult): TryGetResult<SubtagPrimativeResult[]> {
     switch (getType(value)) {
         case 'string': return array.tryDeserialize(value as string);
