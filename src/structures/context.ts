@@ -12,11 +12,17 @@ export interface IExecutionContextArgs<T extends ExecutionContext> {
     readonly variableScopes?: Iterable<IVariableScope<T>>;
 }
 
+export interface IContextState {
+    return: boolean;
+}
+
 export abstract class SubtagContext {
     public readonly engine: Engine;
     public readonly subtags: SubtagCollection<this>;
     public readonly tagName: string;
+    public readonly state: Partial<IContextState>;
     public fallback: SubtagResult;
+
     public get database(): IDatabase { return this.engine.database; }
 
     public constructor(engine: Engine, tagName: string) {
@@ -24,6 +30,7 @@ export abstract class SubtagContext {
         this.subtags = new SubtagCollection(this, engine.subtags);
         this.tagName = tagName;
         this.fallback = undefined;
+        this.state = {};
     }
 }
 

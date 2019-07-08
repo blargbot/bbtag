@@ -2,7 +2,7 @@ import { bbtag, SubtagResult } from '../../language';
 import { argumentBuilder as A, ArgumentCollection, validation } from '../../structures';
 import { Awaitable } from '../../util';
 import { BasicSubtag } from '../abstract/basicSubtag';
-import { BoolSubtag, default as boolSubtag } from './bool';
+import { BoolSubtag, default as bool } from './bool';
 
 export class IfSubtag extends BasicSubtag {
     public constructor() {
@@ -32,8 +32,8 @@ export class IfSubtag extends BasicSubtag {
     }
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
-        const bool = args.get(0);
-        const tryBool = bbtag.tryToBoolean(bool);
+        const success = args.get(0);
+        const tryBool = bbtag.tryToBoolean(success);
 
         if (!tryBool.success) {
             return validation.types.notBool(args, args.token.args[0]);
@@ -46,11 +46,11 @@ export class IfSubtag extends BasicSubtag {
 
     public runWithComp(args: ArgumentCollection): Awaitable<SubtagResult> {
         const [left, comp, right] = args.get(0, 1, 2);
-        const bool = boolSubtag.check(left, comp, right);
+        const success = bool.check(left, comp, right);
 
-        if (bool === undefined) {
+        if (success === undefined) {
             return validation.types.notOperator(args);
-        } else if (bool === true) {
+        } else if (success === true) {
             return args.execute(3);
         } else {
             return args.execute(4);

@@ -8,6 +8,8 @@ export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {
     private readonly _resultCache: Map<number, SubtagResult>;
     private readonly _promiseCache: Map<number, Promise<SubtagResult>>;
 
+    public get length(): number { return this.token.args.length; }
+
     constructor(context: T, token: ISubtagToken) {
         this.context = context;
         this.token = token;
@@ -16,8 +18,8 @@ export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {
     }
 
     public getRaw(key: number): IStringToken | undefined;
-    public getRaw(...keys: number[]): Iterable<IStringToken | undefined>;
-    public getRaw(...keys: number[]): Iterable<IStringToken | undefined> | IStringToken | undefined {
+    public getRaw(...keys: number[]): Enumerable<IStringToken | undefined>;
+    public getRaw(...keys: number[]): Enumerable<IStringToken | undefined> | IStringToken | undefined {
         if (keys.length === 1) {
             return this._getRaw(keys).first();
         }
@@ -25,28 +27,28 @@ export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {
     }
 
     public get(key: number): SubtagResult;
-    public get(...keys: number[]): Iterable<SubtagResult>;
-    public get(...keys: number[]): Iterable<SubtagResult> | SubtagResult {
+    public get(...keys: number[]): Enumerable<SubtagResult>;
+    public get(...keys: number[]): Enumerable<SubtagResult> | SubtagResult {
         if (keys.length === 1) {
             return this._get(keys).first();
         }
         return this._get(keys);
     }
 
-    public getAll(): Iterable<SubtagResult> {
+    public getAll(): Enumerable<SubtagResult> {
         return this._get(Enumerable.range(0, this.token.args.length));
     }
 
     public execute(key: number): Awaitable<SubtagResult>;
-    public execute(...keys: number[]): Awaitable<Iterable<SubtagResult>>;
-    public execute(...keys: number[]): Awaitable<Iterable<SubtagResult> | SubtagResult> {
+    public execute(...keys: number[]): Awaitable<Enumerable<SubtagResult>>;
+    public execute(...keys: number[]): Awaitable<Enumerable<SubtagResult> | SubtagResult> {
         if (keys.length === 1) {
             return this._execute(keys[0]);
         }
-        return Promise.all(this._execute(keys));
+        return Promise.all(this._execute(keys)).then(v => Enumerable.from(v));
     }
 
-    public executeAll(): Awaitable<Iterable<SubtagResult>> {
+    public executeAll(): Awaitable<Enumerable<SubtagResult>> {
         return this.execute(...Enumerable.range(0, this.token.args.length));
     }
 
