@@ -31,7 +31,7 @@ export class ForSubtag extends BasicSubtag {
         const context = args.context;
         const notNumber = () => validation.throw.types.notNumber(args);
 
-        const results: SubtagResult[] = [];
+        let result = '';
         const [varName, operator] = args.get(0, 2).select(n => bbtag.toString(n));
         const [initial, limit] = args.get(1, 3).select(n => bbtag.toNumber(n, notNumber));
         const code = args.getRaw(args.length - 1)!;
@@ -41,10 +41,10 @@ export class ForSubtag extends BasicSubtag {
 
         for (let i = initial; bool.check(i, operator, limit); i += increment) {
             await context.variables.set(varName, i);
-            results.push(await context.execute(code));
+            result += bbtag.toString(await context.execute(code));
             const next = bbtag.tryToNumber(await context.variables.get(varName));
             if (!next.success) {
-                results.push(validation.types.notNumber(args));
+                bbtag.toString(validation.types.notNumber(args));
                 break;
             }
             i = next.value;
@@ -55,6 +55,6 @@ export class ForSubtag extends BasicSubtag {
         }
 
         context.variables.rollback(varName);
-        return results.map(bbtag.toPrimative);
+        return result;
     }
 }
