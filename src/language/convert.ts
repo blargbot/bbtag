@@ -1,6 +1,6 @@
 import { tryGet, TryGetResult } from '../util';
 import { array, boolean, number } from './serializer';
-import { ISubtagError, SubtagPrimativeResult, SubtagResult } from './types';
+import { ISubtagError, SubtagPrimativeResult, SubtagResult, SubtagResultType } from './types';
 
 function convertError(type: string): (value: SubtagResult) => never {
     return (target: SubtagResult) => {
@@ -28,8 +28,7 @@ export function toString(target: SubtagResult): string {
             const error = target as ISubtagError;
             if (error.context.fallback !== undefined) { return toString(error.context.fallback); }
             return `\`${(target as ISubtagError).message}\``;
-        case 'undefined':
-        default: return '';
+        case 'undefined': return '';
     }
 }
 
@@ -41,8 +40,7 @@ export function tryToBoolean(target: SubtagResult): TryGetResult<boolean> {
         case 'number':
         case 'array':
         case 'error':
-        case 'undefined':
-        default: return tryGet.failure();
+        case 'undefined': return tryGet.failure();
     }
 }
 
@@ -54,8 +52,7 @@ export function tryToNumber(target: SubtagResult): TryGetResult<number> {
         case 'boolean':
         case 'array':
         case 'error':
-        case 'undefined':
-        default: return tryGet.failure();
+        case 'undefined': return tryGet.failure();
     }
 }
 
@@ -67,8 +64,7 @@ export function tryToArray(target: SubtagResult): TryGetResult<SubtagPrimativeRe
         case 'number':
         case 'boolean':
         case 'error':
-        case 'undefined':
-        default: return tryGet.failure();
+        case 'undefined': return tryGet.failure();
     }
 }
 
@@ -80,7 +76,6 @@ export function toPrimative(target: SubtagResult): SubtagPrimativeResult {
         case 'undefined': return target as undefined;
         case 'array': return array.serialize(target as any[]);
         case 'error': return `\`${(target as ISubtagError).message}\``;
-        default: return '';
     }
 }
 
@@ -122,7 +117,7 @@ export const value = {
     }
 };
 
-export function getType(target: SubtagResult): string | undefined {
+export function getType(target: SubtagResult): SubtagResultType {
     switch (typeof target) {
         case 'string': return 'string';
         case 'number': return 'number';
@@ -132,10 +127,8 @@ export function getType(target: SubtagResult): string | undefined {
             if (target === null) { return 'undefined'; }
             if (Array.isArray(target)) { return 'array'; }
             if (value.isError(target)) { return 'error'; }
-            break;
     }
-
-    return undefined;
+    throw new Error('Invalid subtag result: ' + JSON.stringify(target));
 }
 
 export interface ICollection {
