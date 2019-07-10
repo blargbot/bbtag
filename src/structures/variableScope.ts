@@ -1,7 +1,7 @@
 import { DatabaseValue } from '../external';
+import { ISubtagError } from '../language';
 import { Awaitable, Enumerable } from '../util';
 import { ExecutionContext } from './context';
-import { SubtagError } from './errors';
 
 export interface IVariableScope<T extends ExecutionContext = ExecutionContext> {
     context: new (...args: any[]) => T;
@@ -15,14 +15,14 @@ export interface IVariableScope<T extends ExecutionContext = ExecutionContext> {
      * @param key The key to set
      * @param value The value to set the key to
      */
-    set(context: T, key: string, value: DatabaseValue): Awaitable<void | undefined | SubtagError>;
+    set(context: T, key: string, value: DatabaseValue): Awaitable<void | undefined | ISubtagError>;
 
     /**
      * Sets multiple key value pairs in `context.database` according to the `entries` provided
      * @param context The context for this set operation
      * @param entries The key value pairs to set
      */
-    setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | undefined | SubtagError>;
+    setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | undefined | ISubtagError>;
 
     /**
      * Gets the value of the given `key` from `context.database`
@@ -92,7 +92,7 @@ export class VariableScope<T extends ExecutionContext = ExecutionContext> implem
      * @param key The key to set
      * @param value The value to set the key to
      */
-    public set(context: T, key: string, value: DatabaseValue): Awaitable<void | SubtagError | undefined> {
+    public set(context: T, key: string, value: DatabaseValue): Awaitable<void | ISubtagError | undefined> {
         return context.database.set(this.getKey(context, key), value);
     }
 
@@ -101,7 +101,7 @@ export class VariableScope<T extends ExecutionContext = ExecutionContext> implem
      * @param context The context for this set operation
      * @param entries The key value pairs to set
      */
-    public setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | SubtagError | undefined> {
+    public setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | ISubtagError | undefined> {
         return context.database.setBulk(Enumerable.from(entries).select(([key, value]) => [this.getKey(context, key), value]));
     }
 

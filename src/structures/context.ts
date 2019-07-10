@@ -1,8 +1,7 @@
 import { Engine } from '../engine';
 import { IDatabase } from '../external';
-import { IStringToken, ISubtagToken, SubtagResult } from '../language';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable } from '../util';
-import { SubtagError } from './errors';
 import { SortedList } from './sortedList';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCollection } from './variableCollection';
@@ -37,7 +36,7 @@ export abstract class SubtagContext {
 export class ExecutionContext extends SubtagContext {
     public readonly scope: string;
     public readonly variables: VariableCollection<this>;
-    public readonly errors: SubtagError[];
+    public readonly errors: ISubtagError[];
 
     public constructor(engine: Engine, tagName: string, args: IExecutionContextArgs<ExecutionContext>) {
         super(engine, tagName);
@@ -51,8 +50,14 @@ export class ExecutionContext extends SubtagContext {
         return this.engine.execute(token, this);
     }
 
-    public error(token: ISubtagToken | IStringToken, message?: string, innerError?: any): SubtagError {
-        const error = new SubtagError(this, token, message, innerError);
+    public error(token: ISubtagToken | IStringToken, message: string): ISubtagError;
+    public error(token: ISubtagToken | IStringToken, innerError: Error): ISubtagError;
+    public error(token: ISubtagToken | IStringToken, message: string | Error): ISubtagError {
+        const error: ISubtagError = {
+            message: typeof message === 'object' ? message.message : message,
+            context: this,
+            token
+        };
         this.errors.push(error);
         return error;
     }

@@ -1,7 +1,6 @@
-import { SubtagError } from '../structures';
 import { Enumerable, EnumerableSource } from '../util';
-import { getType, toNumber, toString } from './converter';
-import { SubtagPrimativeResult, SubtagResult } from './types';
+import { getType, toNumber, toString } from './convert';
+import { ISubtagError, SubtagPrimativeResult, SubtagResult } from './types';
 
 export function compare(left: SubtagResult, right: SubtagResult): -1 | 0 | 1 {
     if (getType(left) === getType(right)) {
@@ -20,7 +19,7 @@ function compareSameType<T extends SubtagResult>(left: T, right: T): -1 | 0 | 1 
         case 'number':
         case 'boolean': return compareAsNumber((left as number), (right as number));
         case 'undefined': return 0;
-        case 'error': return compareByBlock((left as SubtagError).message, (right as SubtagError).message);
+        case 'error': return compareByBlock((left as ISubtagError).message, (right as ISubtagError).message);
         case 'array': return compareAsArray(left as any[], right as any[]);
         default: return compareByBlock(toString(left), toString(right));
     }

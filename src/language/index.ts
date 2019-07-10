@@ -1,9 +1,9 @@
 export * from './types';
 export { ISerializer } from './serializer';
-export { ICollection } from './converter';
+export { ICollection } from './convert';
 
 import * as compare from './compare';
-import * as converter from './converter';
+import * as converter from './convert';
 import * as parse from './parse';
 import * as serializer from './serializer';
 

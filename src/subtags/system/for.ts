@@ -29,22 +29,26 @@ export class ForSubtag extends BasicSubtag {
 
     public async run(args: ArgumentCollection): Promise<SubtagResult> {
         const context = args.context;
-        const notNumber = () => validation.throw.types.notNumber(args);
 
-        let result = '';
+        const result: SubtagResult[] = [];
         const [varName, operator] = args.get(0, 2).select(n => bbtag.toString(n));
-        const [initial, limit] = args.get(1, 3).select(n => bbtag.toNumber(n, notNumber));
+        const [initial, limit] = args.get(1, 3).select(n => bbtag.toNumber(n, NaN));
         const code = args.getRaw(args.length - 1)!;
-        const increment = args.length === 5 ? 1 : bbtag.toNumber(args.get(4), notNumber);
+        const increment = args.length === 5 ? 1 : bbtag.toNumber(args.get(4), NaN);
+
+        const nanValue = [[initial, 1], [limit, 3], [increment, 4]].find(x => isNaN(x[0]));
+        if (nanValue !== undefined) {
+            return validation.types.notNumber(args, args.getRaw(nanValue[1]));
+        }
 
         // TODO: implement limits
 
         for (let i = initial; bool.check(i, operator, limit); i += increment) {
             await context.variables.set(varName, i);
-            result += bbtag.toString(await context.execute(code));
+            result.push(await context.execute(code));
             const next = bbtag.tryToNumber(await context.variables.get(varName));
             if (!next.success) {
-                bbtag.toString(validation.types.notNumber(args));
+                result.push(validation.types.notNumber(args));
                 break;
             }
             i = next.value;
@@ -55,6 +59,6 @@ export class ForSubtag extends BasicSubtag {
         }
 
         context.variables.rollback(varName);
-        return result;
+        return result.map(bbtag.toString).join('');
     }
 }

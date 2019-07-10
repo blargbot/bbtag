@@ -68,6 +68,8 @@ export interface Enumerable<T> {
     orderBy<TKey>(selector: (source: T) => TKey, descending?: boolean, comparer?: comparerFunc<TKey>): Chains.OrderEnumerable<T>;
     zip<TOther, TResult>(other: EnumerableSource<TOther>, selector: (left: T, right: TOther) => TResult): Chains.ZipEnumerable<T, TOther, TResult>;
     join(separator: string): string;
+    equivalentTo(other: EnumerableSource<T>, checkOrder?: boolean): boolean;
+    sequenceEqual(other: EnumerableSource<T>): boolean;
 
     toArray(): T[];
     toSet(): Set<T>;
@@ -105,5 +107,7 @@ Enumerable.prototype.all = Terminators.all;
 Enumerable.prototype.toArray = Terminators.toArray;
 Enumerable.prototype.toSet = Terminators.toSet;
 Enumerable.prototype.join = Terminators.join;
+Enumerable.prototype.equivalentTo = Terminators.equivalentTo;
+Enumerable.prototype.sequenceEqual = Terminators.sequenceEqual;
 
 Enumerator.from = Generators.createEnumerator;

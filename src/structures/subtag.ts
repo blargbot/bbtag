@@ -4,7 +4,6 @@ import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagCondition
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
 import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
-import { SubtagError } from './errors';
 
 type SubtagHandler<T extends ExecutionContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
 type PreExecute<T extends ExecutionContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;
@@ -87,21 +86,11 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
             return context.error(token, `Missing handler for execution of subtag {${[this.name, ...token.args.map(_ => '')].join(';')}}`);
         }
 
-        try {
-            const args = new ArgumentCollection(context, token);
-            if (preExecute !== undefined) {
-                await preExecute(args, context);
-            }
-            return await action.call(this, args);
-        } catch (ex) {
-            if (!(ex instanceof Error)) {
-                return context.error(token, undefined, ex);
-            } else if (!(ex instanceof SubtagError)) {
-                return context.error(token, ex.message, ex);
-            } else {
-                return ex;
-            }
+        const args = new ArgumentCollection(context, token);
+        if (preExecute !== undefined) {
+            await preExecute(args, context);
         }
+        return action.call(this, args);
     }
 
     public optimize(token: ISubtagToken, _context: OptimizationContext): ISubtagToken | string {

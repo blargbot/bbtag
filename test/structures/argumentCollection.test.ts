@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { IStringToken } from '../../src/language';
-import { ArgumentCollection, ExecutionContext, SubtagError } from '../../src/structures';
+import { ArgumentCollection, ExecutionContext } from '../../src/structures';
 import { MockExecutionContext } from '../testHelpers/mocks';
 import { str, tag } from '../testHelpers/subtag';
 import { resultOf } from '../testHelpers/utility';
@@ -64,7 +64,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
             const index = 2;
             const arg = testToken.args[index];
-            const expected = new SubtagError(context, arg);
+            const expected = { context, token: arg, message: 'test' };
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.equal(arg);
                 expect(c).to.equal(context);
@@ -83,7 +83,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
             const indexes = [3, 1];
             const arg = indexes.map(i => testToken.args[i]);
-            const expected = arg.map(a => new SubtagError(context, a));
+            const expected = arg.map(a => ({ context, token: a, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.be.oneOf(arg);
                 expect(c).to.equal(context);
@@ -114,7 +114,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
             const index = 2;
             const arg = testToken.args[index];
-            const expected = new SubtagError(context, arg);
+            const expected = { context, token: arg, message: 'test' };
             let callCount = 0;
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.equal(arg);
@@ -136,7 +136,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
             const index = 2;
             const arg = testToken.args[index];
-            const expected = new SubtagError(context, arg);
+            const expected = { context, token: arg, message: 'test' };
             let callCount = 0;
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.equal(arg);
@@ -163,7 +163,7 @@ describe('class ArgumentCollection', () => {
             // arrange
             const context = new MockExecutionContext();
             const args = new ArgumentCollection(context, testToken);
-            const expected = testToken.args.map(t => new SubtagError(context, t));
+            const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.be.oneOf(testToken.args);
                 expect(c).to.equal(context);
@@ -180,7 +180,7 @@ describe('class ArgumentCollection', () => {
             // arrange
             const context = new MockExecutionContext();
             const args = new ArgumentCollection(context, testToken);
-            const expected = testToken.args.map(t => new SubtagError(context, t));
+            const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             const callCount = expected.map(_ => 0);
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.be.oneOf(testToken.args);
@@ -207,7 +207,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
             const index = 3;
             const arg = testToken.args[index];
-            const expected = new SubtagError(context, arg);
+            const expected = { context, token: arg, message: 'test' };
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.equal(arg);
                 expect(c).to.equal(context);
@@ -227,7 +227,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
             const indexes = [3, 1];
             const arg = indexes.map(i => testToken.args[i]);
-            const expected = arg.map(a => new SubtagError(context, a));
+            const expected = arg.map(a => ({ context, token: a, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.be.oneOf(arg);
                 expect(c).to.equal(context);
@@ -272,7 +272,7 @@ describe('class ArgumentCollection', () => {
             // arrange
             const context = new MockExecutionContext();
             const args = new ArgumentCollection(context, testToken);
-            const expected = testToken.args.map(t => new SubtagError(context, t));
+            const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.be.oneOf(testToken.args);
                 expect(c).to.equal(context);
@@ -290,7 +290,7 @@ describe('class ArgumentCollection', () => {
             // arrange
             const context = new MockExecutionContext();
             const args = new ArgumentCollection(context, testToken);
-            const expected = testToken.args.map(t => new SubtagError(context, t));
+            const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: ExecutionContext) => {
                 expect(t).to.be.oneOf(testToken.args);
                 expect(c).to.equal(context);

@@ -7,6 +7,7 @@ import { Awaitable, format } from './util';
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable<void>;
     'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable<void>;
+    'subtag-error': (token: ISubtagToken, context: ExecutionContext, error: any) => Awaitable<void>;
 }
 
 export class Engine {
@@ -20,16 +21,16 @@ export class Engine {
         this.events = new EventManager();
     }
 
-    public execute(input: IStringToken, context: ExecutionContext): Awaitable<SubtagResult>;
-    public async execute(input: IStringToken, context: ExecutionContext): Promise<SubtagResult> {
+    public execute(token: IStringToken, context: ExecutionContext): Awaitable<SubtagResult>;
+    public async execute(token: IStringToken, context: ExecutionContext): Promise<SubtagResult> {
         const parts: SubtagResult[] = [];
-        for (const subtag of input.subtags) {
+        for (const subtag of token.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
         }
-        if (parts.length === 1 && format(input.format, '') === '') {
+        if (parts.length === 1 && format(token.format, '') === '') {
             return parts[0];
         } else {
-            return format(input.format, parts.map(bbtag.toString));
+            return format(token.format, parts.map(bbtag.toString));
         }
     }
 
@@ -51,24 +52,25 @@ export class Engine {
         return this;
     }
 
-    protected async executeSubtag(input: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
-        await Promise.all(this.events.raise('before-execute', input, context));
-        const name = bbtag.toString(await this.execute(input.name, context));
+    protected async executeSubtag(token: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
+        await Promise.all(this.events.raise('before-execute', token, context));
+        const name = bbtag.toString(await this.execute(token.name, context));
         const executor = context.subtags.find(name);
 
         let result: SubtagResult;
 
         if (executor === undefined) {
-            result = context.error(input, `Unknown subtag ${name}`);
+            result = context.error(token, `Unknown subtag ${name}`);
         } else {
             try {
-                result = await executor.execute(input, context);
+                result = await executor.execute(token, context);
             } catch (ex) {
-                result = context.error(input, 'Internal server error', ex);
+                await this.events.raise('subtag-error', token, context, ex);
+                result = bbtag.value.isError(ex) ? ex : context.error(token, 'Internal server error');
             }
         }
 
-        await Promise.all(this.events.raise('after-execute', input, context, result));
+        await Promise.all(this.events.raise('after-execute', token, context, result));
         return result;
     }
 }
