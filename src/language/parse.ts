@@ -48,9 +48,7 @@ function createToken(state: IStateTracker): IToken {
 }
 
 function readStringToken(tokenStream: Enumerator<IToken>, ignoreSemi: boolean = false): IStringToken {
-    if (!tokenStream.moveNext()) {
-        throw new Error('Empty string token');
-    }
+    tokenStream.moveNext();
 
     let end = tokenStream.current.range.start;
     const start = tokenStream.current.range.start;
