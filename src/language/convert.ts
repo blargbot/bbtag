@@ -1,5 +1,5 @@
 import { Enumerable, tryGet, TryGetResult } from '../util';
-import { array, boolean, number } from './serializer';
+import { array, boolean, number } from './serialize';
 import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from './types';
 
 function convertError(type: string): (value: SubtagResult) => never {
