@@ -7,7 +7,7 @@ import * as converter from './convert';
 import * as parse from './parse';
 import * as serializer from './serialize';
 
-export let bbtag = {
+export const bbtag = {
     ...parse,
     ...compare,
     ...converter,
