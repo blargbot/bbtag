@@ -1,14 +1,17 @@
 version: 1.0.0.{build}
 max_jobs: 2
-image: Visual Studio 2017
+image: Visual Studio 2019
+environment:
+  nodejs_version: 10.4.0
 init:
-- cmd: node --version && npm --version
+  - ps: Install-Product node $env:nodejs_version
+  - cmd: node --version && npm --version
 install:
-- cmd: npm install
+  - cmd: npm install
 build_script:
-- cmd: npm run rebuild
+  - cmd: npm run rebuild
 test_script:
-- cmd: npm run coverage
+  - cmd: npm run coverage
 artifacts:
-- path: coverage
-  name: coverage
+  - path: coverage
+    name: coverage
