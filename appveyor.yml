@@ -2,7 +2,7 @@ version: 1.0.0.{build}
 max_jobs: 2
 image: Visual Studio 2019
 environment:
-  nodejs_version: "10.4.0"
+  nodejs_version: Current
 init:
   - ps: Install-Product node $env:nodejs_version
   - ps: node --version && npm --version
