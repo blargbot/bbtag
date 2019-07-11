@@ -1,6 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { bbtag, SubtagResult } from '../../src/language';
+import { err, str, ctx } from '../testHelpers/subtag';
 
 describe('function compare', () => {
     const testCases: Array<{ left: SubtagResult, right: SubtagResult, expected: -1 | 0 | 1 }> = [
@@ -48,12 +49,17 @@ describe('function compare', () => {
 
         // undef to undef
         { left: undefined, right: undefined, expected: 0 },
+        { left: null, right: null, expected: 0 },
 
         // error to error
+        { left: err('message', str('test'), ctx()), right: err('message', str('test'), ctx()), expected: 0 },
+        { left: err('message1', str('test'), ctx()), right: err('message', str('test'), ctx()), expected: 1 },
+        { left: err('message', str('test'), ctx()), right: err('message1', str('test'), ctx()), expected: -1 },
 
         // cross type compare
         { left: 0, right: 'abc', expected: -1 },
         { left: 'abc', right: 0, expected: 1 }
+        // TODO: Add more cross type comparisons
     ];
 
     for (const { left, right, expected } of testCases) {
@@ -61,8 +67,7 @@ describe('function compare', () => {
             // arrange
 
             // act
-            let result = bbtag.compare(left, right);
-            if (result !== 0) { result /= Math.abs(result); }
+            const result = bbtag.compare(left, right);
 
             // assert
             expect(result).to.equal(expected);

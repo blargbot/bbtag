@@ -21,7 +21,6 @@ function compareSameType<T extends SubtagResult>(left: T, right: T): -1 | 0 | 1 
         case 'null': return 0;
         case 'error': return compareByBlock((left as ISubtagError).message, (right as ISubtagError).message);
         case 'array': return compareAsArray(left as any[], right as any[]);
-        default: return compareByBlock(toString(left), toString(right));
     }
 }
 
