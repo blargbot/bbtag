@@ -1,6 +1,6 @@
 import { tryGet, TryGetResult } from '../util';
 import { array, boolean, number } from './serializer';
-import { ISubtagError, SubtagPrimativeResult, SubtagResult, SubtagResultArray, SubtagResultType } from './types';
+import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from './types';
 
 function convertError(type: string): (value: SubtagResult) => never {
     return (target: SubtagResult) => {
@@ -23,12 +23,14 @@ export function toString(target: SubtagResult): string {
         case 'string': return target as string;
         case 'number': return number.serialize(target as number);
         case 'boolean': return boolean.serialize(target as boolean);
-        case 'array': return array.serialize(target as any[]);
+        case 'array': return array.serialize(target as SubtagResultArray);
         case 'error':
             const error = target as ISubtagError;
-            if (error.context.fallback !== undefined) { return toString(error.context.fallback); }
+            if (!value.isNull((target as ISubtagError).context.fallback)) {
+                return toString(error.context.fallback);
+            }
             return `\`${(target as ISubtagError).message}\``;
-        case 'undefined': return '';
+        case 'null': return '';
     }
 }
 
@@ -37,10 +39,12 @@ export function tryToBoolean(target: SubtagResult): TryGetResult<boolean> {
     switch (getType(target)) {
         case 'string': return boolean.tryDeserialize(target as string);
         case 'boolean': return tryGet.success(target as boolean);
+        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
+            return tryToBoolean((target as ISubtagError).context.fallback);
+        }
         case 'number':
         case 'array':
-        case 'error':
-        case 'undefined': return tryGet.failure();
+        case 'null': return tryGet.failure();
     }
 }
 
@@ -49,10 +53,12 @@ export function tryToNumber(target: SubtagResult): TryGetResult<number> {
     switch (getType(target)) {
         case 'string': return number.tryDeserialize(target as string);
         case 'number': return tryGet.success(target as number);
+        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
+            return tryToNumber((target as ISubtagError).context.fallback);
+        }
         case 'boolean':
         case 'array':
-        case 'error':
-        case 'undefined': return tryGet.failure();
+        case 'null': return tryGet.failure();
     }
 }
 
@@ -61,21 +67,25 @@ export function tryToArray(target: SubtagResult): TryGetResult<SubtagResultArray
     switch (getType(target)) {
         case 'string': return array.tryDeserialize(target as string);
         case 'array': return tryGet.success(target as SubtagResultArray);
+        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
+            return tryToArray((target as ISubtagError).context.fallback);
+        }
         case 'number':
         case 'boolean':
-        case 'error':
-        case 'undefined': return tryGet.failure();
+        case 'null': return tryGet.failure();
     }
 }
 
-export function toPrimative(target: SubtagResult): SubtagPrimativeResult {
+export function toPrimitive(target: SubtagResult): SubtagPrimitiveResult {
     switch (getType(target)) {
-        case 'string': return target as string;
-        case 'number': return target as number;
-        case 'boolean': return target as boolean;
-        case 'undefined': return target as undefined;
-        case 'array': return array.serialize(target as any[]);
-        case 'error': return `\`${(target as ISubtagError).message}\``;
+        case 'string':
+        case 'number':
+        case 'boolean':
+        case 'null': return target as SubtagPrimitiveResult;
+        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
+            return toPrimitive((target as ISubtagError).context.fallback);
+        }
+        case 'array': return toString(target);
     }
 }
 
@@ -103,7 +113,7 @@ export const value = {
     isArray(target: SubtagResult): target is SubtagResultArray {
         return Array.isArray(target);
     },
-    isUndefined(target: any): target is undefined | null | void {
+    isNull(target: any): target is undefined | null | void {
         return target === undefined || target === null;
     },
     isError(target: any): target is ISubtagError {
@@ -122,9 +132,9 @@ export function getType(target: SubtagResult): SubtagResultType {
         case 'string': return 'string';
         case 'number': return 'number';
         case 'boolean': return 'boolean';
-        case 'undefined': return 'undefined';
+        case 'undefined': return 'null';
         case 'object':
-            if (target === null) { return 'undefined'; }
+            if (target === null) { return 'null'; }
             if (Array.isArray(target)) { return 'array'; }
             if (value.isError(target)) { return 'error'; }
     }
@@ -144,14 +154,14 @@ class ArrayCollection implements ICollection {
     }
 
     public startsWith(target: SubtagResult): boolean {
-        return this._source[0] === toPrimative(target);
+        return this._source[0] === toPrimitive(target);
     }
 
     public endsWith(target: SubtagResult): boolean {
-        return this._source[this._source.length - 1] === toPrimative(target);
+        return this._source[this._source.length - 1] === toPrimitive(target);
     }
 
     public includes(target: SubtagResult): boolean {
-        return this._source.indexOf(toPrimative(target)) !== -1;
+        return this._source.indexOf(toPrimitive(target)) !== -1;
     }
 }

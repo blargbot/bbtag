@@ -1,5 +1,5 @@
 import { Awaitable } from '../util';
-import { SubtagPrimativeResult } from '../language';
+import { SubtagPrimitiveResult } from '../language';
 
 export interface IDatabase {
     delete(path: Iterable<string>): Awaitable<void>;
@@ -8,4 +8,4 @@ export interface IDatabase {
     setBulk(entries: Iterable<readonly [Iterable<string>, DatabaseValue]>): Awaitable<void>;
 }
 
-export type DatabaseValue = SubtagPrimativeResult | SubtagPrimativeResult[];
+export type DatabaseValue = SubtagPrimitiveResult | SubtagPrimitiveResult[];

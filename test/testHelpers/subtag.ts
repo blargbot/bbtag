@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimativeResult, SubtagResultArray } from '../../src/language';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResultArray } from '../../src/language';
 import { ExecutionContext } from '../../src/structures';
 import { Position, Range } from '../../src/util';
 import { MockExecutionContext } from './mocks';
@@ -13,7 +13,7 @@ export function str(format: string, ...subtags: ISubtagToken[]): IStringToken {
     return { format, subtags, range };
 }
 
-export function arr(values: SubtagPrimativeResult[], name?: string): SubtagResultArray;
+export function arr(values: SubtagPrimitiveResult[], name?: string): SubtagResultArray;
 export function arr(values: SubtagResultArray, name?: string): SubtagResultArray {
     values.name = name;
     return values;

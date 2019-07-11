@@ -1,5 +1,5 @@
-import { tryGet, TryGetResult } from '../util';
-import { toPrimative, value as val } from './convert';
+import { Enumerable, tryGet, TryGetResult } from '../util';
+import { toPrimitive } from './convert';
 import { SubtagResultArray } from './types';
 
 export interface ISerializer<T> {
@@ -22,6 +22,20 @@ function createDeserialize<T>(name: string, thisFunc: () => ISerializer<T>): (va
     };
 }
 
+interface IRawArray {
+    n: string;
+    v: SubtagResultArray;
+}
+const namedRawArray = { v: [], n: '' };
+const rawArrayKeys = Enumerable.from(Object.keys(namedRawArray));
+
+function isRawArray(value: any): value is IRawArray {
+    return typeof value === 'object' &&
+        rawArrayKeys.equivalentTo(Object.keys(value)) &&
+        Array.isArray(value.v) &&
+        typeof value.n === 'string';
+}
+
 export const array: ISerializer<SubtagResultArray> = {
     deserialize: createDeserialize('array', () => array),
     serialize(value: SubtagResultArray): string {
@@ -34,11 +48,9 @@ export const array: ISerializer<SubtagResultArray> = {
         try {
             const obj = JSON.parse(value);
             if (Array.isArray(obj)) {
-                return tryGet.success(obj.map(toPrimative));
-            } else if (val.isArray(obj.v)) {
-                if (typeof obj.n === 'string') {
-                    obj.v.name = obj.n;
-                }
+                return tryGet.success(obj.map(toPrimitive));
+            } else if (isRawArray(obj)) {
+                obj.v.name = obj.n;
                 return tryGet.success(obj.v);
             }
         } catch { }

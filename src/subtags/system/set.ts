@@ -42,7 +42,7 @@ export class SetSubtag extends BasicSubtag {
 
     public setKey(args: ArgumentCollection): Awaitable<void> {
         const [key, ...values] = args.getAll();
-        return args.context.variables.set(bbtag.toString(key), values.map(bbtag.toPrimative));
+        return args.context.variables.set(bbtag.toString(key), values.map(bbtag.toPrimitive));
     }
 }
 

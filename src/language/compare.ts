@@ -1,6 +1,6 @@
 import { Enumerable, EnumerableSource } from '../util';
 import { getType, toNumber, toString } from './convert';
-import { ISubtagError, SubtagPrimativeResult, SubtagResult } from './types';
+import { ISubtagError, SubtagPrimitiveResult, SubtagResult } from './types';
 
 export function compare(left: SubtagResult, right: SubtagResult): -1 | 0 | 1 {
     if (getType(left) === getType(right)) {
@@ -18,7 +18,7 @@ function compareSameType<T extends SubtagResult>(left: T, right: T): -1 | 0 | 1 
         case 'string': return compareByBlock(left as string, right as string);
         case 'number':
         case 'boolean': return compareAsNumber((left as number), (right as number));
-        case 'undefined': return 0;
+        case 'null': return 0;
         case 'error': return compareByBlock((left as ISubtagError).message, (right as ISubtagError).message);
         case 'array': return compareAsArray(left as any[], right as any[]);
         default: return compareByBlock(toString(left), toString(right));
@@ -38,7 +38,7 @@ function compareAsNumber(left: number, right: number): -1 | 0 | 1 {
     return 0;
 }
 
-function compareAsArray(left: SubtagPrimativeResult[], right: SubtagPrimativeResult[]): -1 | 0 | 1 {
+function compareAsArray(left: SubtagPrimitiveResult[], right: SubtagPrimitiveResult[]): -1 | 0 | 1 {
     return compareIterable(toStringOrNumber(left), toStringOrNumber(right));
 }
 
@@ -56,7 +56,7 @@ function toBlocks(text: string): Array<string | number> {
     return result;
 }
 
-function* toStringOrNumber(values: SubtagPrimativeResult[]): IterableIterator<string | number> {
+function* toStringOrNumber(values: SubtagPrimitiveResult[]): IterableIterator<string | number> {
     for (const value of values) {
         if (typeof value === 'number' || typeof value === 'string') {
             yield value;
