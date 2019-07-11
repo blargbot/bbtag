@@ -34,7 +34,7 @@ export function toString(target: SubtagResult): string {
     }
 }
 
-export let toBoolean = createDefiniteConverter(tryToBoolean, 'boolean');
+export const toBoolean = createDefiniteConverter(tryToBoolean, 'boolean');
 export function tryToBoolean(target: SubtagResult): TryGetResult<boolean> {
     switch (getType(target)) {
         case 'string': return boolean.tryDeserialize(target as string);
@@ -48,7 +48,7 @@ export function tryToBoolean(target: SubtagResult): TryGetResult<boolean> {
     }
 }
 
-export let toNumber = createDefiniteConverter(tryToNumber, 'number');
+export const toNumber = createDefiniteConverter(tryToNumber, 'number');
 export function tryToNumber(target: SubtagResult): TryGetResult<number> {
     switch (getType(target)) {
         case 'string': return number.tryDeserialize(target as string);
@@ -62,7 +62,7 @@ export function tryToNumber(target: SubtagResult): TryGetResult<number> {
     }
 }
 
-export let toArray = createDefiniteConverter(tryToArray, 'array');
+export const toArray = createDefiniteConverter(tryToArray, 'array');
 export function tryToArray(target: SubtagResult): TryGetResult<SubtagResultArray> {
     switch (getType(target)) {
         case 'string': return array.tryDeserialize(target as string);
