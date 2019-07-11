@@ -1,12 +1,12 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag } from '../../src/language';
+import { bbtag, IStringToken } from '../../src/language';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
 describe('function parse', () => {
-    const testCases: Array<{ input: string, expected: any }> = [
-        { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
-        { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
+    const testCases: Array<{ input: string, expected: string | IStringToken }> = [
+        { input: 'this is} a test', expected: 'Unpaired \'}\'' },
+        { input: 'this {is;{a;test}', expected: 'Unpaired \'{\'' },
         { input: '', expected: str('') },
         { input: 'this is a test', expected: str('this is a test') },
         { input: 'this is; a test', expected: str('this is; a test') },
@@ -14,26 +14,26 @@ describe('function parse', () => {
         { input: ' { this { is ; a parsing } ; test } ', expected: str('{0}', tag(str('this {0}', tag(str('is'), str('a parsing'))), str('test'))) }
     ];
 
-    for (const testCase of testCases) {
-        if (testCase.expected instanceof Error) {
-            it(`should fail to parse ${testCase.input} because ${testCase.expected.message}`, () => {
+    for (const { input, expected } of testCases) {
+        if (typeof expected === 'string') {
+            it(`should fail to parse ${input} because ${expected}`, () => {
                 // arrange
-                const test = () => bbtag.parse(testCase.input);
+                const test = () => bbtag.parse(input);
 
                 // act
 
                 // assert
-                expect(test).to.throw(testCase.expected.message);
+                expect(test).to.throw(expected);
             });
         } else {
-            it(`should correctly parse ${testCase.input}`, () => {
+            it(`should correctly parse ${input}`, () => {
                 // arrange
 
                 // act
-                const result = bbtag.parse(testCase.input);
+                const result = bbtag.parse(input);
 
                 // assert
-                expect(stripStrToken(result)).to.deep.equal(stripStrToken(testCase.expected));
+                expect(stripStrToken(result)).to.deep.equal(stripStrToken(expected));
             });
         }
     }

@@ -1,10 +1,10 @@
 import { tryGet, TryGetResult } from '../util';
 import { array, boolean, number } from './serializer';
-import { ISubtagError, SubtagPrimativeResult, SubtagResult, SubtagResultType } from './types';
+import { ISubtagError, SubtagPrimativeResult, SubtagResult, SubtagResultArray, SubtagResultType } from './types';
 
 function convertError(type: string): (value: SubtagResult) => never {
     return (target: SubtagResult) => {
-        throw new Error(`${target} is not convertable to ${type}`);
+        throw new Error(`${value.isError(target) ? toString(target) : JSON.stringify(target)} is not convertable to ${type}`);
     };
 }
 
@@ -57,10 +57,10 @@ export function tryToNumber(target: SubtagResult): TryGetResult<number> {
 }
 
 export let toArray = createDefiniteConverter(tryToArray, 'array');
-export function tryToArray(target: SubtagResult): TryGetResult<SubtagPrimativeResult[]> {
+export function tryToArray(target: SubtagResult): TryGetResult<SubtagResultArray> {
     switch (getType(target)) {
         case 'string': return array.tryDeserialize(target as string);
-        case 'array': return tryGet.success(target as SubtagPrimativeResult[]);
+        case 'array': return tryGet.success(target as SubtagResultArray);
         case 'number':
         case 'boolean':
         case 'error':
@@ -100,7 +100,7 @@ export const value = {
     isBoolean(target: any): target is boolean {
         return typeof target === 'boolean';
     },
-    isArray(target: SubtagResult): target is SubtagPrimativeResult[] {
+    isArray(target: SubtagResult): target is SubtagResultArray {
         return Array.isArray(target);
     },
     isUndefined(target: any): target is undefined | null | void {
@@ -138,8 +138,8 @@ export interface ICollection {
 }
 
 class ArrayCollection implements ICollection {
-    private readonly _source: SubtagPrimativeResult[];
-    constructor(source: SubtagPrimativeResult[]) {
+    private readonly _source: SubtagResultArray;
+    constructor(source: SubtagResultArray) {
         this._source = source;
     }
 

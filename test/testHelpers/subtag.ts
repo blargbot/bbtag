@@ -1,5 +1,7 @@
-import { IStringToken, ISubtagToken } from '../../src/language';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimativeResult, SubtagResultArray } from '../../src/language';
+import { ExecutionContext } from '../../src/structures';
 import { Position, Range } from '../../src/util';
+import { MockExecutionContext } from './mocks';
 
 const range = new Range(new Position(0, 0, 0), new Position(0, 0, 0));
 
@@ -9,6 +11,22 @@ export function tag(name: IStringToken, ...args: IStringToken[]): ISubtagToken {
 
 export function str(format: string, ...subtags: ISubtagToken[]): IStringToken {
     return { format, subtags, range };
+}
+
+export function arr(values: SubtagPrimativeResult[], name?: string): SubtagResultArray;
+export function arr(values: SubtagResultArray, name?: string): SubtagResultArray {
+    values.name = name;
+    return values;
+}
+
+export function err(message: string, token: IStringToken | ISubtagToken, context: ExecutionContext): ISubtagError {
+    return { message, token, context };
+}
+
+export function ctx(setup: (context: ExecutionContext) => any = () => { }): ExecutionContext {
+    const result = new MockExecutionContext();
+    setup(result);
+    return result;
 }
 
 export function stripStrToken(token: any): any {

@@ -1,4 +1,6 @@
 import { tryGet, TryGetResult } from '../util';
+import { toPrimative, value as val } from './convert';
+import { SubtagResultArray } from './types';
 
 export interface ISerializer<T> {
     serialize(value: T): string;
@@ -6,38 +8,41 @@ export interface ISerializer<T> {
     tryDeserialize(value: string): TryGetResult<T>;
 }
 
-function createDeserialize<T extends ISerializer<R>, R>(name: string, thisArg: () => T):
-    (this: T, value: string) => R {
-    return function deserializeFactory(outerValue: string): R {
-        const self = thisArg();
-        self.deserialize = function deserialize(this: T, value: string): R {
+function createDeserialize<T>(name: string, thisFunc: () => ISerializer<T>): (value: string) => T {
+    return function constructAndRun(outer: string): T {
+        const self = thisFunc();
+        self.deserialize = function deserialize(value: string): T {
             const result = self.tryDeserialize(value);
             if (result.success) {
                 return result.value;
             }
             throw new Error(`Failed to deserialize ${value} as ${name}`);
         };
-        return self.deserialize(outerValue);
+        return self.deserialize(outer);
     };
 }
 
-export const array: ISerializer<any[]> = {
+export const array: ISerializer<SubtagResultArray> = {
     deserialize: createDeserialize('array', () => array),
-    serialize(_value: any[]): string {
-        return undefined!;
+    serialize(value: SubtagResultArray): string {
+        if (value.name === undefined) {
+            return JSON.stringify(value);
+        }
+        return JSON.stringify({ v: value, n: value.name });
     },
-    tryDeserialize(_value: string): TryGetResult<any[]> {
-        return undefined!;
-    }
-};
-
-export const object: ISerializer<any> = {
-    deserialize: createDeserialize('object', () => object),
-    serialize(value: any): string {
-        return JSON.stringify(value);
-    },
-    tryDeserialize(value: string): TryGetResult<any> {
-        return JSON.parse(value);
+    tryDeserialize(value: string): TryGetResult<SubtagResultArray> {
+        try {
+            const obj = JSON.parse(value);
+            if (Array.isArray(obj)) {
+                return tryGet.success(obj.map(toPrimative));
+            } else if (val.isArray(obj.v)) {
+                if (typeof obj.n === 'string') {
+                    obj.v.name = obj.n;
+                }
+                return tryGet.success(obj.v);
+            }
+        } catch { }
+        return tryGet.failure();
     }
 };
 
@@ -48,9 +53,15 @@ export const number: ISerializer<number> = {
         return value.toString();
     },
     tryDeserialize(value: string): TryGetResult<number> {
-        const result = Number(value);
-        if (isNaN(result) && !/^nan$/i.test(value)) {
-            return tryGet.failure();
+        value = value.replace(/[,\.](?=\d*?[,\.])/g, '').replace(',', '.');
+        let result = Number(value);
+        if (isNaN(result)) {
+            const isInfinity = /^([-+]?)\s*infinity$/i.exec(value);
+            if (isInfinity) {
+                result = isInfinity[1] === '-' ? -Infinity : Infinity;
+            } else if (!/^nan$/i.test(value)) {
+                return tryGet.failure();
+            }
         }
         return tryGet.success(result);
     }

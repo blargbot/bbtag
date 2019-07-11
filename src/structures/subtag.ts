@@ -1,4 +1,4 @@
-import { bbtag, ISubtagToken, SubtagResult } from '../language';
+import { ISubtagToken, SubtagResult } from '../language';
 import { Awaitable, Enumerable } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
@@ -119,9 +119,9 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
     }
 
     protected parseCondition(condition: string): Exclude<SubtagCondition, string> {
-        const asNumber = bbtag.number.tryDeserialize(condition);
-        if (asNumber.success) {
-            return asNumber.value;
+        const asNumber = Number(condition);
+        if (!isNaN(asNumber)) {
+            return asNumber;
         }
 
         for (const { regex, parser } of Subtag.conditionParseHandlers) {
