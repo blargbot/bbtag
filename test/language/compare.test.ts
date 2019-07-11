@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { bbtag, SubtagResult } from '../../src/language';
-import { err, str, ctx } from '../testHelpers/subtag';
+import { ctx, err, str } from '../testHelpers/subtag';
 
 describe('function compare', () => {
     const testCases: Array<{ left: SubtagResult, right: SubtagResult, expected: -1 | 0 | 1 }> = [
