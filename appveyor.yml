@@ -5,13 +5,13 @@ environment:
   nodejs_version: 10.4.0
 init:
   - ps: Install-Product node $env:nodejs_version
-  - cmd: node --version && npm --version
+  - ps: node --version && npm --version
 install:
-  - cmd: npm install
+  - ps: npm install
 build_script:
-  - cmd: npm run rebuild
+  - ps: npm run rebuild
 test_script:
-  - cmd: npm run coverage
+  - ps: npm run coverage
 artifacts:
   - path: coverage
     name: coverage
