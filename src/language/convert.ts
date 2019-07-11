@@ -1,4 +1,4 @@
-import { tryGet, TryGetResult } from '../util';
+import { Enumerable, tryGet, TryGetResult } from '../util';
 import { array, boolean, number } from './serializer';
 import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from './types';
 
@@ -92,38 +92,36 @@ export function toPrimitive(target: SubtagResult): SubtagPrimitiveResult {
 export function toCollection(target: SubtagResult): ICollection {
     const asArray = tryToArray(target);
     if (asArray.success) {
-        return new ArrayCollection(asArray.value);
+        return new ArrayCollectionWrapper(asArray.value);
     }
-    return toString(target);
+    return new StringCollectionWrapper(toString(target));
 }
 
 const sampleError: ISubtagError = { message: undefined!, context: undefined!, token: undefined! };
-const errorKeys = Object.keys(sampleError);
+const errorKeys = Enumerable.from(Object.keys(sampleError));
 
 export const value = {
-    isString(target: any): target is string {
+    isString(target: SubtagResult): target is string {
         return typeof target === 'string';
     },
-    isNumber(target: any): target is number {
+    isNumber(target: SubtagResult): target is number {
         return typeof target === 'number';
     },
-    isBoolean(target: any): target is boolean {
+    isBoolean(target: SubtagResult): target is boolean {
         return typeof target === 'boolean';
     },
     isArray(target: SubtagResult): target is SubtagResultArray {
         return Array.isArray(target);
     },
-    isNull(target: any): target is undefined | null | void {
+    isNull(target: SubtagResult): target is undefined | null | void {
         return target === undefined || target === null;
     },
-    isError(target: any): target is ISubtagError {
+    isError(target: SubtagResult): target is ISubtagError {
         if (typeof target !== 'object' || target === null) {
             return false;
         }
 
-        const keys = Object.keys(target);
-        return keys.length === errorKeys.length &&
-            errorKeys.every(k => keys.indexOf(k) !== -1);
+        return errorKeys.equivalentTo(Object.keys(target), false);
     }
 };
 
@@ -132,13 +130,10 @@ export function getType(target: SubtagResult): SubtagResultType {
         case 'string': return 'string';
         case 'number': return 'number';
         case 'boolean': return 'boolean';
-        case 'undefined': return 'null';
-        case 'object':
-            if (target === null) { return 'null'; }
-            if (Array.isArray(target)) { return 'array'; }
-            if (value.isError(target)) { return 'error'; }
     }
-    throw new Error('Invalid subtag result: ' + JSON.stringify(target));
+    if (value.isArray(target)) { return 'array'; }
+    if (value.isError(target)) { return 'error'; }
+    return 'null';
 }
 
 export interface ICollection {
@@ -147,7 +142,7 @@ export interface ICollection {
     includes(target: SubtagResult): boolean;
 }
 
-class ArrayCollection implements ICollection {
+class ArrayCollectionWrapper implements ICollection {
     private readonly _source: SubtagResultArray;
     constructor(source: SubtagResultArray) {
         this._source = source;
@@ -163,5 +158,27 @@ class ArrayCollection implements ICollection {
 
     public includes(target: SubtagResult): boolean {
         return this._source.indexOf(toPrimitive(target)) !== -1;
+    }
+}
+
+class StringCollectionWrapper implements ICollection {
+    private readonly _source: string;
+    constructor(source: string) {
+        this._source = source;
+    }
+
+    public startsWith(target: SubtagResult): boolean {
+        if (value.isNull(target)) { return false; }
+        return this._source.startsWith(toString(target));
+    }
+
+    public endsWith(target: SubtagResult): boolean {
+        if (value.isNull(target)) { return false; }
+        return this._source.endsWith(toString(target));
+    }
+
+    public includes(target: SubtagResult): boolean {
+        if (value.isNull(target)) { return false; }
+        return this._source.includes(toString(target));
     }
 }

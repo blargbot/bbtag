@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, SubtagResult, SubtagResultArray, SubtagPrimitiveResult } from '../../src/language';
-import { arr, ctx, err, str } from '../testHelpers/subtag';
+import { bbtag, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../src/language';
+import { arr, ctx, err, str, tag } from '../testHelpers/subtag';
 
 type Default<T> = T | ((value: SubtagResult) => T);
 
@@ -13,7 +13,7 @@ function toName(value: SubtagResult): string {
     return typeof value === 'object' &&
         !Array.isArray(value) &&
         value !== null
-        ? `[ERROR '${value.message}']` : JSON.stringify(value);
+        ? `[${'format' in value.token ? 'STR' : 'SUB'} ERROR '${value.message}']` : JSON.stringify(value);
 }
 
 describe('module convert', () => {
@@ -442,6 +442,194 @@ describe('module convert', () => {
                 } else {
                     expect(result).to.equal(expected);
                 }
+            });
+        }
+    });
+
+    describe('function toCollection', () => {
+        type MethodTest = [SubtagResult[], SubtagResult[]];
+        const tests: Array<{ input: SubtagResult, start?: MethodTest, end?: MethodTest, include?: MethodTest }> = [
+            {
+                input: '[1,2,3,4]',
+                start: [[1, err('msg', str(''), ctx(x => x.fallback = 1))], [2, '1', true, false, undefined, err('msg', str(''), ctx(x => x.fallback = 2))]],
+                end: [[4, err('msg', str(''), ctx(x => x.fallback = 4))], [3, '4', true, false, undefined, err('msg', str(''), ctx(x => x.fallback = 3))]],
+                include: [[1, 2, 3, 4, err('msg', str(''), ctx(x => x.fallback = 3))], ['4', true, false, undefined, err('msg', str(''), ctx())]]
+            },
+            {
+                input: arr([1, 2, 3, 4]),
+                start: [[1, err('msg', str(''), ctx(x => x.fallback = 1))], [2, '1', true, false, undefined, err('msg', str(''), ctx(x => x.fallback = 2))]],
+                end: [[4, err('msg', str(''), ctx(x => x.fallback = 4))], [3, '4', true, false, undefined, err('msg', str(''), ctx(x => x.fallback = 3))]],
+                include: [[1, 2, 3, 4, err('msg', str(''), ctx(x => x.fallback = 3))], ['4', true, false, undefined, err('msg', str(''), ctx())]]
+            },
+            {
+                input: 'this is just a simple test',
+                start: [['t', 'this is', err('msg', str(''), ctx(x => x.fallback = 'this'))], [1, 'z', true, false, undefined, err('msg', str(''), ctx(x => x.fallback = 2))]],
+                end: [['t', 'simple test', err('msg', str(''), ctx(x => x.fallback = 'test'))], [1, 'z', true, false, undefined, err('msg', str(''), ctx(x => x.fallback = 2))]],
+                include: [['is', 'this', 'test', 'this is just a simple test'], ['4', true, false, undefined, err('msg', str(''), ctx())]]
+            }
+        ];
+
+        for (const { input, start, end, include } of tests) {
+            it(`should correctly convert ${toName(input)} to a collection`, () => {
+                // arrange
+
+                // act
+                const result = bbtag.toCollection(input);
+
+                // assert
+                function message(v: SubtagResult, r: boolean): string {
+                    return `${toName(input)} startswith ${toName(v)} should give ${r}`;
+                }
+                if (start) {
+                    for (const value of start[0]) { expect(result.startsWith(value), message(value, true)).to.be.true; }
+                    for (const value of start[1]) { expect(result.startsWith(value), message(value, false)).to.be.false; }
+                }
+                if (end) {
+                    for (const value of end[0]) { expect(result.endsWith(value), message(value, true)).to.be.true; }
+                    for (const value of end[1]) { expect(result.endsWith(value), message(value, false)).to.be.false; }
+                }
+                if (include) {
+                    for (const value of include[0]) { expect(result.includes(value), message(value, true)).to.be.true; }
+                    for (const value of include[1]) { expect(result.includes(value), message(value, false)).to.be.false; }
+                }
+            });
+        }
+    });
+
+    describe('const value', () => {
+        const testData: Array<{ input: SubtagResult, str?: boolean, num?: boolean, bool?: boolean, arr?: boolean, null?: boolean, err?: boolean }> = [
+            { input: 'test', str: true },
+            { input: '', str: true },
+            { input: 123456, num: true },
+            { input: Infinity, num: true },
+            { input: NaN, num: true },
+            { input: -Infinity, num: true },
+            { input: 0, num: true },
+            { input: Number.EPSILON, num: true },
+            { input: true, bool: true },
+            { input: false, bool: true },
+            { input: null, null: true },
+            { input: undefined, null: true },
+            { input: arr([1, 2, 3]), arr: true },
+            { input: arr([1, 2, 3], 'test'), arr: true },
+            { input: err('msg', str('token'), ctx()), err: true },
+            { input: err('msg', tag(str('token')), ctx()), err: true }
+        ];
+
+        describe('function isString', () => {
+            for (const { input, str: isString } of testData) {
+                it(`should correctly identify ${toName(input)} as ${!isString ? 'not ' : ''}a string`, () => {
+                    // arrange
+
+                    // act
+                    const result = bbtag.value.isString(input);
+
+                    // assert
+                    expect(result).to.equal(!!isString);
+                });
+            }
+        });
+
+        describe('function isNumber', () => {
+            for (const { input, num: isNumber } of testData) {
+                it(`should correctly identify ${toName(input)} as ${!isNumber ? 'not ' : ''}a number`, () => {
+                    // arrange
+
+                    // act
+                    const result = bbtag.value.isNumber(input);
+
+                    // assert
+                    expect(result).to.equal(!!isNumber);
+                });
+            }
+        });
+
+        describe('function isBoolean', () => {
+            for (const { input, bool: isBool } of testData) {
+                it(`should correctly identify ${toName(input)} as ${!isBool ? 'not ' : ''}a boolean`, () => {
+                    // arrange
+
+                    // act
+                    const result = bbtag.value.isBoolean(input);
+
+                    // assert
+                    expect(result).to.equal(!!isBool);
+                });
+            }
+        });
+
+        describe('function isNull', () => {
+            for (const { input, null: isNull } of testData) {
+                it(`should correctly identify ${toName(input)} as ${!isNull ? 'not ' : ''}null`, () => {
+                    // arrange
+
+                    // act
+                    const result = bbtag.value.isNull(input);
+
+                    // assert
+                    expect(result).to.equal(!!isNull);
+                });
+            }
+        });
+
+        describe('function isArray', () => {
+            for (const { input, arr: isArray } of testData) {
+                it(`should correctly identify ${toName(input)} as ${!isArray ? 'not ' : ''}an array`, () => {
+                    // arrange
+
+                    // act
+                    const result = bbtag.value.isArray(input);
+
+                    // assert
+                    expect(result).to.equal(!!isArray);
+                });
+            }
+        });
+
+        describe('function isError', () => {
+            for (const { input, err: isError } of testData) {
+                it(`should correctly identify ${toName(input)} as ${!isError ? 'not ' : ''}an error`, () => {
+                    // arrange
+
+                    // act
+                    const result = bbtag.value.isError(input);
+
+                    // assert
+                    expect(result).to.equal(!!isError);
+                });
+            }
+        });
+    });
+
+    describe('function getType', () => {
+        const tests: Array<{ input: SubtagResult, expected: SubtagResultType }> = [
+            { input: 'test', expected: 'string' },
+            { input: '', expected: 'string' },
+            { input: 123456, expected: 'number' },
+            { input: Infinity, expected: 'number' },
+            { input: NaN, expected: 'number' },
+            { input: -Infinity, expected: 'number' },
+            { input: 0, expected: 'number' },
+            { input: Number.EPSILON, expected: 'number' },
+            { input: true, expected: 'boolean' },
+            { input: false, expected: 'boolean' },
+            { input: null, expected: 'null' },
+            { input: undefined, expected: 'null' },
+            { input: arr([1, 2, 3]), expected: 'array' },
+            { input: arr([1, 2, 3], 'test'), expected: 'array' },
+            { input: err('msg', str('token'), ctx()), expected: 'error' },
+            { input: err('msg', tag(str('token')), ctx()), expected: 'error' }
+        ];
+
+        for (const { input, expected } of tests) {
+            it(`should correctly identify ${toName(input)} as '${expected}'`, () => {
+                // arrange
+
+                // act
+                const result = bbtag.getType(input);
+
+                // assert
+                expect(result).to.equal(expected);
             });
         }
     });
