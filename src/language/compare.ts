@@ -47,11 +47,11 @@ function toBlocks(text: string): Array<string | number> {
     const words = text.split(regex);
 
     const result = [];
-    const max = Math.max(numbers.length, words.length);
-    for (let i = 0; i < max; i++) {
-        if (words[i] !== undefined) { result.push(words[i]); }
-        if (numbers[i] !== undefined) { result.push(toNumber(numbers[i])); }
+    for (let i = 0; i < numbers.length; i++) {
+        result.push(words[i]);
+        result.push(toNumber(numbers[i]));
     }
+    result.push(words[words.length - 1]);
     return result;
 }
 
@@ -72,26 +72,26 @@ function compareIterable<T extends string | number>(left: EnumerableSource<T>, r
     const leftE = Enumerable.from(left).getEnumerator();
     const rightE = Enumerable.from(right).getEnumerator();
 
-    let result = 0;
     let leftCont = true;
 
     while ((leftCont = leftE.moveNext()) && rightE.moveNext()) {
+        let result = 0;
         const [l, r] = [leftE.current, rightE.current];
         if (l === r) { continue; }
-        if (typeof l === 'number') { result--; }
-        if (typeof r === 'number') { result++; }
+        if (typeof l === 'number' && !isNaN(l)) { result--; }
+        if (typeof r === 'number' && !isNaN(r)) { result++; }
         if (result !== 0) { return result as -1 | 1; }
 
         if (l > r) { return 1; }
         if (r > l) { return -1; }
 
-        if (typeof l === 'number' && typeof r === 'number') {
-            result = compareAsNumber(l, r);
-            if (result !== 0) {
-                return result as -1 | 1;
-            }
-        }
+        if (isTrueNaN(l) && !isTrueNaN(r)) { return 1; }
+        if (!isTrueNaN(l) && isTrueNaN(r)) { return -1; }
     }
 
     return leftCont ? 1 : rightE.moveNext() ? -1 : 0;
+}
+
+function isTrueNaN(value: any): boolean {
+    return typeof value === 'number' && isNaN(value);
 }

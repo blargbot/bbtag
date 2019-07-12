@@ -38,6 +38,8 @@ describe('function compare', () => {
 
         // array to array
         { left: [1, undefined, '2', 3], right: [1, undefined, '2', 3], expected: 0 },
+        { left: [1, undefined, '2', 3], right: [1, undefined, '3', 3], expected: -1 },
+        { left: [1, undefined, '3', 3], right: [1, undefined, '2', 3], expected: 1 },
         { left: [1, undefined, '2', 4], right: [1, undefined, '2', 3], expected: 1 },
         { left: [1, undefined, '2', 3], right: [1, undefined, '2', 4], expected: -1 },
         { left: [1, undefined, '2'], right: [1, undefined, '2', 3], expected: -1 },
@@ -46,6 +48,8 @@ describe('function compare', () => {
         { left: [1, undefined, NaN], right: [1, undefined, NaN], expected: 0 },
         { left: [1, undefined, NaN], right: [1, undefined, 0], expected: 1 },
         { left: [1, undefined, 0], right: [1, undefined, NaN], expected: -1 },
+        { left: [1, undefined, NaN], right: [1, undefined, 'a'], expected: 1 },
+        { left: [1, undefined, 'a'], right: [1, undefined, NaN], expected: -1 },
 
         // undef to undef
         { left: undefined, right: undefined, expected: 0 },
