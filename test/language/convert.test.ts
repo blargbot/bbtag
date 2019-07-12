@@ -1,20 +1,13 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
 import { bbtag, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../src/language';
-import { arr, ctx, err, str, tag } from '../testHelpers/subtag';
+import { arr, ctx, err, str, tag, toName } from '../testHelpers/subtag';
 
 type Default<T> = T | ((value: SubtagResult) => T);
 
 type TestCase<TResult, AllowDefault extends boolean = false> = AllowDefault extends true
     ? { input: SubtagResult, defaultValue?: Default<TResult>, expected: string | TResult }
     : { input: SubtagResult, expected: string | TResult };
-
-function toName(value: SubtagResult): string {
-    return typeof value === 'object' &&
-        !Array.isArray(value) &&
-        value !== null
-        ? `[${'format' in value.token ? 'STR' : 'SUB'} ERROR '${value.message}']` : JSON.stringify(value);
-}
 
 describe('module convert', () => {
     describe('function toString', () => {

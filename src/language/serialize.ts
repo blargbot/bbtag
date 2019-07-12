@@ -16,7 +16,7 @@ function createDeserialize<T>(name: string, thisFunc: () => ISerializer<T>): (va
             if (result.success) {
                 return result.value;
             }
-            throw new Error(`Failed to deserialize ${value} as ${name}`);
+            throw new Error(`Failed to deserialize '${value}' as ${name}`);
         };
         return self.deserialize(outer);
     };

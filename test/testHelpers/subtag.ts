@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResultArray } from '../../src/language';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../../src/language';
 import { ExecutionContext } from '../../src/structures';
 import { Position, Range } from '../../src/util';
 import { MockExecutionContext } from './mocks';
@@ -41,4 +41,11 @@ export function stripTagToken(token: any): any {
         name: stripStrToken(token.name),
         args: token.args.map(stripStrToken)
     };
+}
+
+export function toName(value: SubtagResult): string {
+    return typeof value === 'object' &&
+        !Array.isArray(value) &&
+        value !== null
+        ? `[${'format' in value.token ? 'STR' : 'SUB'} ERROR '${value.message}']` : JSON.stringify(value);
 }
