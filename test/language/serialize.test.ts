@@ -22,6 +22,8 @@ describe('module serialize', () => {
         t('array', bbtag.array, [
             c('[1,2,3]', arr([1, 2, 3])),
             c('{"v":[1,2,3],"n":"test"}', arr([1, 2, 3], 'test')),
+            c('{"v":123,"n":"test"}'),
+            c('{"v":[1,2,3],"n":5}'),
             c('test')
         ], (expected: SubtagResultArray, actual: SubtagResultArray): void => {
             expect(actual).to.have.ordered.members(expected);
