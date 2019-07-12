@@ -4,8 +4,6 @@ import { SubtagResultArray } from '../../src/language';
 import { array, number } from '../../src/language/serialize';
 import { arr, toName } from '../testHelpers/subtag';
 
-type TestCases<T> = Array<{ input: string, obj: T | undefined, serialized: string }>;
-
 describe('module serialize', () => {
     describe('const array', () => {
         const tests: Array<{ str: string, obj: SubtagResultArray | undefined }> = [
