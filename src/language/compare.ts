@@ -2,6 +2,15 @@ import { Enumerable, EnumerableSource } from '../util';
 import { getType, toNumber, toString } from './convert';
 import { ISubtagError, SubtagPrimitiveResult, SubtagResult } from './types';
 
+/**
+ * Compares left to right. If left comes before right, -1 is returned. If right comes before left, +1 is returned.
+ * If they are equivalent, 0 is returned.
+ *
+ * Comparing is done as number < string < NaN.
+ * If the type of left is different to right, both are converted to a string before comparison.
+ * @param left The left hand side of the comparison
+ * @param right The right hand side of the comparison
+ */
 export function compare(left: SubtagResult, right: SubtagResult): -1 | 0 | 1 {
     if (getType(left) === getType(right)) {
         return compareSameType(left, right);
