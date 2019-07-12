@@ -44,8 +44,12 @@ export function stripTagToken(token: any): any {
 }
 
 export function toName(value: SubtagResult): string {
-    return typeof value === 'object' &&
-        !Array.isArray(value) &&
-        value !== null
-        ? `[${'format' in value.token ? 'STR' : 'SUB'} ERROR '${value.message}']` : JSON.stringify(value);
+    switch (typeof value) {
+        case 'number': return '' + value;
+        case 'object': if (value !== null && !Array.isArray(value)) {
+            return `[${'format' in value.token ? 'STR' : 'SUB'} ERROR '${value.message}']`;
+        }
+    }
+
+    return JSON.stringify(value);
 }

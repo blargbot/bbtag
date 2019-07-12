@@ -1,139 +1,130 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagResultArray } from '../../src/language';
-import { array, number } from '../../src/language/serialize';
+import { bbtag, ISerializer, SubtagResultArray } from '../../src/language';
 import { arr, toName } from '../testHelpers/subtag';
 
+type TestCase<T> = { input: string, value: undefined, output?: undefined } | { input: string, value: T, output?: string };
+interface ITestType<T> { name: string; serializer: ISerializer<T>; data: Array<TestCase<T>>; deserializeAssert(expected: T, actual: T): void; }
+
+function t<T>(name: string, serializer: ISerializer<T>, data: Array<TestCase<T>>, deserializeAssert: (expected: T, actual: T) => void): ITestType<T> {
+    return { name, serializer, data, deserializeAssert };
+}
+
+function c<T>(input: string): TestCase<T>;
+function c<T>(input: string, value: T): TestCase<T>;
+function c<T>(input: string, value: T, output: string): TestCase<T>;
+function c<T>(input: string, value?: T, output?: string): TestCase<T> {
+    return { input, value: value!, output };
+}
+
 describe('module serialize', () => {
-    describe('const array', () => {
-        const tests: Array<{ str: string, obj: SubtagResultArray | undefined }> = [
-            { str: '[1,2,3]', obj: arr([1, 2, 3]) },
-            { str: '{"v":[1,2,3],"n":"test"}', obj: arr([1, 2, 3], 'test') },
-            { str: 'test', obj: undefined }
-        ];
-
-        for (const { str, obj } of tests) {
-            if (obj) {
-                it(`should successfully serialize ${toName(obj)}`, () => {
-                    // arrange
-
-                    // act
-                    const result = array.serialize(obj);
-
-                    // assert
-                    expect(result).to.equal(str);
-                });
-                it(`should successfully deserialize '${str}'`, () => {
-                    // arrange
-
-                    // act
-                    const result = array.deserialize(str);
-
-                    // assert
-                    expect(result).to.have.ordered.members(obj);
-                    expect(result.name).to.equal(obj.name);
-                });
-                it(`should successfully tryDeserialize '${str}'`, () => {
-                    // arrange
-
-                    // act
-                    const result = array.tryDeserialize(str);
-
-                    // assert
-                    expect(result.success).to.be.true;
-                    if (result.success) {
-                        expect(result.value).to.have.ordered.members(obj);
-                    }
-                });
+    const tests: Array<ITestType<any>> = [
+        t('array', bbtag.array, [
+            c('[1,2,3]', arr([1, 2, 3])),
+            c('{"v":[1,2,3],"n":"test"}', arr([1, 2, 3], 'test')),
+            c('test')
+        ], (expected: SubtagResultArray, actual: SubtagResultArray): void => {
+            expect(actual).to.have.ordered.members(expected);
+            expect(actual.name).to.equal(expected.name);
+        }),
+        t('number', bbtag.number, [
+            c('0', 0),
+            c('1', 1),
+            c('-1', -1),
+            c('Infinity', Infinity),
+            c('-Infinity', -Infinity),
+            c('NaN', NaN),
+            c('nan', NaN, 'NaN'),
+            c('infinity', Infinity, 'Infinity'),
+            c('-infinity', -Infinity, '-Infinity'),
+            c('1234567890', 1234567890),
+            c('1.234', 1.234),
+            c('1234,890.123', 1234890.123, '1234890.123'),
+            c('000123', 123, '123'),
+            c('test')
+        ], (expected: number, actual: number): void => {
+            if (isNaN(expected)) {
+                expect(actual).to.be.NaN;
             } else {
-                it(`should fail to deserialize '${str}'`, () => {
-                    // arrange
-
-                    // act
-                    const test = () => array.deserialize(str);
-
-                    // assert
-                    expect(test).to.throw(`Failed to deserialize '${str}' as array`);
-                });
-                it(`should fail to tryDeserialize '${str}'`, () => {
-                    // arrange
-
-                    // act
-                    const result = array.tryDeserialize(str);
-
-                    // assert
-                    expect(result.success).to.be.false;
-                });
+                expect(actual).to.equal(expected);
             }
-        }
-    });
-    describe('const number', () => {
-        const tests: Array<{ str: string, obj: number | undefined }> = [
-            { str: '1', obj: 1 },
-            { str: '-1', obj: -1 },
-            { str: 'Infinity', obj: Infinity },
-            { str: '-Infinity', obj: -Infinity },
-            { str: 'NaN', obj: NaN },
-            { str: 'nan', obj: NaN },
-            { str: 'infinity', obj: Infinity },
-            { str: '1234567890', obj: 1234567890 },
-            { str: '1.234', obj: 1.234 },
-            { str: '1234,890.123', obj: 1234890.123 },
-            { str: '000123', obj: 123 }
-        ];
+        }),
+        t('boolean', bbtag.boolean, [
+            c('true', true),
+            c('TruE', true, 'true'),
+            c('t', true, 'true'),
+            c('yes', true, 'true'),
+            c('y', true, 'true'),
+            c('false', false),
+            c('FalSe', false, 'false'),
+            c('f', false, 'false'),
+            c('no', false, 'false'),
+            c('n', false, 'false'),
+            c('test'),
+            c('0')
+        ], (expected: boolean, actual: boolean): void => {
+            expect(actual).to.equal(expected);
+        })
+    ];
 
-        for (const { str, obj } of tests) {
-            if (obj) {
-                it(`should successfully serialize ${toName(obj)}`, () => {
-                    // arrange
+    for (const { name, serializer, data, deserializeAssert } of tests) {
+        describe('const ' + name, () => {
+            const done = new Set();
+            for (const { input, output, value } of data) {
+                if (value !== undefined) {
+                    if (done.size !== done.add(value).size) {
+                        it(`should successfully serialize ${toName(value)}`, () => {
+                            // arrange
 
-                    // act
-                    const result = number.serialize(obj);
+                            // act
+                            const result = serializer.serialize(value);
 
-                    // assert
-                    expect(result).to.equal(str);
-                });
-                it(`should successfully deserialize '${str}'`, () => {
-                    // arrange
-
-                    // act
-                    const result = number.deserialize(str);
-
-                    // assert
-                    expect(result).to.equal(obj);
-                });
-                it(`should successfully tryDeserialize '${str}'`, () => {
-                    // arrange
-
-                    // act
-                    const result = number.tryDeserialize(str);
-
-                    // assert
-                    expect(result.success).to.be.true;
-                    if (result.success) {
-                        expect(result.value).to.equal(obj);
+                            // assert
+                            expect(result).to.equal(output || input);
+                        });
                     }
-                });
-            } else {
-                it(`should fail to deserialize '${str}'`, () => {
-                    // arrange
+                    it(`should successfully deserialize '${input}'`, () => {
+                        // arrange
 
-                    // act
-                    const test = () => number.deserialize(str);
+                        // act
+                        const result = serializer.deserialize(input);
 
-                    // assert
-                    expect(test).to.throw(`Failed to deserialize '${str}' as number`);
-                });
-                it(`should fail to tryDeserialize '${str}'`, () => {
-                    // arrange
+                        // assert
+                        deserializeAssert(result, value);
+                    });
+                    it(`should successfully tryDeserialize '${input}'`, () => {
+                        // arrange
 
-                    // act
-                    const result = number.tryDeserialize(str);
+                        // act
+                        const result = serializer.tryDeserialize(input);
 
-                    // assert
-                    expect(result.success).to.be.false;
-                });
+                        // assert
+                        expect(result.success).to.be.true;
+                        if (result.success) {
+                            deserializeAssert(result.value, value);
+                        }
+                    });
+                } else {
+                    it(`should fail to deserialize '${input}'`, () => {
+                        // arrange
+
+                        // act
+                        const test = () => serializer.deserialize(input);
+
+                        // assert
+                        expect(test).to.throw(`Failed to deserialize '${input}' as ${name}`);
+                    });
+                    it(`should fail to tryDeserialize '${input}'`, () => {
+                        // arrange
+
+                        // act
+                        const result = serializer.tryDeserialize(input);
+
+                        // assert
+                        expect(result.success).to.be.false;
+                    });
+                }
             }
-        }
-    });
+        });
+    }
 });
