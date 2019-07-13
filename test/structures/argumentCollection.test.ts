@@ -20,6 +20,19 @@ describe('class ArgumentCollection', () => {
         expect(result.context).to.equal(context);
         expect(result.token).to.equal(testToken);
     });
+    describe('property length', () => {
+        it('should successfully get length', () => {
+            // arrange
+            const context = new MockExecutionContext();
+            const args = new ArgumentCollection(context, testToken);
+
+            // act
+            const result = args.length;
+
+            // assert
+            expect(result).to.equal(testToken.args.length);
+        });
+    });
     describe('function getRaw', () => {
         it('should successfully getRaw a single value', () => {
             // arrange
