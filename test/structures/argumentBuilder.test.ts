@@ -28,7 +28,7 @@ const testCases: TestCases = Enumerable.from([
 ]);
 
 describe('constant argumentBuilder', () => {
-    describe('#c', () => {
+    describe('function c', () => {
         it('should be the same as #create', () => {
             // arrange
 
@@ -38,7 +38,7 @@ describe('constant argumentBuilder', () => {
             expect(argumentBuilder.c).to.equal(argumentBuilder.create);
         });
     });
-    describe('#r', () => {
+    describe('function r', () => {
         it('should be the same as #require', () => {
             // arrange
 
@@ -48,7 +48,7 @@ describe('constant argumentBuilder', () => {
             expect(argumentBuilder.r).to.equal(argumentBuilder.require);
         });
     });
-    describe('#o', () => {
+    describe('function o', () => {
         it('should be the same as #optional', () => {
             // arrange
 
@@ -58,7 +58,7 @@ describe('constant argumentBuilder', () => {
             expect(argumentBuilder.o).to.equal(argumentBuilder.optional);
         });
     });
-    describe('#g', () => {
+    describe('function g', () => {
         it('should be the same as #group', () => {
             // arrange
 
@@ -68,7 +68,7 @@ describe('constant argumentBuilder', () => {
             expect(argumentBuilder.g).to.equal(argumentBuilder.group);
         });
     });
-    describe('#create', () => {
+    describe('function create', () => {
         for (const { input, structure: expected } of testCases) {
             it(`should create ${expected.required ? 'a required' : 'an optional'}${expected.many ? ' expandable ' : ' '}${expected.type || 'typeless'} argument`, () => {
                 // arrange
@@ -81,7 +81,7 @@ describe('constant argumentBuilder', () => {
             });
         }
     });
-    describe('#require', () => {
+    describe('function require', () => {
         for (const { input: raw, structure: expected } of testCases.where(c => c.input[1])) {
             it(`should create a required ${expected.many ? 'expandable ' : ''}${expected.type || 'typeless'} argument`, () => {
                 // arrange
@@ -95,7 +95,7 @@ describe('constant argumentBuilder', () => {
             });
         }
     });
-    describe('#optional', () => {
+    describe('function optional', () => {
         for (const { input: raw, structure: expected } of testCases.where(c => !c.input[1])) {
             it(`should create an optional ${expected.many ? 'expandable ' : ''}${expected.type || 'typeless'} argument`, () => {
                 // arrange
@@ -109,7 +109,7 @@ describe('constant argumentBuilder', () => {
             });
         }
     });
-    describe('#group', () => {
+    describe('function group', () => {
         const cases = [
             { required: undefined, expected: false },
             { required: true, expected: true },
@@ -129,7 +129,7 @@ describe('constant argumentBuilder', () => {
             });
         }
     });
-    describe('#stringify', () => {
+    describe('function stringify', () => {
         for (const { structure: input, string: expected } of testCases) {
             it(`should turn ${input.required ? 'a required' : 'an optional'}${input.many ? ' expandable' : ''} ${input.type || 'typeless'} argument`, () => {
                 // arrange

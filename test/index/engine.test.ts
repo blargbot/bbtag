@@ -7,7 +7,7 @@ import { default as subtags } from '../../src/subtags';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
 describe('class Engine', () => {
-    describe('#process', () => {
+    describe('function process', () => {
         const testCases: Array<{ input: string, expected: any }> = [
             { input: 'this is} a test', expected: new Error('Unpaired \'}\'') },
             { input: 'this {is;{a;test}', expected: new Error('Unpaired \'{\'') },
@@ -47,7 +47,7 @@ describe('class Engine', () => {
         }
     });
 
-    describe('#execute', () => {
+    describe('function execute', () => {
         const engine = new Engine(undefined!);
         engine.subtags.push(...subtags);
 

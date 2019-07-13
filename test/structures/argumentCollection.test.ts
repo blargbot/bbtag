@@ -20,7 +20,7 @@ describe('class ArgumentCollection', () => {
         expect(result.context).to.equal(context);
         expect(result.token).to.equal(testToken);
     });
-    describe('#getRaw', () => {
+    describe('function getRaw', () => {
         it('should successfully getRaw a single value', () => {
             // arrange
             const context = new MockExecutionContext();
@@ -57,7 +57,7 @@ describe('class ArgumentCollection', () => {
             expect([...result2]).to.have.ordered.members([testToken.args[1], testToken.args[2], undefined]);
         });
     });
-    describe('#execute', () => {
+    describe('function execute', () => {
         it('should successfully execute a single value', async () => {
             // arrange
             const context = new MockExecutionContext();
@@ -158,7 +158,7 @@ describe('class ArgumentCollection', () => {
             expect(callCount).to.equal(1);
         });
     });
-    describe('#executeAll', () => {
+    describe('function executeAll', () => {
         it('should successfully execute all values', async () => {
             // arrange
             const context = new MockExecutionContext();
@@ -200,7 +200,7 @@ describe('class ArgumentCollection', () => {
             expect(callCount).to.have.ordered.members(callCount.map(_ => 1));
         });
     });
-    describe('#get', () => {
+    describe('function get', () => {
         it('should successfully get a single cached value', async () => {
             // arrange
             const context = new MockExecutionContext();
@@ -267,7 +267,7 @@ describe('class ArgumentCollection', () => {
             expect(result).to.be.instanceOf(Error);
         });
     });
-    describe('#getAll', () => {
+    describe('function getAll', () => {
         it('should successfully get all values if cached', async () => {
             // arrange
             const context = new MockExecutionContext();
@@ -305,7 +305,7 @@ describe('class ArgumentCollection', () => {
             expect(result).to.be.instanceOf(Error);
         });
     });
-    describe('#has', () => {
+    describe('function has', () => {
         it('should return true if index is in bounds', () => {
             // arrange
             const context = new MockExecutionContext();
@@ -340,7 +340,7 @@ describe('class ArgumentCollection', () => {
             expect(result).to.be.false;
         });
     });
-    describe('#hasExecuted', () => {
+    describe('function hasExecuted', () => {
         it('should return true if all indexes has been executed', async () => {
             // arrange
             const context = new MockExecutionContext();

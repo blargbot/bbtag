@@ -16,7 +16,7 @@ function compare<T>(actual: Enumerable<T>, expected: T[]): void {
 }
 
 describe('class Enumerable', () => {
-    describe('#select', () => {
+    describe('function select', () => {
         const testCases: Array<{ input: any[], selector: (element: any, index: number) => any, expected: any[] }> = [
             { input: [1, 2, 3, 4, 5], selector: (e, i) => e + i, expected: [1, 3, 5, 7, 9] },
             { input: [1, 2, 3, 4, 5], selector: () => 0, expected: [0, 0, 0, 0, 0] },
@@ -37,7 +37,7 @@ describe('class Enumerable', () => {
             });
         }
     });
-    describe('#selectMany', () => {
+    describe('function selectMany', () => {
         const testCases: Array<{ input: any[], selector: (element: any, index: number) => any[], expected: any[] }> = [
             { input: [1, 2, 3, 4, 5], selector: (e, i) => [e, i], expected: [1, 0, 2, 1, 3, 2, 4, 3, 5, 4] },
             { input: [0, 0, 1, 2, 0], selector: (e, i) => [...new Array(e)].map(() => i), expected: [2, 3, 3] }
@@ -56,7 +56,7 @@ describe('class Enumerable', () => {
             });
         }
     });
-    describe('#except', () => {
+    describe('function except', () => {
         const testCases = [
             { left: [1, 2, 3, 4, 5], right: [], expected: [1, 2, 3, 4, 5] },
             { left: [1, 2, 3, 4, 5], right: [1, 2, 3, 4, 5], expected: [] },
@@ -76,7 +76,7 @@ describe('class Enumerable', () => {
             });
         }
     });
-    describe('#skip', () => {
+    describe('function skip', () => {
         const testCases: Array<{ source: any[], condition: predicateFunc<any> | number, expected: any[] }> = [
             { source: [1, 2, 3, 4, 5], condition: 0, expected: [1, 2, 3, 4, 5] },
             { source: [1, 2, 3, 4, 5], condition: 1, expected: [2, 3, 4, 5] },
@@ -99,7 +99,7 @@ describe('class Enumerable', () => {
             });
         }
     });
-    describe('#take', () => {
+    describe('function take', () => {
         const testCases: Array<{ source: any[], condition: predicateFunc<any> | number, expected: any[] }> = [
             { source: [1, 2, 3, 4, 5], condition: 0, expected: [] },
             { source: [1, 2, 3, 4, 5], condition: 1, expected: [1] },
@@ -122,64 +122,64 @@ describe('class Enumerable', () => {
             });
         }
     });
-});
-describe('constant Enumerable', () => {
-    describe('#empty', () => {
-        it('should return an enumerable with no values', () => {
-            // arrange
+    describe('static', () => {
+        describe('function empty', () => {
+            it('should return an enumerable with no values', () => {
+                // arrange
 
-            // act
-            const result = Enumerable.empty<number>();
+                // act
+                const result = Enumerable.empty<number>();
 
-            // assert
-            compare(result, []);
+                // assert
+                compare(result, []);
+            });
         });
-    });
-    describe('#range', () => {
-        const testCases = [
-            { start: 0, count: 0, step: 0, expected: [] },
-            { start: 0, count: 1, step: 0, expected: [0] },
-            { start: 0, count: -1, step: 0, expected: [] },
-            { start: 0, count: 5, step: 0, expected: [0, 0, 0, 0, 0] },
-            { start: 0, count: 5, step: 1, expected: [0, 1, 2, 3, 4] },
-            { start: 0, count: 5, step: 3, expected: [0, 3, 6, 9, 12] },
-            { start: 5, count: 5, step: 5, expected: [5, 10, 15, 20, 25] }
-        ];
+        describe('function range', () => {
+            const testCases = [
+                { start: 0, count: 0, step: 0, expected: [] },
+                { start: 0, count: 1, step: 0, expected: [0] },
+                { start: 0, count: -1, step: 0, expected: [] },
+                { start: 0, count: 5, step: 0, expected: [0, 0, 0, 0, 0] },
+                { start: 0, count: 5, step: 1, expected: [0, 1, 2, 3, 4] },
+                { start: 0, count: 5, step: 3, expected: [0, 3, 6, 9, 12] },
+                { start: 5, count: 5, step: 5, expected: [5, 10, 15, 20, 25] }
+            ];
 
-        for (const testCase of testCases) {
-            it(`should correctly start from ${testCase.start} and perform ${testCase.count} steps of size ${testCase.step}`, () => {
-                // arrange
+            for (const testCase of testCases) {
+                it(`should correctly start from ${testCase.start} and perform ${testCase.count} steps of size ${testCase.step}`, () => {
+                    // arrange
 
-                // act
-                const result = Enumerable.range(testCase.start, testCase.count, testCase.step);
+                    // act
+                    const result = Enumerable.range(testCase.start, testCase.count, testCase.step);
 
-                // assert
-                compare(result, testCase.expected);
-            });
-        }
-    });
-    describe('#infinite', () => {
-        const testCases = [
-            { start: 0, step: 0 },
-            { start: 0, step: 1 },
-            { start: 5, step: 0 },
-            { start: 5, step: 5 }
-        ];
+                    // assert
+                    compare(result, testCase.expected);
+                });
+            }
+        });
+        describe('function infinite', () => {
+            const testCases = [
+                { start: 0, step: 0 },
+                { start: 0, step: 1 },
+                { start: 5, step: 0 },
+                { start: 5, step: 5 }
+            ];
 
-        for (const testCase of testCases) {
-            it(`should never end when starting at ${testCase.start} with steps of size ${testCase.step}`, () => {
-                // arrange
+            for (const testCase of testCases) {
+                it(`should never end when starting at ${testCase.start} with steps of size ${testCase.step}`, () => {
+                    // arrange
 
-                // act
-                const result = Enumerable.infinite(testCase.start, testCase.step);
-                const enumerator = result.getEnumerator();
+                    // act
+                    const result = Enumerable.infinite(testCase.start, testCase.step);
+                    const enumerator = result.getEnumerator();
 
-                // assert
-                for (let i = 0; i < 10000; i++) {
-                    expect(enumerator.moveNext()).to.be.true;
-                    expect(enumerator.current).to.be.be.equal(testCase.start + testCase.step * i);
-                }
-            });
-        }
+                    // assert
+                    for (let i = 0; i < 10000; i++) {
+                        expect(enumerator.moveNext()).to.be.true;
+                        expect(enumerator.current).to.be.be.equal(testCase.start + testCase.step * i);
+                    }
+                });
+            }
+        });
     });
 });
