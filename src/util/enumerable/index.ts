@@ -52,6 +52,7 @@ export interface Enumerable<T> {
     select<TResult>(selector: selectorFunc<T, TResult>): Chains.SelectEnumerable<T, TResult>;
     selectMany<TResult>(selector: selectorFunc<T, EnumerableSource<TResult>>): Chains.SelectManyEnumerable<T, TResult>;
     where(predicate: predicateFunc<T>): Chains.WhereEnumerable<T>;
+    where<S extends T>(predicate: predicateIsFunc<T, S>): Chains.WhereEnumerable<S>;
     first(predicate?: predicateFunc<T>, defaultValue?: () => T): T;
     single(predicate?: predicateFunc<T>, defaultValue?: () => T): T;
     last(predicate?: predicateFunc<T>, defaultValue?: () => T): T;
@@ -79,7 +80,7 @@ import * as Adapters from './adapters';
 import * as Chains from './chains';
 import * as Generators from './generators';
 import * as Terminators from './terminators';
-import { comparerFunc, EnumerableSource, predicateFunc, selectorFunc } from './types';
+import { comparerFunc, EnumerableSource, predicateFunc, predicateIsFunc, selectorFunc } from './types';
 
 Enumerable.from = Generators.createEnumerable;
 Enumerable.empty = Generators.EmptyEnumerable.create;

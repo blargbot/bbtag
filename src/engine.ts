@@ -66,7 +66,7 @@ export class Engine {
                 result = await executor.execute(token, context);
             } catch (ex) {
                 await this.events.raise('subtag-error', token, context, ex);
-                result = bbtag.value.isError(ex) ? ex : context.error(token, 'Internal server error');
+                result = bbtag.isValue.error(ex) ? ex : context.error(token, 'Internal server error');
             }
         }
 

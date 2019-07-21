@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../src/language';
+import { bbtag, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultTypeMap } from '../../src/language';
 import { arr, ctx, err, str, tag, toName } from '../testHelpers/subtag';
 
 type Default<T> = T | ((value: SubtagResult) => T);
@@ -515,7 +515,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.value.isString(input);
+                    const result = bbtag.isValue.string(input);
 
                     // assert
                     expect(result).to.equal(!!isString);
@@ -529,7 +529,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.value.isNumber(input);
+                    const result = bbtag.isValue.number(input);
 
                     // assert
                     expect(result).to.equal(!!isNumber);
@@ -543,7 +543,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.value.isBoolean(input);
+                    const result = bbtag.isValue.boolean(input);
 
                     // assert
                     expect(result).to.equal(!!isBool);
@@ -557,7 +557,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.value.isNull(input);
+                    const result = bbtag.isValue.null(input);
 
                     // assert
                     expect(result).to.equal(!!isNull);
@@ -571,7 +571,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.value.isArray(input);
+                    const result = bbtag.isValue.array(input);
 
                     // assert
                     expect(result).to.equal(!!isArray);
@@ -585,7 +585,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.value.isError(input);
+                    const result = bbtag.isValue.error(input);
 
                     // assert
                     expect(result).to.equal(!!isError);
@@ -595,7 +595,7 @@ describe('module convert', () => {
     });
 
     describe('function getType', () => {
-        const tests: Array<{ input: SubtagResult, expected: SubtagResultType }> = [
+        const tests: Array<{ input: SubtagResult, expected: keyof SubtagResultTypeMap }> = [
             { input: 'test', expected: 'string' },
             { input: '', expected: 'string' },
             { input: 123456, expected: 'number' },

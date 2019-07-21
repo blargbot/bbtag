@@ -13,8 +13,7 @@
         "sourceMap": true,
         "lib": [
             "es2018.promise",
-            "es2018",
-            "dom"
+            "es2018"
         ]
     },
     "exclude": [

@@ -1,10 +1,10 @@
 import { Enumerable, tryGet, TryGetResult } from '../util';
 import { array, boolean, number } from './serialize';
-import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from './types';
+import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultTypeMap } from './types';
 
 function convertError(type: string): (value: SubtagResult) => never {
     return (target: SubtagResult) => {
-        throw new Error(`${value.isError(target) ? toString(target) : JSON.stringify(target)} is not convertable to ${type}`);
+        throw new Error(`${isValue.error(target) ? toString(target) : JSON.stringify(target)} is not convertable to ${type}`);
     };
 }
 
@@ -18,75 +18,73 @@ function createDefiniteConverter<T>(tryConvert: (value: SubtagResult) => TryGetR
     };
 }
 
-export function toString(target: SubtagResult): string {
-    switch (getType(target)) {
-        case 'string': return target as string;
-        case 'number': return number.serialize(target as number);
-        case 'boolean': return boolean.serialize(target as boolean);
-        case 'array': return array.serialize(target as SubtagResultArray);
-        case 'error':
-            const error = target as ISubtagError;
-            if (!value.isNull((target as ISubtagError).context.fallback)) {
-                return toString(error.context.fallback);
-            }
-            return `\`${(target as ISubtagError).message}\``;
-        case 'null': return '';
-    }
+function createErrorConverter<T>(converter: (value: SubtagResult) => TryGetResult<T>): (v: ISubtagError) => TryGetResult<T> {
+    return v => isValue.null(v.context.fallback) ? tryGet.failure() : converter(v.context.fallback);
 }
 
+function relay<T>(v: T): T {
+    return v;
+}
+
+export function toString(target: SubtagResult): string {
+    return switchType(target, {
+        string: relay,
+        boolean: boolean.serialize,
+        number: number.serialize,
+        array: array.serialize,
+        null: () => '',
+        error: v => isValue.null(v.context.fallback) ? `\`${v.message}\`` : toString(v.context.fallback)
+    });
+}
+
+const errorToBoolean = createErrorConverter(tryToBoolean);
 export const toBoolean = createDefiniteConverter(tryToBoolean, 'boolean');
 export function tryToBoolean(target: SubtagResult): TryGetResult<boolean> {
-    switch (getType(target)) {
-        case 'string': return boolean.tryDeserialize(target as string);
-        case 'boolean': return tryGet.success(target as boolean);
-        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
-            return tryToBoolean((target as ISubtagError).context.fallback);
-        }
-        case 'number':
-        case 'array':
-        case 'null': return tryGet.failure();
-    }
+    return switchType(target, {
+        string: boolean.tryDeserialize,
+        boolean: tryGet.success,
+        number: tryGet.failure,
+        array: tryGet.failure,
+        null: tryGet.failure,
+        error: errorToBoolean
+    });
 }
 
+const errorToNumber = createErrorConverter(tryToNumber);
 export const toNumber = createDefiniteConverter(tryToNumber, 'number');
 export function tryToNumber(target: SubtagResult): TryGetResult<number> {
-    switch (getType(target)) {
-        case 'string': return number.tryDeserialize(target as string);
-        case 'number': return tryGet.success(target as number);
-        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
-            return tryToNumber((target as ISubtagError).context.fallback);
-        }
-        case 'boolean':
-        case 'array':
-        case 'null': return tryGet.failure();
-    }
+    return switchType(target, {
+        string: number.tryDeserialize,
+        number: tryGet.success,
+        boolean: tryGet.failure,
+        array: tryGet.failure,
+        null: tryGet.failure,
+        error: errorToNumber
+    });
 }
 
+const errorToArray = createErrorConverter(tryToArray);
 export const toArray = createDefiniteConverter(tryToArray, 'array');
 export function tryToArray(target: SubtagResult): TryGetResult<SubtagResultArray> {
-    switch (getType(target)) {
-        case 'string': return array.tryDeserialize(target as string);
-        case 'array': return tryGet.success(target as SubtagResultArray);
-        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
-            return tryToArray((target as ISubtagError).context.fallback);
-        }
-        case 'number':
-        case 'boolean':
-        case 'null': return tryGet.failure();
-    }
+    return switchType(target, {
+        string: array.tryDeserialize,
+        array: tryGet.success,
+        number: tryGet.failure,
+        boolean: tryGet.failure,
+        null: tryGet.failure,
+        error: errorToArray
+    });
 }
 
 export function toPrimitive(target: SubtagResult): SubtagPrimitiveResult {
-    switch (getType(target)) {
-        case 'string':
-        case 'number':
-        case 'boolean':
-        case 'null': return target as SubtagPrimitiveResult;
-        case 'error': if (!value.isNull((target as ISubtagError).context.fallback)) {
-            return toPrimitive((target as ISubtagError).context.fallback);
-        }
-        case 'array': return toString(target);
-    }
+    return switchType(target, {
+        string: relay,
+        number: relay,
+        boolean: relay,
+        null: relay,
+        error: v => isValue.null(v.context.fallback) ? toString(v) : toPrimitive(v.context.fallback),
+        array: toString
+    });
 }
 
 export function toCollection(target: SubtagResult): ICollection {
@@ -100,23 +98,23 @@ export function toCollection(target: SubtagResult): ICollection {
 const sampleError: ISubtagError = { message: undefined!, context: undefined!, token: undefined! };
 const errorKeys = Enumerable.from(Object.keys(sampleError));
 
-export const value = {
-    isString(target: SubtagResult): target is string {
+export const isValue: { [K in keyof SubtagResultTypeMap]: (target: SubtagResult) => target is SubtagResultTypeMap[K] } = {
+    string(target: SubtagResult): target is SubtagResultTypeMap['string'] {
         return typeof target === 'string';
     },
-    isNumber(target: SubtagResult): target is number {
+    number(target: SubtagResult): target is SubtagResultTypeMap['number'] {
         return typeof target === 'number';
     },
-    isBoolean(target: SubtagResult): target is boolean {
+    boolean(target: SubtagResult): target is SubtagResultTypeMap['boolean'] {
         return typeof target === 'boolean';
     },
-    isArray(target: SubtagResult): target is SubtagResultArray {
+    array(target: SubtagResult): target is SubtagResultTypeMap['array'] {
         return Array.isArray(target);
     },
-    isNull(target: SubtagResult): target is undefined | null | void {
+    null(target: SubtagResult): target is SubtagResultTypeMap['null'] {
         return target === undefined || target === null;
     },
-    isError(target: SubtagResult): target is ISubtagError {
+    error(target: SubtagResult): target is SubtagResultTypeMap['error'] {
         if (typeof target !== 'object' || target === null) {
             return false;
         }
@@ -125,15 +123,23 @@ export const value = {
     }
 };
 
-export function getType(target: SubtagResult): SubtagResultType {
+export function getType(target: SubtagResult): keyof SubtagResultTypeMap {
     switch (typeof target) {
         case 'string': return 'string';
         case 'number': return 'number';
         case 'boolean': return 'boolean';
     }
-    if (value.isArray(target)) { return 'array'; }
-    if (value.isError(target)) { return 'error'; }
+    if (isValue.array(target)) { return 'array'; }
+    if (isValue.error(target)) { return 'error'; }
     return 'null';
+}
+
+type SwitchHandlers<T> = { [K in keyof SubtagResultTypeMap]?: (value: SubtagResultTypeMap[K]) => T };
+type SwitchResult<T, H extends SwitchHandlers<T>> = H extends Required<SwitchHandlers<T>> ? T : T | undefined;
+
+export function switchType<T, H extends SwitchHandlers<T>>(target: SubtagResult, handlers: H): SwitchResult<T, H> {
+    const handler = handlers[getType(target)] || (() => undefined);
+    return handler(target as never) as SwitchResult<T, H>;
 }
 
 export interface ICollection {
@@ -168,17 +174,17 @@ class StringCollectionWrapper implements ICollection {
     }
 
     public startsWith(target: SubtagResult): boolean {
-        if (value.isNull(target)) { return false; }
+        if (isValue.null(target)) { return false; }
         return this._source.startsWith(toString(target));
     }
 
     public endsWith(target: SubtagResult): boolean {
-        if (value.isNull(target)) { return false; }
+        if (isValue.null(target)) { return false; }
         return this._source.endsWith(toString(target));
     }
 
     public includes(target: SubtagResult): boolean {
-        if (value.isNull(target)) { return false; }
+        if (isValue.null(target)) { return false; }
         return this._source.includes(toString(target));
     }
 }
