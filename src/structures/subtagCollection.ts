@@ -1,37 +1,49 @@
 import { Enumerable } from '../util';
+import { IterableEnumerable } from '../util/enumerable/adapters';
 import { SubtagContext } from './context';
 import { ISubtag } from './subtag';
 
-export class SubtagCollection<T extends SubtagContext> {
+export class SubtagCollection<T extends SubtagContext> extends IterableEnumerable<ISubtag<T>> {
+    private readonly _parent?: SubtagCollection<T>;
     private readonly _nameMap: Map<string, Array<ISubtag<T>>>;
     private readonly _aliasMap: Map<string, Array<ISubtag<T>>>;
 
     public constructor()
-    public constructor(context: T, subtags: Iterable<ISubtag<any>>)
-    public constructor(context?: T, subtags?: Iterable<ISubtag<any>>) {
+    public constructor(parent: SubtagCollection<T>)
+    public constructor(subtags: Iterable<ISubtag<T>>)
+    public constructor(...args: [] | [SubtagCollection<T>] | [Iterable<ISubtag<T>>]) {
+        super(() => this[Symbol.iterator]());
+
         this._nameMap = new Map();
         this._aliasMap = new Map();
+        this._parent = undefined;
 
-        if (context !== undefined) {
-            this.register(...filterSubtags(context, subtags!));
+        if (args[0] instanceof SubtagCollection) {
+            this._parent = args[0];
+        } else if (args[0] !== undefined) {
+            this.register(...args[0]);
         }
     }
 
     public [Symbol.iterator](): Iterator<ISubtag<T>> {
-        return Enumerable.from(this._nameMap.values())
-            .selectMany(x => x)[Symbol.iterator]();
+        return Enumerable.from(this._parent || [])
+            .concat(Enumerable.from(this._nameMap.values()).selectMany(x => x))
+            .getEnumerator();
+    }
+
+    public createChild(): SubtagCollection<T> {
+        return new SubtagCollection(this);
+    }
+
+    public * list(): IterableIterator<ISubtag<T>> {
+        for (const subtags of this._nameMap.values()) {
+            yield* subtags;
+        }
     }
 
     public find(name: string): ISubtag<T> | undefined {
-        const byName = this._nameMap.get(name);
-        if (byName !== undefined && byName.length > 0) {
-            return byName[byName.length - 1];
-        }
-        const byAlias = this._aliasMap.get(name);
-        if (byAlias !== undefined && byAlias.length > 0) {
-            return byAlias[byAlias.length - 1];
-        }
-        return undefined;
+        return (this._parent && this._parent.find(name)) ||
+            _find(this._nameMap, name) || _find(this._aliasMap, name);
     }
 
     public remove(...subtags: Array<ISubtag<T>>): this {
@@ -57,7 +69,16 @@ export class SubtagCollection<T extends SubtagContext> {
     }
 }
 
+function _find<T>(map: Map<string, T[]>, key: string): T | undefined {
+    key = key.toLowerCase();
+    const match = map.get(key);
+    if (match !== undefined && match.length > 0) {
+        return match[match.length - 1];
+    }
+}
+
 function _register<T>(map: Map<string, T[]>, key: string, value: T): void {
+    key = key.toLowerCase();
     const current = map.get(key);
     if (current === undefined) {
         map.set(key, [value]);
@@ -67,6 +88,7 @@ function _register<T>(map: Map<string, T[]>, key: string, value: T): void {
 }
 
 function _remove<T>(map: Map<string, T[]>, key: string, value: T): void {
+    key = key.toLowerCase();
     const current = map.get(key);
     if (current !== undefined) {
         current.splice(current.indexOf(value), 1);
@@ -74,8 +96,4 @@ function _remove<T>(map: Map<string, T[]>, key: string, value: T): void {
             map.delete(key);
         }
     }
-}
-
-function filterSubtags<T extends SubtagContext>(context: T, subtags: Iterable<ISubtag<any>>): Iterable<ISubtag<T>> {
-    return Enumerable.from(subtags).where(s => context instanceof s.context);
 }

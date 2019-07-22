@@ -9,17 +9,17 @@ describe('class ExecutionContext', () => {
         const engine = new MockEngine();
         const name = 'testName';
         const args: IExecutionContextArgs<SubtagContext> = {
-            scope: 'test'
+            scope: 'test',
+            name: 'testName'
         };
-        engine.subtags.push(new MockSubtag<SubtagContext>(SubtagContext, name));
+        engine.subtags.register(new MockSubtag<SubtagContext>(SubtagContext, name));
 
         // act
-        const result = new SubtagContext(engine, name, args);
+        const result = new SubtagContext(engine, args);
 
         // assert
-        expect(result.database).to.equal(engine.database);
         expect(result.engine).to.equal(engine);
-        expect([...result.subtags]).to.have.ordered.members(engine.subtags);
+        expect([...result.subtags]).to.have.members([...engine.subtags]);
         expect(result.tagName).to.equal(name);
         expect(result.scope).to.equal(args.scope);
     });

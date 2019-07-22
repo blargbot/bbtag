@@ -8,7 +8,6 @@ describe('class VariableScope', () => {
     it('should correctly apply minimal overrides', () => {
         // arrange
         const options: IPartialVariableScope = {
-            context: MockExecutionContext,
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -26,7 +25,6 @@ describe('class VariableScope', () => {
     it('should correctly apply all overrides', () => {
         // arrange
         const options: IPartialVariableScope = {
-            context: MockExecutionContext,
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -52,7 +50,6 @@ describe('class VariableScope', () => {
         const key = 'TESTKey';
         const values = [1, 'a', false];
         const options: IPartialVariableScope<MockExecutionContext> = {
-            context: MockExecutionContext,
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -64,7 +61,7 @@ describe('class VariableScope', () => {
         };
         const scope = new VariableScope(options);
         let callCount = 0;
-        context.database.set = (p: Iterable<string>, v: DatabaseValue) => {
+        context.engine.database.set = (p: Iterable<string>, v: DatabaseValue) => {
             expect(p).to.equal(keys);
             expect(v).to.equal(values);
             callCount++;
@@ -83,7 +80,6 @@ describe('class VariableScope', () => {
         const context = new MockExecutionContext();
         const values: Array<[string, DatabaseValue]> = [['key1', [1, 'a', false]], ['key2', 10]];
         const options: IPartialVariableScope<MockExecutionContext> = {
-            context: MockExecutionContext,
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -95,7 +91,7 @@ describe('class VariableScope', () => {
         };
         const scope = new VariableScope(options);
         let callCount = 0;
-        context.database.setBulk = (v: Iterable<[string, DatabaseValue]>) => {
+        context.engine.database.setBulk = (v: Iterable<[string, DatabaseValue]>) => {
             expect([...v]).to.deep.equal(values.map(e => [keys, e[1]]));
             callCount++;
         };
@@ -114,7 +110,6 @@ describe('class VariableScope', () => {
         const key = 'TESTKey';
         const values = [1, 'a', false];
         const options: IPartialVariableScope<MockExecutionContext> = {
-            context: MockExecutionContext,
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -125,7 +120,7 @@ describe('class VariableScope', () => {
             }
         };
         const scope = new VariableScope(options);
-        context.database.get = (p: Iterable<string>) => {
+        context.engine.database.get = (p: Iterable<string>) => {
             expect(p).to.equal(keys);
             return values;
         };
@@ -142,7 +137,6 @@ describe('class VariableScope', () => {
         const context = new MockExecutionContext();
         const key = 'TESTKey';
         const options: IPartialVariableScope<MockExecutionContext> = {
-            context: MockExecutionContext,
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -154,7 +148,7 @@ describe('class VariableScope', () => {
         };
         const scope = new VariableScope(options);
         let callCount = 0;
-        context.database.delete = (p: Iterable<string>) => {
+        context.engine.database.delete = (p: Iterable<string>) => {
             expect(p).to.equal(keys);
             callCount++;
         };
@@ -244,7 +238,7 @@ describe('const variableScopes', () => {
         it('should not touch the database on a set', () => {
             // arrange
             const context = new MockExecutionContext();
-            context.database.set = () => { success = false; };
+            context.engine.database.set = () => { success = false; };
             let success = true;
 
             // act
@@ -256,7 +250,7 @@ describe('const variableScopes', () => {
         it('should not touch the database on a get', () => {
             // arrange
             const context = new MockExecutionContext();
-            context.database.get = () => { success = false; };
+            context.engine.database.get = () => { success = false; };
             let success = true;
 
             // act
@@ -268,7 +262,7 @@ describe('const variableScopes', () => {
         it('should not touch the database on a delete', () => {
             // arrange
             const context = new MockExecutionContext();
-            context.database.delete = () => { success = false; };
+            context.engine.database.delete = () => { success = false; };
             let success = true;
 
             // act
@@ -280,7 +274,7 @@ describe('const variableScopes', () => {
         it('should not touch the database on a setBulk', () => {
             // arrange
             const context = new MockExecutionContext();
-            context.database.setBulk = () => { success = false; };
+            context.engine.database.setBulk = () => { success = false; };
             let success = true;
 
             // act

@@ -1,7 +1,7 @@
 import { IDatabase } from './external';
 import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './language';
 import { optimizeStringToken } from './optimizer';
-import { EventManager, ISubtag, OptimizationContext, SubtagContext } from './structures';
+import { ContextCtor, EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
 import { Awaitable, format } from './util';
 
 interface IEngineEvents {
@@ -10,15 +10,19 @@ interface IEngineEvents {
     'subtag-error': (token: ISubtagToken, context: SubtagContext, error: any) => Awaitable<void>;
 }
 
-export class Engine {
-    public readonly subtags: Array<ISubtag<any>>;
+export class BBTagEngine<TContextType extends ContextCtor> {
+    public readonly contextType: TContextType;
+    public readonly subtags: SubtagCollection<InstanceType<TContextType>>;
+    public readonly variableScopes: VariableScopeCollection<InstanceType<TContextType>>;
     public readonly database: IDatabase;
     protected readonly events: EventManager<IEngineEvents>;
 
-    public constructor(database: IDatabase) {
-        this.subtags = [];
+    public constructor(context: TContextType, database: IDatabase) {
+        this.contextType = context;
+        this.subtags = new SubtagCollection();
         this.database = database;
         this.events = new EventManager();
+        this.variableScopes = new VariableScopeCollection();
     }
 
     public execute(token: IStringToken, context: SubtagContext): Awaitable<SubtagResult>;

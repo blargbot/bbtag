@@ -1,23 +1,20 @@
 import { DatabaseValue } from '../external';
 import { Awaitable, Enumerable } from '../util';
 import { SubtagContext } from './context';
-import { SortedList } from './sortedList';
 import { IVariableScope } from './variableScope';
 
-interface IVariableEntry {
+interface ICacheEntry {
     readonly original: DatabaseValue;
     current: DatabaseValue;
 }
 
-export class VariableCollection<T extends SubtagContext> {
-    private readonly context: T;
-    private readonly cache: Map<string, IVariableEntry>;
-    private readonly variableScopes: SortedList<IVariableScope<T>>;
+export class VariableCache<TContext extends SubtagContext> {
+    private readonly context: TContext;
+    private readonly cache: Map<string, ICacheEntry>;
 
-    public constructor(context: T, variableScopes: SortedList<IVariableScope<T>>) {
+    public constructor(context: TContext) {
         this.context = context;
         this.cache = new Map();
-        this.variableScopes = variableScopes;
     }
 
     public delete(key: string): Awaitable<void>;
@@ -73,7 +70,7 @@ export class VariableCollection<T extends SubtagContext> {
         }
     }
 
-    private async findOrCache(name: string, scope: IVariableScope<T>): Promise<IVariableEntry> {
+    private async findOrCache(name: string, scope: IVariableScope<TContext>): Promise<ICacheEntry> {
         let cached = this.cache.get(scope.prefix + name);
         if (cached === undefined) {
             const value = await scope.get(this.context, name);
@@ -82,27 +79,23 @@ export class VariableCollection<T extends SubtagContext> {
         return cached;
     }
 
-    private parseKey(key: string): { name: string, immediate: boolean, scope: IVariableScope<T> } {
+    private parseKey(key: string): { name: string, immediate: boolean, scope: IVariableScope<TContext> } {
         let immediate = false;
         if (key.substring(0, 1) === '!') {
             immediate = true;
             key = key.substring(1);
         }
 
-        for (const scope of this.variableScopes) {
-            if (!checkContext(scope, this.context)) {
-                continue;
-            }
-
+        for (const scope of this.context.engine.variableScopes) {
             if (key.startsWith(scope.prefix)) {
-                return { name: key.substring(scope.prefix.length), scope, immediate };
+                return {
+                    name: key.substring(scope.prefix.length),
+                    scope: scope as IVariableScope<TContext>,
+                    immediate
+                };
             }
         }
 
         throw new Error(`Unknown scope for variable ${key}`);
     }
-}
-
-function checkContext<T extends SubtagContext>(scope: IVariableScope<any>, context: T): scope is IVariableScope<T> {
-    return context instanceof scope.context;
 }

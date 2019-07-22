@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { Engine } from '../../src/engine';
+import { BBTagEngine } from '../../src/engine';
 import { bbtag, IStringToken, SubtagResult } from '../../src/language';
 import { SubtagContext } from '../../src/structures';
 import { default as subtags } from '../../src/subtags';
@@ -20,12 +20,13 @@ describe('class Engine', () => {
             { input: '  { // { // ;why would you do this};comment test} aaaa', expected: str('aaaa') }
         ];
         for (const { input, expected } of testCases) {
+            const engine = new BBTagEngine(SubtagContext, undefined!);
+            engine.subtags.register(...subtags);
+            const context = new SubtagContext(engine, { scope: 'testing', name: 'test' });
+
             if (expected instanceof Error) {
                 it(`should fail to process '${input}' because ${expected.message}`, () => {
                     // arrange
-                    const engine = new Engine(undefined!);
-                    engine.subtags.push(...subtags);
-                    const context = new SubtagContext(engine, 'test', { scope: 'testing' });
                     const test = () => engine.process(input, context);
 
                     // act
@@ -36,9 +37,6 @@ describe('class Engine', () => {
             } else {
                 it(`should correctly process '${input}'`, () => {
                     // arrange
-                    const engine = new Engine(undefined!);
-                    engine.subtags.push(...subtags);
-                    const context = new SubtagContext(engine, 'test', { scope: 'testing' });
 
                     // act
                     const result = engine.process(input, context);
@@ -51,9 +49,9 @@ describe('class Engine', () => {
     });
 
     describe('function execute', () => {
-        const engine = new Engine(undefined!);
+        const engine = new BBTagEngine(MockExecutionContext, undefined!);
         const setupContext = new MockExecutionContext();
-        engine.subtags.push(...subtags);
+        engine.subtags.register(...subtags);
 
         const testCases: Array<{ input: string, token?: IStringToken, assert: (context: SubtagContext, result: SubtagResult) => void }> = [
             { input: 'hi {if;true;yay!}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi yay!') },
@@ -70,7 +68,7 @@ describe('class Engine', () => {
         for (const { input, token, assert } of testCases) {
             it(`should correctly execute '${input}'`, async () => {
                 // arrange
-                const context = new SubtagContext(engine, 'test', { scope: 'tests' });
+                const context = new SubtagContext(engine, { scope: 'tests', name: 'tests' });
 
                 // act
                 const result = await engine.execute(token!, context);

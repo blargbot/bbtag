@@ -27,7 +27,7 @@ describe('class SortedList', () => {
     });
     it('should correctly add elements in ascending order', () => {
         // arrange
-        const list = new SortedList<ITestData>(entry => entry.name, true);
+        const list = new SortedList<ITestData>(entry => entry.name, false);
 
         // act
         list.add(...testData);
@@ -37,7 +37,7 @@ describe('class SortedList', () => {
     });
     it('should correctly add elements in descending order', () => {
         // arrange
-        const list = new SortedList<ITestData>(entry => entry.name, false);
+        const list = new SortedList<ITestData>(entry => entry.name, true);
 
         // act
         list.add(...testData);

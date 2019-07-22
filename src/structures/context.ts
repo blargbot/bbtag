@@ -1,14 +1,14 @@
-import { Engine } from '../engine';
-import { IDatabase } from '../external';
+import { BBTagEngine } from '../engine';
 import { IStringToken, ISubtagError, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable } from '../util';
-import { SortedList } from './sortedList';
 import { SubtagCollection } from './subtagCollection';
-import { VariableCollection } from './variableCollection';
+import { VariableCache } from './variableCache';
 
-export interface IExecutionContextArgs<T extends SubtagContext> {
+export type ContextCtor<T = SubtagContext> = new (engine: BBTagEngine<any>, ...args: any[]) => T;
+
+export interface IExecutionContextArgs<_T extends SubtagContext> {
+    readonly name: string;
     readonly scope: string;
-    readonly variableScopes?: Iterable<IVariableScope<T>>;
 }
 
 export interface IContextState {
@@ -16,25 +16,26 @@ export interface IContextState {
 }
 
 export class SubtagContext {
-    public readonly engine: Engine;
+    public readonly type: typeof SubtagContext;
+    public readonly engine: BBTagEngine<this['type']>;
+    public readonly variables: VariableCache<this>;
     public readonly subtags: SubtagCollection<this>;
+
     public readonly tagName: string;
     public readonly state: Partial<IContextState>;
     public readonly scope: string;
-    public readonly variables: VariableCollection<this>;
     public readonly errors: ISubtagError[];
     public fallback: SubtagResult;
 
-    public get database(): IDatabase { return this.engine.database; }
-
-    public constructor(engine: Engine, tagName: string, args: IExecutionContextArgs<SubtagContext>) {
-        this.engine = engine;
-        this.subtags = new SubtagCollection(this, engine.subtags);
-        this.tagName = tagName;
+    public constructor(engine: BBTagEngine<typeof SubtagContext>, args: IExecutionContextArgs<SubtagContext>) {
+        this.type = this.constructor as any;
+        this.engine = engine as BBTagEngine<ContextCtor<this>>;
+        this.variables = new VariableCache(this);
+        this.subtags = engine.subtags.createChild() as any;
+        this.tagName = args.name;
         this.fallback = undefined;
         this.state = {};
         this.scope = args.scope;
-        this.variables = new VariableCollection<this>(this, filterVariableScopes(this, args.variableScopes || variableScopes));
         this.errors = [];
     }
 
@@ -55,16 +56,20 @@ export class SubtagContext {
     }
 }
 
-function filterVariableScopes<T extends SubtagContext>(context: T, scopes: Iterable<IVariableScope<SubtagContext>>): SortedList<IVariableScope<T>> {
-    const result = new SortedList<IVariableScope<T>>(scope => scope.prefix.length, false);
+export class DiscordContext extends SubtagContext {
+    public readonly type!: typeof DiscordContext;
 
-    for (const scope of scopes) {
-        if (context instanceof scope.context) {
-            result.add(scope as IVariableScope<T>);
-        }
+    public constructor(engine: BBTagEngine<typeof DiscordContext>, args: IExecutionContextArgs<DiscordContext>) {
+        super(engine, args);
     }
+}
 
-    return result;
+export class BlargbotContext extends DiscordContext {
+    public readonly type!: typeof BlargbotContext;
+
+    public constructor(engine: BBTagEngine<typeof BlargbotContext>, args: IExecutionContextArgs<BlargbotContext>) {
+        super(engine, args);
+    }
 }
 
 export class OptimizationContext {
@@ -76,6 +81,3 @@ export class OptimizationContext {
         this.warnings = [];
     }
 }
-
-// This needs to be at the end due to a circular reference
-import { default as variableScopes, IVariableScope } from './variableScope';

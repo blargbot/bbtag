@@ -4,9 +4,9 @@ import { ISubtagToken, SubtagResult } from '../../src/language';
 import { ISubtag, SubtagContext } from '../../src/structures';
 import { Awaitable } from '../../src/util';
 
-export class MockEngine extends Engine {
+export class MockEngine extends Engine<typeof MockExecutionContext> {
     public constructor() {
-        super(new MockDatabase());
+        super(MockExecutionContext, new MockDatabase());
     }
 }
 
@@ -26,7 +26,7 @@ export class MockDatabase implements IDatabase {
 
 export class MockExecutionContext extends SubtagContext {
     public constructor() {
-        super(new MockEngine(), 'Tests', { scope: 'TESTS' });
+        super(new MockEngine(), { scope: 'TESTS', name: 'Tests' });
     }
 }
 

@@ -4,7 +4,6 @@ import { Awaitable, Enumerable } from '../util';
 import { SubtagContext } from './context';
 
 export interface IVariableScope<T extends SubtagContext = SubtagContext> {
-    context: new (...args: any[]) => T;
     name: string;
     prefix: string;
     description: string;
@@ -47,7 +46,6 @@ export interface IVariableScope<T extends SubtagContext = SubtagContext> {
 }
 
 export interface IPartialVariableScope<T extends SubtagContext = SubtagContext> {
-    context: IVariableScope<T>['context'];
     name: IVariableScope<T>['name'];
     prefix: IVariableScope<T>['prefix'];
     description: IVariableScope<T>['description'];
@@ -58,10 +56,7 @@ export interface IPartialVariableScope<T extends SubtagContext = SubtagContext> 
     getKey: IVariableScope<T>['getKey'];
 }
 
-export const variableScopes: IVariableScope[] = [];
-
 export class VariableScope<T extends SubtagContext = SubtagContext> implements IVariableScope<T> {
-    public readonly context: new (...args: any[]) => T;
     public readonly name: string;
     public readonly prefix: string;
     public readonly description: string;
@@ -74,7 +69,6 @@ export class VariableScope<T extends SubtagContext = SubtagContext> implements I
     public readonly getKey: (context: T, key: string) => Iterable<string>;
 
     public constructor(options: IPartialVariableScope<T>) {
-        this.context = options.context;
         this.name = options.name;
         this.prefix = options.prefix;
         this.description = options.description;
@@ -93,7 +87,7 @@ export class VariableScope<T extends SubtagContext = SubtagContext> implements I
      * @param value The value to set the key to
      */
     public set(context: T, key: string, value: DatabaseValue): Awaitable<void | ISubtagError | undefined> {
-        return context.database.set(this.getKey(context, key), value);
+        return context.engine.database.set(this.getKey(context, key), value);
     }
 
     /**
@@ -102,7 +96,7 @@ export class VariableScope<T extends SubtagContext = SubtagContext> implements I
      * @param entries The key value pairs to set
      */
     public setBulk(context: T, entries: Iterable<readonly [string, DatabaseValue]>): Awaitable<void | ISubtagError | undefined> {
-        return context.database.setBulk(Enumerable.from(entries).select(([key, value]) => [this.getKey(context, key), value]));
+        return context.engine.database.setBulk(Enumerable.from(entries).select(([key, value]) => [this.getKey(context, key), value]));
     }
 
     /**
@@ -111,7 +105,7 @@ export class VariableScope<T extends SubtagContext = SubtagContext> implements I
      * @param key The key to retrieve the value of
      */
     public get(context: T, key: string): Awaitable<DatabaseValue> {
-        return context.database.get(this.getKey(context, key));
+        return context.engine.database.get(this.getKey(context, key));
     }
 
     /**
@@ -120,50 +114,6 @@ export class VariableScope<T extends SubtagContext = SubtagContext> implements I
      * @param key The key to delete
      */
     public delete(context: T, key: string): Awaitable<void> {
-        return context.database.delete(this.getKey(context, key));
+        return context.engine.database.delete(this.getKey(context, key));
     }
 }
-
-variableScopes.push(new VariableScope({ // Global '*'
-    context: SubtagContext,
-    name: 'Global',
-    prefix: '*',
-    description:
-        'Global variables are completely public, anyone can read **OR EDIT** your global variables.\n' +
-        'These are very useful if you like pain.',
-    getKey(_: SubtagContext, key: string): Iterable<string> {
-        return ['GLOBAL', key];
-    }
-}));
-
-variableScopes.push(new VariableScope({ // Temporary '~'
-    context: SubtagContext,
-    name: 'Temporary',
-    prefix: '~',
-    description:
-        'Temporary variables are never stored to the database, meaning they are by far the fastest variable type.\n' +
-        'If you are working with data which you only need to store for later use within the same tag call, ' +
-        'then you should use temporary variables over any other type',
-    set(): void { },
-    setBulk(): void { },
-    get(): DatabaseValue { return ''; },
-    delete(): void { },
-    getKey(): Iterable<string> { return []; }
-}));
-
-variableScopes.push(new VariableScope({ // Local ''
-    context: SubtagContext,
-    name: 'Local',
-    prefix: '',
-    description:
-        'Local variables are the default variable type, only usable if your variable name doesnt start with ' +
-        'one of the other prefixes. These variables are only accessible by the tag that created them, meaning ' +
-        'there is no possibility to share the values with any other tag.\n' +
-        'These are useful if you are intending to create a single tag which is usable anywhere, as the variables ' +
-        'are not confined to a single server, just a single tag',
-    getKey(context: SubtagContext, key: string): Iterable<string> {
-        return ['LOCAL', context.tagName, context.scope, key];
-    }
-}));
-
-export default variableScopes;
