@@ -1,5 +1,5 @@
 import { SubtagContext } from '../contexts';
-import { Enumerable, IsSuperOf } from '../util';
+import { Enumerable, IsBetween } from '../util';
 import { IterableEnumerable } from '../util/enumerable/adapters';
 import { ISubtag } from './subtag';
 
@@ -43,7 +43,7 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
             _find(this._nameMap, name) || _find(this._aliasMap, name);
     }
 
-    public remove<TSubtag extends IsSuperOf<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
+    public remove<TSubtag extends IsBetween<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
     public remove(...subtags: Array<ISubtag<any>>): this {
         for (const subtag of subtags) {
             _remove(this._nameMap, subtag.name, subtag);
@@ -55,7 +55,7 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
         return this;
     }
 
-    public register<TSubtag extends SubtagContext & IsSuperOf<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
+    public register<TSubtag extends IsBetween<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
     public register(...subtags: Array<ISubtag<any>>): this {
         for (const subtag of subtags) {
             _register(this._nameMap, subtag.name, subtag);
