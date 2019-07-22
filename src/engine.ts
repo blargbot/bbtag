@@ -1,13 +1,13 @@
 import { IDatabase } from './external';
 import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './language';
 import { optimizeStringToken } from './optimizer';
-import { EventManager, ExecutionContext, ISubtag, OptimizationContext } from './structures';
+import { EventManager, ISubtag, OptimizationContext, SubtagContext } from './structures';
 import { Awaitable, format } from './util';
 
 interface IEngineEvents {
-    'before-execute': (token: ISubtagToken, context: ExecutionContext) => Awaitable<void>;
-    'after-execute': (token: ISubtagToken, context: ExecutionContext, result: SubtagResult) => Awaitable<void>;
-    'subtag-error': (token: ISubtagToken, context: ExecutionContext, error: any) => Awaitable<void>;
+    'before-execute': (token: ISubtagToken, context: SubtagContext) => Awaitable<void>;
+    'after-execute': (token: ISubtagToken, context: SubtagContext, result: SubtagResult) => Awaitable<void>;
+    'subtag-error': (token: ISubtagToken, context: SubtagContext, error: any) => Awaitable<void>;
 }
 
 export class Engine {
@@ -21,8 +21,8 @@ export class Engine {
         this.events = new EventManager();
     }
 
-    public execute(token: IStringToken, context: ExecutionContext): Awaitable<SubtagResult>;
-    public async execute(token: IStringToken, context: ExecutionContext): Promise<SubtagResult> {
+    public execute(token: IStringToken, context: SubtagContext): Awaitable<SubtagResult>;
+    public async execute(token: IStringToken, context: SubtagContext): Promise<SubtagResult> {
         const parts: SubtagResult[] = [];
         for (const subtag of token.subtags) {
             parts.push(await this.executeSubtag(subtag, context));
@@ -34,11 +34,11 @@ export class Engine {
         }
     }
 
-    public process(source: string): IBBTag {
+    public process<T extends SubtagContext>(source: string, context: T): IBBTag {
         const root = bbtag.parse(source);
         return {
             source,
-            root: optimizeStringToken(root, new OptimizationContext(this))
+            root: optimizeStringToken(root, new OptimizationContext(context))
         };
     }
 
@@ -52,7 +52,7 @@ export class Engine {
         return this;
     }
 
-    protected async executeSubtag(token: ISubtagToken, context: ExecutionContext): Promise<SubtagResult> {
+    protected async executeSubtag(token: ISubtagToken, context: SubtagContext): Promise<SubtagResult> {
         await Promise.all(this.events.raise('before-execute', token, context));
         const name = bbtag.toString(await this.execute(token.name, context));
         const executor = context.subtags.find(name);

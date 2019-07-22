@@ -1,6 +1,6 @@
 import { DatabaseValue } from '../external';
 import { Awaitable, Enumerable } from '../util';
-import { ExecutionContext } from './context';
+import { SubtagContext } from './context';
 import { SortedList } from './sortedList';
 import { IVariableScope } from './variableScope';
 
@@ -9,7 +9,7 @@ interface IVariableEntry {
     current: DatabaseValue;
 }
 
-export class VariableCollection<T extends ExecutionContext> {
+export class VariableCollection<T extends SubtagContext> {
     private readonly context: T;
     private readonly cache: Map<string, IVariableEntry>;
     private readonly variableScopes: SortedList<IVariableScope<T>>;
@@ -103,6 +103,6 @@ export class VariableCollection<T extends ExecutionContext> {
     }
 }
 
-function checkContext<T extends ExecutionContext>(scope: IVariableScope<any>, context: T): scope is IVariableScope<T> {
+function checkContext<T extends SubtagContext>(scope: IVariableScope<any>, context: T): scope is IVariableScope<T> {
     return context instanceof scope.context;
 }

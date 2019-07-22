@@ -3,19 +3,19 @@ import { Awaitable, Enumerable } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
-import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
+import { OptimizationContext, SubtagContext } from './context';
 
-type SubtagHandler<T extends ExecutionContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
-type PreExecute<T extends ExecutionContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;
-type AutoResolvable<T extends ExecutionContext> = Iterable<number> | PreExecute<T> | boolean;
+type SubtagHandler<T extends SubtagContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
+type PreExecute<T extends SubtagContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;
+type AutoResolvable<T extends SubtagContext> = Iterable<number> | PreExecute<T> | boolean;
 
-interface ISubtagConditionalHandler<T extends ExecutionContext, TSelf extends Subtag<T>> {
+interface ISubtagConditionalHandler<T extends SubtagContext, TSelf extends Subtag<T>> {
     condition: SubtagConditionFunc;
     handler: SubtagHandler<T, TSelf>;
     preExecute: PreExecute<T>;
 }
 
-export interface ISubtag<TContext extends ExecutionContext> {
+export interface ISubtag<TContext extends SubtagContext> {
     readonly context: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
@@ -37,7 +37,7 @@ export interface ISubtagOptions<TContext extends SubtagContext> {
     arraySupport?: boolean;
 }
 
-export abstract class Subtag<TContext extends ExecutionContext> implements ISubtag<TContext> {
+export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<TContext> {
     protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
 
     public readonly context: new (...args: any[]) => TContext;
@@ -138,7 +138,7 @@ export abstract class Subtag<TContext extends ExecutionContext> implements ISubt
     }
 }
 
-function toFunction<T extends ExecutionContext>(preExecute?: Iterable<number> | PreExecute<T> | boolean): PreExecute<T> {
+function toFunction<T extends SubtagContext>(preExecute?: Iterable<number> | PreExecute<T> | boolean): PreExecute<T> {
     switch (typeof preExecute) {
         case 'function': return preExecute;
         case 'boolean': return args => voidResult(args.executeAll());

@@ -1,5 +1,5 @@
 import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../../src/language';
-import { ExecutionContext } from '../../src/structures';
+import { SubtagContext } from '../../src/structures';
 import { Position, Range } from '../../src/util';
 import { MockExecutionContext } from './mocks';
 
@@ -19,11 +19,11 @@ export function arr(values: SubtagResultArray, name?: string): SubtagResultArray
     return values;
 }
 
-export function err(message: string, token: IStringToken | ISubtagToken, context: ExecutionContext): ISubtagError {
+export function err(message: string, token: IStringToken | ISubtagToken, context: SubtagContext): ISubtagError {
     return { message, token, context };
 }
 
-export function ctx(setup: (context: ExecutionContext) => any = () => { }): ExecutionContext {
+export function ctx(setup: (context: SubtagContext) => any = () => { }): SubtagContext {
     const result = new MockExecutionContext();
     setup(result);
     return result;

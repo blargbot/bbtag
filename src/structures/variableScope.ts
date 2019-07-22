@@ -1,9 +1,9 @@
 import { DatabaseValue } from '../external';
 import { ISubtagError } from '../language';
 import { Awaitable, Enumerable } from '../util';
-import { ExecutionContext } from './context';
+import { SubtagContext } from './context';
 
-export interface IVariableScope<T extends ExecutionContext = ExecutionContext> {
+export interface IVariableScope<T extends SubtagContext = SubtagContext> {
     context: new (...args: any[]) => T;
     name: string;
     prefix: string;
@@ -46,7 +46,7 @@ export interface IVariableScope<T extends ExecutionContext = ExecutionContext> {
     getKey(context: T, key: string): Iterable<string>;
 }
 
-export interface IPartialVariableScope<T extends ExecutionContext = ExecutionContext> {
+export interface IPartialVariableScope<T extends SubtagContext = SubtagContext> {
     context: IVariableScope<T>['context'];
     name: IVariableScope<T>['name'];
     prefix: IVariableScope<T>['prefix'];
@@ -60,7 +60,7 @@ export interface IPartialVariableScope<T extends ExecutionContext = ExecutionCon
 
 export const variableScopes: IVariableScope[] = [];
 
-export class VariableScope<T extends ExecutionContext = ExecutionContext> implements IVariableScope<T> {
+export class VariableScope<T extends SubtagContext = SubtagContext> implements IVariableScope<T> {
     public readonly context: new (...args: any[]) => T;
     public readonly name: string;
     public readonly prefix: string;
@@ -125,19 +125,19 @@ export class VariableScope<T extends ExecutionContext = ExecutionContext> implem
 }
 
 variableScopes.push(new VariableScope({ // Global '*'
-    context: ExecutionContext,
+    context: SubtagContext,
     name: 'Global',
     prefix: '*',
     description:
         'Global variables are completely public, anyone can read **OR EDIT** your global variables.\n' +
         'These are very useful if you like pain.',
-    getKey(_: ExecutionContext, key: string): Iterable<string> {
+    getKey(_: SubtagContext, key: string): Iterable<string> {
         return ['GLOBAL', key];
     }
 }));
 
 variableScopes.push(new VariableScope({ // Temporary '~'
-    context: ExecutionContext,
+    context: SubtagContext,
     name: 'Temporary',
     prefix: '~',
     description:
@@ -152,7 +152,7 @@ variableScopes.push(new VariableScope({ // Temporary '~'
 }));
 
 variableScopes.push(new VariableScope({ // Local ''
-    context: ExecutionContext,
+    context: SubtagContext,
     name: 'Local',
     prefix: '',
     description:
@@ -161,7 +161,7 @@ variableScopes.push(new VariableScope({ // Local ''
         'there is no possibility to share the values with any other tag.\n' +
         'These are useful if you are intending to create a single tag which is usable anywhere, as the variables ' +
         'are not confined to a single server, just a single tag',
-    getKey(context: ExecutionContext, key: string): Iterable<string> {
+    getKey(context: SubtagContext, key: string): Iterable<string> {
         return ['LOCAL', context.tagName, context.scope, key];
     }
 }));

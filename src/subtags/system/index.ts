@@ -1,4 +1,4 @@
-import { ExecutionContext, ISubtag } from '../../structures';
+import { ISubtag, SubtagContext } from '../../structures';
 import { default as bool } from './bool';
 import { default as comment } from './comment';
 import { default as get } from './get';
@@ -19,4 +19,4 @@ export default [
     bool,
     get,
     set
-] as Array<ISubtag<ExecutionContext>>;
+] as Array<ISubtag<SubtagContext>>;

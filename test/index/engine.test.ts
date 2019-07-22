@@ -2,8 +2,9 @@
 import { expect } from 'chai';
 import { Engine } from '../../src/engine';
 import { bbtag, IStringToken, SubtagResult } from '../../src/language';
-import { ExecutionContext } from '../../src/structures';
+import { SubtagContext } from '../../src/structures';
 import { default as subtags } from '../../src/subtags';
+import { MockExecutionContext } from '../testHelpers/mocks';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
 describe('class Engine', () => {
@@ -24,7 +25,8 @@ describe('class Engine', () => {
                     // arrange
                     const engine = new Engine(undefined!);
                     engine.subtags.push(...subtags);
-                    const test = () => engine.process(input);
+                    const context = new SubtagContext(engine, 'test', { scope: 'testing' });
+                    const test = () => engine.process(input, context);
 
                     // act
 
@@ -36,9 +38,10 @@ describe('class Engine', () => {
                     // arrange
                     const engine = new Engine(undefined!);
                     engine.subtags.push(...subtags);
+                    const context = new SubtagContext(engine, 'test', { scope: 'testing' });
 
                     // act
-                    const result = engine.process(input);
+                    const result = engine.process(input, context);
 
                     // assert
                     expect(stripStrToken(result.root)).to.deep.equal(stripStrToken(expected));
@@ -49,9 +52,10 @@ describe('class Engine', () => {
 
     describe('function execute', () => {
         const engine = new Engine(undefined!);
+        const setupContext = new MockExecutionContext();
         engine.subtags.push(...subtags);
 
-        const testCases: Array<{ input: string, token?: IStringToken, assert: (context: ExecutionContext, result: SubtagResult) => void }> = [
+        const testCases: Array<{ input: string, token?: IStringToken, assert: (context: SubtagContext, result: SubtagResult) => void }> = [
             { input: 'hi {if;true;yay!}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi yay!') },
             { input: 'hi {if;true}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi `Not enough arguments`') },
             { input: 'hi {if;false;booo}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi ') },
@@ -60,13 +64,13 @@ describe('class Engine', () => {
         ];
 
         for (const entry of testCases) {
-            entry.token = engine.process(entry.input).root;
+            entry.token = engine.process(entry.input, setupContext).root;
         }
 
         for (const { input, token, assert } of testCases) {
             it(`should correctly execute '${input}'`, async () => {
                 // arrange
-                const context = new ExecutionContext(engine, 'test', { scope: 'tests' });
+                const context = new SubtagContext(engine, 'test', { scope: 'tests' });
 
                 // act
                 const result = await engine.execute(token!, context);

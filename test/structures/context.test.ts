@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { ExecutionContext, IExecutionContextArgs } from '../../src/structures';
+import { IExecutionContextArgs, SubtagContext } from '../../src/structures';
 import { MockEngine, MockSubtag } from '../testHelpers/mocks';
 
 describe('class ExecutionContext', () => {
@@ -8,13 +8,13 @@ describe('class ExecutionContext', () => {
         // arrange
         const engine = new MockEngine();
         const name = 'testName';
-        const args: IExecutionContextArgs<ExecutionContext> = {
+        const args: IExecutionContextArgs<SubtagContext> = {
             scope: 'test'
         };
-        engine.subtags.push(new MockSubtag<ExecutionContext>(ExecutionContext, name));
+        engine.subtags.push(new MockSubtag<SubtagContext>(SubtagContext, name));
 
         // act
-        const result = new ExecutionContext(engine, name, args);
+        const result = new SubtagContext(engine, name, args);
 
         // assert
         expect(result.database).to.equal(engine.database);

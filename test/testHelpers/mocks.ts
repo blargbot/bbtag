@@ -1,7 +1,7 @@
 import { Engine } from '../../src';
 import { DatabaseValue, IDatabase } from '../../src/external';
 import { ISubtagToken, SubtagResult } from '../../src/language';
-import { ExecutionContext, ISubtag } from '../../src/structures';
+import { ISubtag, SubtagContext } from '../../src/structures';
 import { Awaitable } from '../../src/util';
 
 export class MockEngine extends Engine {
@@ -24,13 +24,13 @@ export class MockDatabase implements IDatabase {
     }
 }
 
-export class MockExecutionContext extends ExecutionContext {
+export class MockExecutionContext extends SubtagContext {
     public constructor() {
         super(new MockEngine(), 'Tests', { scope: 'TESTS' });
     }
 }
 
-export class MockSubtag<T extends ExecutionContext> implements ISubtag<T> {
+export class MockSubtag<T extends SubtagContext> implements ISubtag<T> {
     public context: new (...args: any[]) => T;
     public name: string;
     public aliases: Set<string>;

@@ -1,15 +1,10 @@
 import { Enumerable } from '../util';
-import { ExecutionContext, OptimizationContext, SubtagContext } from './context';
+import { SubtagContext } from './context';
 import { ISubtag } from './subtag';
 
-type SubtagType<T>
-    = T extends ExecutionContext ? ISubtag<T>
-    : T extends OptimizationContext ? ISubtag<any>
-    : never;
-
 export class SubtagCollection<T extends SubtagContext> {
-    private readonly _nameMap: Map<string, Array<SubtagType<T>>>;
-    private readonly _aliasMap: Map<string, Array<SubtagType<T>>>;
+    private readonly _nameMap: Map<string, Array<ISubtag<T>>>;
+    private readonly _aliasMap: Map<string, Array<ISubtag<T>>>;
 
     public constructor()
     public constructor(context: T, subtags: Iterable<ISubtag<any>>)
@@ -22,12 +17,12 @@ export class SubtagCollection<T extends SubtagContext> {
         }
     }
 
-    public [Symbol.iterator](): Iterator<SubtagType<T>> {
+    public [Symbol.iterator](): Iterator<ISubtag<T>> {
         return Enumerable.from(this._nameMap.values())
             .selectMany(x => x)[Symbol.iterator]();
     }
 
-    public find(name: string): SubtagType<T> | undefined {
+    public find(name: string): ISubtag<T> | undefined {
         const byName = this._nameMap.get(name);
         if (byName !== undefined && byName.length > 0) {
             return byName[byName.length - 1];
@@ -39,7 +34,7 @@ export class SubtagCollection<T extends SubtagContext> {
         return undefined;
     }
 
-    public remove(...subtags: Array<SubtagType<T>>): this {
+    public remove(...subtags: Array<ISubtag<T>>): this {
         for (const subtag of subtags) {
             _remove(this._nameMap, subtag.name, subtag);
             for (const alias of subtag.aliases) {
@@ -50,7 +45,7 @@ export class SubtagCollection<T extends SubtagContext> {
         return this;
     }
 
-    public register(...subtags: Array<SubtagType<T>>): this {
+    public register(...subtags: Array<ISubtag<T>>): this {
         for (const subtag of subtags) {
             _register(this._nameMap, subtag.name, subtag);
             for (const alias of subtag.aliases) {
@@ -62,29 +57,25 @@ export class SubtagCollection<T extends SubtagContext> {
     }
 }
 
-function _register<T>(map: Map<string, Array<SubtagType<T>>>, key: string, subtag: SubtagType<T>): void {
+function _register<T>(map: Map<string, T[]>, key: string, value: T): void {
     const current = map.get(key);
     if (current === undefined) {
-        map.set(key, [subtag]);
+        map.set(key, [value]);
     } else {
-        current.push(subtag);
+        current.push(value);
     }
 }
 
-function _remove<T>(map: Map<string, Array<SubtagType<T>>>, key: string, subtag: SubtagType<T>): void {
+function _remove<T>(map: Map<string, T[]>, key: string, value: T): void {
     const current = map.get(key);
     if (current !== undefined) {
-        current.splice(current.indexOf(subtag), 1);
+        current.splice(current.indexOf(value), 1);
         if (current.length === 0) {
             map.delete(key);
         }
     }
 }
 
-function filterSubtags<T>(context: T, subtags: Iterable<ISubtag<any>>): Iterable<SubtagType<T>> {
-    if (context instanceof OptimizationContext) {
-        return subtags as Iterable<SubtagType<T>>;
-    } else {
-        return Enumerable.from(subtags).where(s => context instanceof s.context) as Iterable<ISubtag<any>> as Iterable<SubtagType<T>>;
-    }
+function filterSubtags<T extends SubtagContext>(context: T, subtags: Iterable<ISubtag<any>>): Iterable<ISubtag<T>> {
+    return Enumerable.from(subtags).where(s => context instanceof s.context);
 }

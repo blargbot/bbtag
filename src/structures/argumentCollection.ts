@@ -1,8 +1,8 @@
 import { IStringToken, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable, Enumerable } from '../util';
-import { ExecutionContext } from './context';
+import { SubtagContext } from './context';
 
-export class ArgumentCollection<T extends ExecutionContext = ExecutionContext> {
+export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
     public readonly context: T;
     public readonly token: ISubtagToken;
     private readonly _resultCache: Map<number, SubtagResult>;

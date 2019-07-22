@@ -1,9 +1,9 @@
 import { IStringToken, ISubtagError, ISubtagToken } from '../language';
 import { ArgumentCollection } from './argumentCollection';
-import { ExecutionContext } from './context';
+import { SubtagContext } from './context';
 
 type TokenType = ISubtagToken | IStringToken;
-type EXC = ExecutionContext;
+type EXC = SubtagContext;
 type AC<T extends EXC> = ArgumentCollection<T>;
 
 type FuncCollection<T> = { readonly [P in keyof T]: FuncCollection<T[P]> | ((...args: any[]) => ISubtagError) };

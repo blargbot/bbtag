@@ -6,7 +6,7 @@ import { SortedList } from './sortedList';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCollection } from './variableCollection';
 
-export interface IExecutionContextArgs<T extends ExecutionContext> {
+export interface IExecutionContextArgs<T extends SubtagContext> {
     readonly scope: string;
     readonly variableScopes?: Iterable<IVariableScope<T>>;
 }
@@ -15,32 +15,24 @@ export interface IContextState {
     return: boolean;
 }
 
-export abstract class SubtagContext {
+export class SubtagContext {
     public readonly engine: Engine;
     public readonly subtags: SubtagCollection<this>;
     public readonly tagName: string;
     public readonly state: Partial<IContextState>;
+    public readonly scope: string;
+    public readonly variables: VariableCollection<this>;
+    public readonly errors: ISubtagError[];
     public fallback: SubtagResult;
 
     public get database(): IDatabase { return this.engine.database; }
 
-    public constructor(engine: Engine, tagName: string) {
+    public constructor(engine: Engine, tagName: string, args: IExecutionContextArgs<SubtagContext>) {
         this.engine = engine;
         this.subtags = new SubtagCollection(this, engine.subtags);
         this.tagName = tagName;
         this.fallback = undefined;
         this.state = {};
-    }
-}
-
-export class ExecutionContext extends SubtagContext {
-    public readonly scope: string;
-    public readonly variables: VariableCollection<this>;
-    public readonly errors: ISubtagError[];
-
-    public constructor(engine: Engine, tagName: string, args: IExecutionContextArgs<ExecutionContext>) {
-        super(engine, tagName);
-
         this.scope = args.scope;
         this.variables = new VariableCollection<this>(this, filterVariableScopes(this, args.variableScopes || variableScopes));
         this.errors = [];
@@ -63,7 +55,7 @@ export class ExecutionContext extends SubtagContext {
     }
 }
 
-function filterVariableScopes<T extends ExecutionContext>(context: T, scopes: Iterable<IVariableScope<ExecutionContext>>): SortedList<IVariableScope<T>> {
+function filterVariableScopes<T extends SubtagContext>(context: T, scopes: Iterable<IVariableScope<SubtagContext>>): SortedList<IVariableScope<T>> {
     const result = new SortedList<IVariableScope<T>>(scope => scope.prefix.length, false);
 
     for (const scope of scopes) {
@@ -75,12 +67,12 @@ function filterVariableScopes<T extends ExecutionContext>(context: T, scopes: It
     return result;
 }
 
-export class OptimizationContext extends SubtagContext {
+export class OptimizationContext {
+    public readonly inner: SubtagContext;
     public readonly warnings: any[];
 
-    public constructor(engine: Engine) {
-        super(engine, 'system_optimize');
-
+    public constructor(inner: SubtagContext) {
+        this.inner = inner;
         this.warnings = [];
     }
 }
