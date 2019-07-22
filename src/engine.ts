@@ -1,8 +1,8 @@
-import { ContextCtor, SubtagContext } from './contexts';
+import { ContextCtor, OptimizationContext, SubtagContext } from './contexts';
 import { IDatabase } from './external';
 import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './language';
 import { optimizeStringToken } from './optimizer';
-import { EventManager, OptimizationContext, SubtagCollection, VariableScopeCollection } from './structures';
+import { EventManager, SubtagCollection, VariableScopeCollection } from './structures';
 import { Awaitable, format } from './util';
 
 interface IEngineEvents {

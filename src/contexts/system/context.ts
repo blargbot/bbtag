@@ -17,7 +17,6 @@ export class SystemContext {
     public readonly variables: VariableCache<this>;
     public readonly subtags: SubtagCollection<this>;
     public readonly tagName: string;
-    public readonly state: Partial<IContextState>;
     public readonly scope: string;
     public readonly errors: ISubtagError[];
     public fallback: SubtagResult;
@@ -31,7 +30,6 @@ export class SystemContext {
         this.subtags = engine.subtags.createChild() as any;
         this.tagName = args.name;
         this.fallback = undefined;
-        this.state = {};
         this.scope = args.scope;
         this.errors = [];
     }
@@ -53,6 +51,12 @@ export class SystemContext {
     }
 }
 
-export interface IContextState {
-    return: boolean;
+export class OptimizationContext {
+    public readonly inner: SystemContext;
+    public readonly warnings: any[];
+
+    public constructor(inner: SystemContext) {
+        this.inner = inner;
+        this.warnings = [];
+    }
 }

@@ -1,5 +1,4 @@
 export * from './subtag';
-export * from './context';
 export * from './argumentBuilder';
 export * from './errors';
 export * from './validation';

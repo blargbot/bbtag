@@ -1,10 +1,9 @@
-import { SubtagContext } from '../contexts';
+import { OptimizationContext, SubtagContext } from '../contexts';
 import { ISubtagToken, SubtagResult } from '../language';
 import { Awaitable, Enumerable } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
-import { OptimizationContext } from './context';
 
 type SubtagHandler<T extends SubtagContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
 type PreExecute<T extends SubtagContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;

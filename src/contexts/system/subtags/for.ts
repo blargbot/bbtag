@@ -53,9 +53,7 @@ export class ForSubtag extends SystemSubtag {
             }
             i = next.value;
 
-            if (context.state.return) {
-                break;
-            }
+            // TODO: Handle {return} subtag
         }
 
         context.variables.rollback(varName);
