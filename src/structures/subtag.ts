@@ -1,9 +1,10 @@
+import { SubtagContext } from '../contexts';
 import { ISubtagToken, SubtagResult } from '../language';
 import { Awaitable, Enumerable } from '../util';
 import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
-import { OptimizationContext, SubtagContext } from './context';
+import { OptimizationContext } from './context';
 
 type SubtagHandler<T extends SubtagContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
 type PreExecute<T extends SubtagContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;
@@ -16,7 +17,6 @@ interface ISubtagConditionalHandler<T extends SubtagContext, TSelf extends Subta
 }
 
 export interface ISubtag<TContext extends SubtagContext> {
-    readonly context: new (...args: any[]) => TContext;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 

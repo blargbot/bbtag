@@ -1,7 +1,7 @@
+import { SubtagContext } from '../contexts';
 import { DatabaseValue } from '../external';
 import { ISubtagError } from '../language';
 import { Awaitable, Enumerable } from '../util';
-import { SubtagContext } from './context';
 
 export interface IVariableScope<T extends SubtagContext = SubtagContext> {
     name: string;

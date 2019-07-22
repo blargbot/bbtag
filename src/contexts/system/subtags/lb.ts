@@ -1,8 +1,8 @@
-import { ISubtagToken } from '../../language';
-import { validation } from '../../structures';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { ISubtagToken } from '../../../language';
+import { validation } from '../../../structures';
+import { SystemSubtag } from '../subtag';
 
-export class LBSubtag extends BasicSubtag {
+export class LBSubtag extends SystemSubtag {
     public constructor() {
         super({
             name: 'lb',

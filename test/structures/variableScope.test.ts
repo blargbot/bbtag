@@ -1,7 +1,8 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
+import { system } from '../../src/contexts';
 import { DatabaseValue } from '../../src/external';
-import { IPartialVariableScope, VariableScope, variableScopes } from '../../src/structures';
+import { IPartialVariableScope, VariableScope } from '../../src/structures';
 import { MockExecutionContext } from '../testHelpers/mocks';
 
 describe('class VariableScope', () => {
@@ -164,7 +165,7 @@ describe('class VariableScope', () => {
 
 describe('const variableScopes', () => {
     describe('Global', () => {
-        const scope = variableScopes.find(s => s.prefix === '*');
+        const scope = system.variableScopes.find(s => s.prefix === '*');
         if (scope === undefined) {
             throw new Error('Unable to find global scope with prefix \'*\'');
         }
@@ -192,7 +193,7 @@ describe('const variableScopes', () => {
         });
     });
     describe('Local', () => {
-        const scope = variableScopes.find(s => s.prefix === '');
+        const scope = system.variableScopes.find(s => s.prefix === '');
         if (scope === undefined) {
             throw new Error('Unable to find local scope with prefix \'\'');
         }
@@ -220,7 +221,7 @@ describe('const variableScopes', () => {
         });
     });
     describe('Temporary', () => {
-        const scope = variableScopes.find(s => s.prefix === '~');
+        const scope = system.variableScopes.find(s => s.prefix === '~');
         if (scope === undefined) {
             throw new Error('Unable to find temporary scope with prefix \'~\'');
         }

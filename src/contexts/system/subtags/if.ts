@@ -1,10 +1,10 @@
-import { bbtag, SubtagResult } from '../../language';
-import { argumentBuilder as A, ArgumentCollection, validation } from '../../structures';
-import { Awaitable } from '../../util';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { bbtag, SubtagResult } from '../../../language';
+import { argumentBuilder as A, ArgumentCollection, validation } from '../../../structures';
+import { Awaitable } from '../../../util';
+import { SystemSubtag } from '../subtag';
 import { BoolSubtag, default as bool } from './bool';
 
-export class IfSubtag extends BasicSubtag {
+export class IfSubtag extends SystemSubtag {
     public constructor() {
         super({
             name: 'if',

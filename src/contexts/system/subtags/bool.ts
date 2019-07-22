@@ -1,10 +1,10 @@
-import { bbtag, SubtagResult } from '../../language';
-import { argumentBuilder as A, ArgumentCollection, validation } from '../../structures';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { bbtag, SubtagResult } from '../../../language';
+import { argumentBuilder as A, ArgumentCollection, validation } from '../../../structures';
+import { SystemSubtag } from '../subtag';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
-export class BoolSubtag extends BasicSubtag {
+export class BoolSubtag extends SystemSubtag {
     public static readonly operators: { readonly [key: string]: operator } = {
         '==': (l, r) => bbtag.compare(l, r) === 0,
         '!=': (l, r) => bbtag.compare(l, r) !== 0,

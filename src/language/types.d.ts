@@ -1,5 +1,5 @@
-import { Range } from '../util';
-import { SubtagContext } from '../structures';
+import { Range } from '../util'
+import { SubtagContext } from '../contexts';
 
 export type SubtagPrimitiveResult = null | undefined | void | string | number | boolean;
 export type SubtagResult = SubtagPrimitiveResult | SubtagResultArray | ISubtagError;
@@ -35,5 +35,5 @@ export interface ISubtagToken {
 export interface ISubtagError {
     readonly message: string;
     readonly token: IStringToken | ISubtagToken;
-    readonly context: SubtagContext;
+    readonly context: SubtagContext
 }

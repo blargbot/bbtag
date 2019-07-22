@@ -1,9 +1,9 @@
-import { bbtag, SubtagResult } from '../../language';
-import { argumentBuilder as A, ArgumentCollection, validation } from '../../structures';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { bbtag, SubtagResult } from '../../../language';
+import { argumentBuilder as A, ArgumentCollection, validation } from '../../../structures';
+import { SystemSubtag } from '../subtag';
 import { default as bool } from './bool';
 
-export class ForSubtag extends BasicSubtag {
+export class ForSubtag extends SystemSubtag {
     public constructor() {
         super({
             name: 'for',

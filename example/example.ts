@@ -1,7 +1,7 @@
-import { BlargbotContext, Engine, IDatabase, subtags, variableScopes } from '../';
+import { blargbot, Engine, IDatabase } from '../';
 
 const database: IDatabase = {} as any;
-const engine = new Engine(BlargbotContext, database);
+const engine = new Engine(blargbot.Context, database);
 
-engine.subtags.register(...subtags.all);
-engine.variableScopes.register(...variableScopes);
+engine.subtags.register(...blargbot.subtags);
+engine.variableScopes.register(...blargbot.variableScopes);

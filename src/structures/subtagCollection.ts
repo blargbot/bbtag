@@ -1,6 +1,6 @@
-import { Enumerable } from '../util';
+import { SubtagContext } from '../contexts';
+import { Enumerable, IsSuperOf } from '../util';
 import { IterableEnumerable } from '../util/enumerable/adapters';
-import { SubtagContext } from './context';
 import { ISubtag } from './subtag';
 
 export class SubtagCollection<T extends SubtagContext> extends IterableEnumerable<ISubtag<T>> {
@@ -10,8 +10,7 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
 
     public constructor()
     public constructor(parent: SubtagCollection<T>)
-    public constructor(subtags: Iterable<ISubtag<T>>)
-    public constructor(...args: [] | [SubtagCollection<T>] | [Iterable<ISubtag<T>>]) {
+    public constructor(...args: [] | [SubtagCollection<T>]) {
         super(() => this[Symbol.iterator]());
 
         this._nameMap = new Map();
@@ -20,8 +19,6 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
 
         if (args[0] instanceof SubtagCollection) {
             this._parent = args[0];
-        } else if (args[0] !== undefined) {
-            this.register(...args[0]);
         }
     }
 
@@ -46,7 +43,8 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
             _find(this._nameMap, name) || _find(this._aliasMap, name);
     }
 
-    public remove(...subtags: Array<ISubtag<T>>): this {
+    public remove<TSubtag extends IsSuperOf<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
+    public remove(...subtags: Array<ISubtag<any>>): this {
         for (const subtag of subtags) {
             _remove(this._nameMap, subtag.name, subtag);
             for (const alias of subtag.aliases) {
@@ -57,7 +55,8 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
         return this;
     }
 
-    public register(...subtags: Array<ISubtag<T>>): this {
+    public register<TSubtag extends SubtagContext & IsSuperOf<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
+    public register(...subtags: Array<ISubtag<any>>): this {
         for (const subtag of subtags) {
             _register(this._nameMap, subtag.name, subtag);
             for (const alias of subtag.aliases) {

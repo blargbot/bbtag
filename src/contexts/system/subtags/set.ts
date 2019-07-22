@@ -1,9 +1,10 @@
-import { bbtag } from '../../language';
-import { argumentBuilder as A, ArgumentCollection, validation, variableScopes } from '../../structures';
-import { Awaitable } from '../../util';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { bbtag } from '../../../language';
+import { argumentBuilder as A, ArgumentCollection, validation } from '../../../structures';
+import { Awaitable } from '../../../util';
+import { SystemSubtag } from '../subtag';
+import { variableScopes } from '../variableScopes';
 
-export class SetSubtag extends BasicSubtag {
+export class SetSubtag extends SystemSubtag {
     public constructor() {
         super({
             name: 'set',

@@ -1,5 +1,5 @@
+import { SubtagContext } from '../../src';
 import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../../src/language';
-import { SubtagContext } from '../../src/structures';
 import { Position, Range } from '../../src/util';
 import { MockExecutionContext } from './mocks';
 

@@ -1,7 +1,7 @@
-import { argumentBuilder as A } from '../../structures';
-import { BasicSubtag } from '../abstract/basicSubtag';
+import { argumentBuilder as A } from '../../../structures';
+import { SystemSubtag } from '../subtag';
 
-export class CommentSubtag extends BasicSubtag {
+export class CommentSubtag extends SystemSubtag {
     public constructor() {
         super({
             name: 'comment',

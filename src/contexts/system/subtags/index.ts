@@ -1,4 +1,6 @@
-import { ISubtag, SubtagContext } from '../../structures';
+import { ISubtag } from '../../../structures';
+import { SystemContext } from '../context';
+
 import { default as bool } from './bool';
 import { default as comment } from './comment';
 import { default as get } from './get';
@@ -9,7 +11,7 @@ import { default as semi } from './semi';
 import { default as set } from './set';
 import { default as zws } from './zws';
 
-export default [
+export const subtags: Array<ISubtag<SystemContext>> = [
     comment,
     lb,
     rb,
@@ -19,4 +21,4 @@ export default [
     bool,
     get,
     set
-] as Array<ISubtag<SubtagContext>>;
+];
