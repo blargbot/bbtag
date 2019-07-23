@@ -1,8 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagContext, system } from '../../src';
-import { BBTagEngine } from '../../src/engine';
-import { bbtag, IStringToken, SubtagResult } from '../../src/language';
+import { bbtag, BBTagEngine, IStringToken, SubtagContext, SubtagResult, system } from '../..';
 import { MockExecutionContext } from '../testHelpers/mocks';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 

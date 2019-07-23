@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, IStringToken } from '../../src/language';
+import { bbtag, IStringToken } from '../..';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
 describe('function parse', () => {

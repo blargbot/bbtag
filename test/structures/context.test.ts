@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagContext, system } from '../../src';
+import { SubtagContext, system } from '../..';
 import { MockEngine, MockSubtag } from '../testHelpers/mocks';
 
 describe('class ExecutionContext', () => {

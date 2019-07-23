@@ -1,8 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { system } from '../../src/contexts';
-import { DatabaseValue } from '../../src/external';
-import { IPartialVariableScope, VariableScope } from '../../src/structures';
+import { IPartialVariableScope, system, VariableScope } from '../..';
+import { DatabaseValue } from '../../external/database';
 import { MockExecutionContext } from '../testHelpers/mocks';
 
 describe('class VariableScope', () => {

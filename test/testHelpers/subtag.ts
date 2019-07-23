@@ -1,6 +1,4 @@
-import { SubtagContext } from '../../src';
-import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../../src/language';
-import { Position, Range } from '../../src/util';
+import { IStringToken, ISubtagError, ISubtagToken, Position, Range, SubtagContext, SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../..';
 import { MockExecutionContext } from './mocks';
 
 const range = new Range(new Position(0, 0, 0), new Position(0, 0, 0));

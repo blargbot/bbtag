@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, ISerializer, SubtagResultArray } from '../../src/language';
+import { bbtag, ISerializer, SubtagResultArray } from '../..';
 import { arr, toName } from '../testHelpers/subtag';
 
 type TestCase<T> = { input: string, value: undefined, output?: undefined } | { input: string, value: T, output?: string };

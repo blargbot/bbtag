@@ -1,8 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagContext } from '../../src';
-import { IStringToken } from '../../src/language';
-import { ArgumentCollection } from '../../src/structures';
+import { ArgumentCollection, IStringToken, SubtagContext } from '../..';
 import { MockExecutionContext } from '../testHelpers/mocks';
 import { str, tag } from '../testHelpers/subtag';
 import { resultOf } from '../testHelpers/utility';
