@@ -1,9 +1,9 @@
-import { ChannelType, DMMessage, GuildMessage } from '../../external';
+import { ChannelType } from '../../external';
 import { ISubtagToken, SubtagResult } from '../../language';
 import { Subtag } from '../../structures';
 import { Awaitable } from '../../util';
 import { ISystemSubtagArgs } from '../system';
-import { DiscordContext } from './context';
+import { DiscordContext, DMContext, GuildContext } from './context';
 
 // tslint:disable-next-line: no-empty-interface
 export interface IDiscordSubtagArgs extends ISystemSubtagArgs {
@@ -15,8 +15,6 @@ export class DiscordSubtag<T extends DiscordContext = DiscordContext> extends Su
         super(args);
     }
 }
-
-type GuildContext = DiscordContext & { message: GuildMessage };
 
 export class GuildSubtag extends DiscordSubtag<GuildContext> {
     protected constructor(args: IDiscordSubtagArgs) {
@@ -33,8 +31,6 @@ export class GuildSubtag extends DiscordSubtag<GuildContext> {
         }
     }
 }
-
-type DMContext = DiscordContext & { message: DMMessage };
 
 export class DMSubtag extends DiscordSubtag<DMContext> {
     protected constructor(args: IDiscordSubtagArgs) {

@@ -10,6 +10,8 @@ export interface ISelfUser extends IUser {
     getDmChannel(): Promise<never>;
 }
 
+
+
 export interface ISelfMember extends IGuildMember {
     readonly user: ISelfUser;
 }

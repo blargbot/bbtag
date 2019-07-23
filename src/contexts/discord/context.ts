@@ -1,6 +1,6 @@
 import { BBTagEngine } from '../../engine';
-import { IDefaultMessage, ISelfUser, IUser } from '../../external';
-import { Context as SubtagContext, ISubtagContextArgs } from '../system';
+import { DMMessage, GuildMessage, IDefaultMessage, ISelfUser, IUser } from '../../external';
+import { Context as SystemContext, ISubtagContextArgs } from '../system';
 
 export interface IDiscordContextArgs extends ISubtagContextArgs {
     readonly message: IDefaultMessage;
@@ -8,7 +8,10 @@ export interface IDiscordContextArgs extends ISubtagContextArgs {
     isUserStaff(this: DiscordContext, user: IUser): Promise<boolean>;
 }
 
-export class DiscordContext extends SubtagContext {
+export type GuildContext = DiscordContext & { message: GuildMessage };
+export type DMContext = DiscordContext & { message: DMMessage };
+
+export class DiscordContext extends SystemContext {
     public readonly type!: typeof DiscordContext;
     public readonly self: ISelfUser;
     public readonly message: IDefaultMessage;
