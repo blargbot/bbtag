@@ -1,4 +1,4 @@
-import { BBTagEngine } from '..';
+import { Engine } from '..';
 import { ISystemContextArgs, SystemContext } from '../system';
 import { DMMessage, GuildMessage, IDefaultMessage, ISelfUser, IUser } from './types';
 
@@ -16,7 +16,7 @@ export class DiscordContext extends SystemContext {
     public readonly self: ISelfUser;
     public readonly message: IDefaultMessage;
 
-    public constructor(engine: BBTagEngine<typeof DiscordContext>, args: IDiscordContextArgs) {
+    public constructor(engine: Engine<typeof DiscordContext>, args: IDiscordContextArgs) {
         super(engine, args);
         this.self = args.self;
         this.message = args.message;

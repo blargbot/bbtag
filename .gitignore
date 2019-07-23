@@ -7,3 +7,4 @@ coverage
 .vscode
 .vs
 .nyc_output
+bbtag-*.tgz

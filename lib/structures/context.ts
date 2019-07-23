@@ -1,10 +1,10 @@
-import { BBTagEngine } from '../engine';
+import { Engine } from '../engine';
 import { IStringToken, ISubtagError, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable } from '../util';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCache } from './variableCache';
 
-export type ContextCtor<T = SubtagContext> = new (engine: BBTagEngine<any>, ...args: any[]) => T;
+export type ContextCtor<T = SubtagContext> = new (engine: Engine<any>, ...args: any[]) => T;
 
 export interface ISubtagContextArgs {
     readonly name: string;
@@ -13,7 +13,7 @@ export interface ISubtagContextArgs {
 
 export class SubtagContext {
     public readonly type: typeof SubtagContext;
-    public readonly engine: BBTagEngine<this['type']>;
+    public readonly engine: Engine<this['type']>;
     public readonly variables: VariableCache<this>;
     public readonly subtags: SubtagCollection<this>;
     public readonly tagName: string;
@@ -21,9 +21,9 @@ export class SubtagContext {
     public readonly errors: ISubtagError[];
     public fallback: SubtagResult;
 
-    public constructor(engine: BBTagEngine<typeof SubtagContext>, args: ISubtagContextArgs) {
+    public constructor(engine: Engine<typeof SubtagContext>, args: ISubtagContextArgs) {
         this.type = this.constructor as any;
-        this.engine = engine as BBTagEngine<ContextCtor<this>>;
+        this.engine = engine as Engine<ContextCtor<this>>;
         this.variables = new VariableCache(this);
         this.subtags = engine.subtags.createChild() as any;
         this.tagName = args.name;

@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, BBTagEngine, IStringToken, SubtagContext, SubtagResult } from '../..';
+import { bbtag, Engine, IStringToken, SubtagContext, SubtagResult } from '../..';
 import { subtags, SystemContext } from '../../system';
 import { MockExecutionContext } from '../testHelpers/mocks';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
@@ -18,7 +18,7 @@ describe('class Engine', () => {
             { input: '  { // { // ;why would you do this};comment test} aaaa', expected: str('aaaa') }
         ];
         for (const { input, expected } of testCases) {
-            const engine = new BBTagEngine(SystemContext, undefined!);
+            const engine = new Engine(SystemContext, undefined!);
             engine.subtags.register(...subtags);
             const context = new SystemContext(engine, { scope: 'testing', name: 'test' });
 
@@ -47,7 +47,7 @@ describe('class Engine', () => {
     });
 
     describe('function execute', () => {
-        const engine = new BBTagEngine(MockExecutionContext, undefined!);
+        const engine = new Engine(MockExecutionContext, undefined!);
         const setupContext = new MockExecutionContext();
         engine.subtags.register(...subtags);
 

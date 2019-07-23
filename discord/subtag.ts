@@ -14,7 +14,7 @@ export class DiscordSubtag<T extends DiscordContext = DiscordContext> extends Sy
     }
 }
 
-export class GuildSubtag extends DiscordSubtag<DiscordGuildContext> {
+export class DiscordGuildSubtag extends DiscordSubtag<DiscordGuildContext> {
     protected constructor(args: IDiscordSubtagArgs) {
         super(args);
     }
@@ -30,7 +30,7 @@ export class GuildSubtag extends DiscordSubtag<DiscordGuildContext> {
     }
 }
 
-export class DMSubtag extends DiscordSubtag<DiscordDMContext> {
+export class DiscordDMSubtag extends DiscordSubtag<DiscordDMContext> {
     protected constructor(args: IDiscordSubtagArgs) {
         super(args);
     }

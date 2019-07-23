@@ -1,4 +1,4 @@
-import { BBTagEngine } from '..';
+import { Engine } from '..';
 import { DiscordContext, DMMessage, GuildMessage, IDiscordContextArgs } from '../discord';
 import { IBlargBot } from './types';
 
@@ -14,7 +14,7 @@ export class BlargbotContext extends DiscordContext {
     public readonly type!: typeof BlargbotContext;
     public readonly blargbot: IBlargBot;
 
-    public constructor(engine: BBTagEngine<typeof BlargbotContext>, args: IBlargbotContextArgs) {
+    public constructor(engine: Engine<typeof BlargbotContext>, args: IBlargbotContextArgs) {
         super(engine, args);
 
         this.blargbot = args.blargbot;

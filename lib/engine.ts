@@ -10,7 +10,7 @@ interface IEngineEvents {
     'subtag-error': (token: ISubtagToken, context: SubtagContext, error: any) => Awaitable<void>;
 }
 
-export class BBTagEngine<TContextType extends ContextCtor> {
+export class Engine<TContextType extends ContextCtor> {
     public readonly contextType: TContextType;
     public readonly subtags: SubtagCollection<InstanceType<TContextType>>;
     public readonly variableScopes: VariableScopeCollection<InstanceType<TContextType>>;

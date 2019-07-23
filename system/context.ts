@@ -1,14 +1,11 @@
-import { BBTagEngine, ISubtagContextArgs, SubtagContext } from '..';
+import { Engine, ISubtagContextArgs, SubtagContext } from '..';
 
-// tslint:disable-next-line: no-empty-interface
-export interface ISystemContextArgs extends ISubtagContextArgs {
-    // TODO: define ISystemContextArgs
-}
+export type ISystemContextArgs = ISubtagContextArgs;
 
 export class SystemContext extends SubtagContext {
     public readonly type!: typeof SystemContext;
 
-    public constructor(engine: BBTagEngine<typeof SystemContext>, args: ISystemContextArgs) {
+    public constructor(engine: Engine<typeof SystemContext>, args: ISystemContextArgs) {
         super(engine, args);
     }
 }
