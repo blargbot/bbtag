@@ -1,9 +1,8 @@
-import { OptimizationContext, SubtagContext } from '../contexts';
 import { ISubtagToken, SubtagResult } from '../language';
-import { Awaitable, Enumerable } from '../util';
-import { conditionParsers, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util/conditions';
+import { Awaitable, conditionParsers, Enumerable, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
+import { OptimizationContext, SubtagContext } from './context';
 
 type SubtagHandler<T extends SubtagContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
 type PreExecute<T extends SubtagContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;
@@ -25,12 +24,12 @@ export interface ISubtag<TContext extends SubtagContext> {
 
 interface IUsageExample { code: string; arguments?: string[]; output: string; effects?: string; }
 
-export interface ISubtagOptions {
+export interface ISubtagArgs<TContext extends SubtagContext> {
     name: string;
     category: string;
     aliases?: Iterable<string>;
     arguments: Iterable<SubtagArgumentDefinition>;
-    description: string;
+    description: string | ((context: TContext) => string);
     examples?: Iterable<IUsageExample>;
     arraySupport?: boolean;
 }
@@ -41,7 +40,7 @@ export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<
     public readonly name: string;
     public readonly category: string;
     public readonly aliases: Set<string>;
-    public readonly description: string;
+    public readonly description: (context: TContext) => string;
     public readonly arguments: SubtagArgumentDefinition[];
     public readonly examples?: IUsageExample[];
     public readonly arraySupport: boolean;
@@ -49,11 +48,11 @@ export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<
     private readonly _conditionals: Array<ISubtagConditionalHandler<TContext, this>>;
     private _defaultHandler?: ISubtagConditionalHandler<TContext, this>;
 
-    protected constructor(args: ISubtagOptions) {
+    protected constructor(args: ISubtagArgs<TContext>) {
         this.name = args.name;
         this.category = args.category;
         this.aliases = Enumerable.from(args.aliases || []).toSet();
-        this.description = args.description;
+        this.description = typeof args.description === 'string' ? () => args.description as string : args.description;
         this.arguments = Enumerable.from(args.arguments).toArray();
         this.examples = Enumerable.from(args.examples || []).toArray();
         this.arraySupport = args.arraySupport || false;

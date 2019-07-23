@@ -1,5 +1,5 @@
-import { OptimizationContext } from './contexts';
 import { IStringToken, ISubtagToken } from './language';
+import { OptimizationContext } from './structures';
 import * as util from './util';
 
 export function optimizeSubtagToken(input: ISubtagToken, context: OptimizationContext): ISubtagToken | string {

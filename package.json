@@ -10,7 +10,8 @@
         "build": "tsc",
         "rebuild": "npm run clean && npm run build && npm run lint",
         "test": "mocha",
-        "coverage": "nyc npm test"
+        "coverage": "nyc npm test",
+        "pack": "npm run rebuild && npm pack"
     },
     "repository": {
         "type": "git",

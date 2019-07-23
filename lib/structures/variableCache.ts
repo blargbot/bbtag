@@ -1,6 +1,6 @@
-import { DatabaseValue } from '../../external/database';
-import { SubtagContext } from '../contexts';
 import { Awaitable, Enumerable } from '../util';
+import { SubtagContext } from './context';
+import { DatabaseValue } from './database';
 import { IVariableScope } from './variableScope';
 
 interface ICacheEntry {

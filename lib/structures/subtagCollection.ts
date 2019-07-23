@@ -1,6 +1,5 @@
-import { SubtagContext } from '../contexts';
-import { Enumerable, IsBetween } from '../util';
-import { IterableEnumerable } from '../util/enumerable/adapters';
+import { Enumerable, IsBetween, IterableEnumerable } from '../util';
+import { SubtagContext } from './context';
 import { ISubtag } from './subtag';
 
 export class SubtagCollection<T extends SubtagContext> extends IterableEnumerable<ISubtag<T>> {

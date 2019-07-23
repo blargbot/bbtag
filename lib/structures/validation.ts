@@ -1,6 +1,6 @@
-import { SubtagContext } from '../contexts';
 import { IStringToken, ISubtagError, ISubtagToken } from '../language';
 import { ArgumentCollection } from './argumentCollection';
+import { SubtagContext } from './context';
 
 type TokenType = ISubtagToken | IStringToken;
 type EXC = SubtagContext;

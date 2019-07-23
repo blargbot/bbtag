@@ -1,6 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, BBTagEngine, IStringToken, SubtagContext, SubtagResult, system } from '../..';
+import { bbtag, BBTagEngine, IStringToken, SubtagContext, SubtagResult } from '../..';
+import { subtags, SystemContext } from '../../system';
 import { MockExecutionContext } from '../testHelpers/mocks';
 import { str, stripStrToken, tag } from '../testHelpers/subtag';
 
@@ -17,9 +18,9 @@ describe('class Engine', () => {
             { input: '  { // { // ;why would you do this};comment test} aaaa', expected: str('aaaa') }
         ];
         for (const { input, expected } of testCases) {
-            const engine = new BBTagEngine(SubtagContext, undefined!);
-            engine.subtags.register(...system.subtags);
-            const context = new SubtagContext(engine, { scope: 'testing', name: 'test' });
+            const engine = new BBTagEngine(SystemContext, undefined!);
+            engine.subtags.register(...subtags);
+            const context = new SystemContext(engine, { scope: 'testing', name: 'test' });
 
             if (expected instanceof Error) {
                 it(`should fail to process '${input}' because ${expected.message}`, () => {
@@ -48,7 +49,7 @@ describe('class Engine', () => {
     describe('function execute', () => {
         const engine = new BBTagEngine(MockExecutionContext, undefined!);
         const setupContext = new MockExecutionContext();
-        engine.subtags.register(...system.subtags);
+        engine.subtags.register(...subtags);
 
         const testCases: Array<{ input: string, token?: IStringToken, assert: (context: SubtagContext, result: SubtagResult) => void }> = [
             { input: 'hi {if;true;yay!}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi yay!') },

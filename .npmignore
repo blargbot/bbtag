@@ -1,0 +1,15 @@
+# CI definition
+appveyor.yml
+
+# Notes file
+todo.d.ts
+
+# Old pacakges
+bbtag-*.tgz
+
+# Folders
+test
+coverage
+node_modules
+.nyc_output
+.vscode

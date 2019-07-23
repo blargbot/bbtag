@@ -81,6 +81,7 @@ import * as Chains from './chains';
 import * as Generators from './generators';
 import * as Terminators from './terminators';
 import { comparerFunc, EnumerableSource, predicateFunc, predicateIsFunc, selectorFunc } from './types';
+export { IterableEnumerable, IteratorEnumerator } from './adapters';
 
 Enumerable.from = Generators.createEnumerable;
 Enumerable.empty = Generators.EmptyEnumerable.create;

@@ -1,5 +1,6 @@
 import { Awaitable, BBTagEngine, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../..';
-import { DatabaseValue, IDatabase } from '../../external/database';
+import { DatabaseValue, IDatabase } from '../../lib/structures/database';
+import { SystemContext } from '../../system';
 
 export class MockEngine extends BBTagEngine<typeof MockExecutionContext> {
     public constructor() {
@@ -21,7 +22,7 @@ export class MockDatabase implements IDatabase {
     }
 }
 
-export class MockExecutionContext extends SubtagContext {
+export class MockExecutionContext extends SystemContext {
     public constructor() {
         super(new MockEngine(), { scope: 'TESTS', name: 'Tests' });
     }

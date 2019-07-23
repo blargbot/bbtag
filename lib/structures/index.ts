@@ -1,4 +1,5 @@
 export * from './subtag';
+export * from './context';
 export * from './argumentBuilder';
 export * from './errors';
 export * from './validation';
@@ -9,3 +10,4 @@ export * from './subtagCollection';
 export * from './variableCache';
 export * from './argumentCollection';
 export * from './variableScopeCollection';
+export * from './database';

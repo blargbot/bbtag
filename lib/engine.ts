@@ -1,8 +1,7 @@
-import { IDatabase } from '../external/database';
-import { ContextCtor, OptimizationContext, SubtagContext } from './contexts';
 import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './language';
 import { optimizeStringToken } from './optimizer';
-import { EventManager, SubtagCollection, VariableScopeCollection } from './structures';
+import { ContextCtor, EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
+import { IDatabase } from './structures/database';
 import { Awaitable, format } from './util';
 
 interface IEngineEvents {
@@ -39,7 +38,7 @@ export class BBTagEngine<TContextType extends ContextCtor> {
         }
     }
 
-    public process<T extends SubtagContext>(source: string, context: T): IBBTag {
+    public process(source: string, context: InstanceType<TContextType>): IBBTag {
         const root = bbtag.parse(source);
         return {
             source,

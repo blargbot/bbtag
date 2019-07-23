@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SubtagContext, system } from '../..';
+import { ISubtagContextArgs, SubtagContext } from '../..';
 import { MockEngine, MockSubtag } from '../testHelpers/mocks';
 
 describe('class ExecutionContext', () => {
@@ -8,7 +8,7 @@ describe('class ExecutionContext', () => {
         // arrange
         const engine = new MockEngine();
         const name = 'testName';
-        const args: system.ISubtagContextArgs = {
+        const args: ISubtagContextArgs = {
             scope: 'test',
             name: 'testName'
         };

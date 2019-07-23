@@ -1,4 +1,4 @@
-import { IterableEnumerable } from '../util/enumerable/adapters';
+import { IterableEnumerable } from '../util';
 
 type SortedListKey = string | number | boolean;
 

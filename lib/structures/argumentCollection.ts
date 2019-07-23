@@ -1,6 +1,6 @@
-import { SubtagContext } from '../contexts';
 import { IStringToken, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable, Enumerable } from '../util';
+import { SubtagContext } from './context';
 
 export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
     public readonly context: T;

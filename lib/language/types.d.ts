@@ -1,5 +1,5 @@
 import { Range } from '../util'
-import { SubtagContext } from '../contexts';
+import { SubtagContext } from '../structures';
 
 export type SubtagPrimitiveResult = null | undefined | void | string | number | boolean;
 export type SubtagResult = SubtagPrimitiveResult | SubtagResultArray | ISubtagError;
