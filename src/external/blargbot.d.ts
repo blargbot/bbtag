@@ -1,9 +1,10 @@
-import { Snowflake, IGuild, Color, IUser, IEmbedField } from './discord';
+import { Snowflake, IGuild, Color, IUser, IEmbedField, IChannel } from './discord';
 import { WarningType } from './blargbot.instances';
 
 export interface IBlargBot {
     getCommandPrefix(guildId: Snowflake): Promise<string>;
     getTimezone(user: IUser | Snowflake): Promise<string>;
+    dump(content: string, channel: IChannel): Promise<Snowflake>;
     modlog: IModLog;
 }
 
