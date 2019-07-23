@@ -1,15 +1,13 @@
 import { ISubtagOptions, Subtag } from '../../structures';
 import { SystemContext } from './context';
 
-export interface ISystemSubtagArgs extends Omit<ISubtagOptions<SystemContext>, 'contextType'> {
-
+// tslint:disable-next-line: no-empty-interface
+export interface ISystemSubtagArgs extends ISubtagOptions {
+    // TODO: define ISystemSubtagArgs
 }
 
 export class SystemSubtag extends Subtag<SystemContext> {
     protected constructor(args: ISystemSubtagArgs) {
-        super({
-            ...args,
-            contextType: SystemContext
-        });
+        super(args);
     }
 }

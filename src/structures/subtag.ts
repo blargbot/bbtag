@@ -25,8 +25,7 @@ export interface ISubtag<TContext extends SubtagContext> {
 
 interface IUsageExample { code: string; arguments?: string[]; output: string; effects?: string; }
 
-export interface ISubtagOptions<TContext extends SubtagContext> {
-    contextType: new (...args: any[]) => TContext;
+export interface ISubtagOptions {
     name: string;
     category: string;
     aliases?: Iterable<string>;
@@ -39,7 +38,6 @@ export interface ISubtagOptions<TContext extends SubtagContext> {
 export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<TContext> {
     protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
 
-    public readonly context: new (...args: any[]) => TContext;
     public readonly name: string;
     public readonly category: string;
     public readonly aliases: Set<string>;
@@ -51,8 +49,7 @@ export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<
     private readonly _conditionals: Array<ISubtagConditionalHandler<TContext, this>>;
     private _defaultHandler?: ISubtagConditionalHandler<TContext, this>;
 
-    protected constructor(args: ISubtagOptions<TContext>) {
-        this.context = args.contextType;
+    protected constructor(args: ISubtagOptions) {
         this.name = args.name;
         this.category = args.category;
         this.aliases = Enumerable.from(args.aliases || []).toSet();
