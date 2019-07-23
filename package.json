@@ -27,6 +27,7 @@
         "@types/chai": "^4.1.7",
         "@types/mocha": "^5.2.7",
         "@types/moment-timezone": "^0.5.12",
+        "@types/node": "^10.14.13",
         "chai": "^4.2.0",
         "mocha": "^6.1.4",
         "nyc": "^14.1.1",

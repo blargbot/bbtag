@@ -1,4 +1,4 @@
-import { Enumerable, tryGet, TryGetResult } from '../util';
+import { Enumerable, tryFailure, TryResult, trySuccess } from '../util';
 import { array, boolean, number } from './serialize';
 import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultTypeMap } from './types';
 
@@ -8,7 +8,7 @@ function convertError(type: string): (value: SubtagResult) => never {
     };
 }
 
-function createDefiniteConverter<T>(tryConvert: (value: SubtagResult) => TryGetResult<T>, typeName: string):
+function createDefiniteConverter<T>(tryConvert: (value: SubtagResult) => TryResult<T>, typeName: string):
     (value: SubtagResult, defaultValue?: T | ((value: SubtagResult) => T)) => T {
     const errorHandler = convertError(typeName);
     return (target: SubtagResult, defaultValue: T | ((value: SubtagResult) => T) = errorHandler): T => {
@@ -18,8 +18,8 @@ function createDefiniteConverter<T>(tryConvert: (value: SubtagResult) => TryGetR
     };
 }
 
-function createErrorConverter<T>(converter: (value: SubtagResult) => TryGetResult<T>): (v: ISubtagError) => TryGetResult<T> {
-    return v => isValue.null(v.context.fallback) ? tryGet.failure() : converter(v.context.fallback);
+function createErrorConverter<T>(converter: (value: SubtagResult) => TryResult<T>): (v: ISubtagError) => TryResult<T> {
+    return v => isValue.null(v.context.fallback) ? tryFailure() : converter(v.context.fallback);
 }
 
 function relay<T>(v: T): T {
@@ -39,39 +39,39 @@ export function toString(target: SubtagResult): string {
 
 const errorToBoolean = createErrorConverter(tryToBoolean);
 export const toBoolean = createDefiniteConverter(tryToBoolean, 'boolean');
-export function tryToBoolean(target: SubtagResult): TryGetResult<boolean> {
+export function tryToBoolean(target: SubtagResult): TryResult<boolean> {
     return switchType(target, {
         string: boolean.tryDeserialize,
-        boolean: tryGet.success,
-        number: tryGet.failure,
-        array: tryGet.failure,
-        null: tryGet.failure,
+        boolean: trySuccess,
+        number: tryFailure,
+        array: tryFailure,
+        null: tryFailure,
         error: errorToBoolean
     });
 }
 
 const errorToNumber = createErrorConverter(tryToNumber);
 export const toNumber = createDefiniteConverter(tryToNumber, 'number');
-export function tryToNumber(target: SubtagResult): TryGetResult<number> {
+export function tryToNumber(target: SubtagResult): TryResult<number> {
     return switchType(target, {
         string: number.tryDeserialize,
-        number: tryGet.success,
-        boolean: tryGet.failure,
-        array: tryGet.failure,
-        null: tryGet.failure,
+        number: trySuccess,
+        boolean: tryFailure,
+        array: tryFailure,
+        null: tryFailure,
         error: errorToNumber
     });
 }
 
 const errorToArray = createErrorConverter(tryToArray);
 export const toArray = createDefiniteConverter(tryToArray, 'array');
-export function tryToArray(target: SubtagResult): TryGetResult<SubtagResultArray> {
+export function tryToArray(target: SubtagResult): TryResult<SubtagResultArray> {
     return switchType(target, {
         string: array.tryDeserialize,
-        array: tryGet.success,
-        number: tryGet.failure,
-        boolean: tryGet.failure,
-        null: tryGet.failure,
+        array: trySuccess,
+        number: tryFailure,
+        boolean: tryFailure,
+        null: tryFailure,
         error: errorToArray
     });
 }

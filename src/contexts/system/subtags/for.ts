@@ -60,3 +60,5 @@ export class ForSubtag extends SystemSubtag {
         return result.map(bbtag.toString).join('');
     }
 }
+
+export default new ForSubtag();

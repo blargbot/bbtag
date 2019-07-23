@@ -1,11 +1,11 @@
-import { Enumerable, tryGet, TryGetResult } from '../util';
+import { Enumerable, tryFailure, TryResult, trySuccess } from '../util';
 import { toPrimitive } from './convert';
 import { SubtagResultArray } from './types';
 
 export interface ISerializer<T> {
     serialize(value: T): string;
     deserialize(value: string): T;
-    tryDeserialize(value: string): TryGetResult<T>;
+    tryDeserialize(value: string): TryResult<T>;
 }
 
 function createDeserialize<T>(name: string, thisFunc: () => ISerializer<T>): (value: string) => T {
@@ -44,17 +44,17 @@ export const array: ISerializer<SubtagResultArray> = {
         }
         return JSON.stringify({ v: value, n: value.name });
     },
-    tryDeserialize(value: string): TryGetResult<SubtagResultArray> {
+    tryDeserialize(value: string): TryResult<SubtagResultArray> {
         try {
             const obj = JSON.parse(value);
             if (Array.isArray(obj)) {
-                return tryGet.success(obj.map(toPrimitive));
+                return trySuccess(obj.map(toPrimitive));
             } else if (isRawArray(obj)) {
                 obj.v.name = obj.n;
-                return tryGet.success(obj.v);
+                return trySuccess(obj.v);
             }
         } catch { }
-        return tryGet.failure();
+        return tryFailure();
     }
 };
 
@@ -64,7 +64,7 @@ export const number: ISerializer<number> = {
     serialize(value: number): string {
         return value.toString();
     },
-    tryDeserialize(value: string): TryGetResult<number> {
+    tryDeserialize(value: string): TryResult<number> {
         value = value.replace(/[,\.](?=\d*?[,\.])/g, '').replace(',', '.');
         let result = Number(value);
         if (isNaN(result)) {
@@ -72,10 +72,10 @@ export const number: ISerializer<number> = {
             if (isInfinity) {
                 result = isInfinity[1] === '-' ? -Infinity : Infinity;
             } else if (!/^nan$/i.test(value)) {
-                return tryGet.failure();
+                return tryFailure();
             }
         }
-        return tryGet.success(result);
+        return trySuccess(result);
     }
 };
 
@@ -85,11 +85,11 @@ export const boolean: ISerializer<boolean> = {
     serialize(value: boolean): string {
         return value.toString();
     },
-    tryDeserialize(value: string): TryGetResult<boolean> {
+    tryDeserialize(value: string): TryResult<boolean> {
         const match = /^(?:(true|yes|t|y)|(false|no|f|n))$/i.exec(value);
         if (match !== null) {
-            return tryGet.success(!!match[1]);
+            return trySuccess(!!match[1]);
         }
-        return tryGet.failure();
+        return tryFailure();
     }
 };

@@ -3,6 +3,7 @@ import { SystemContext } from '../context';
 
 import { default as bool } from './bool';
 import { default as comment } from './comment';
+import { default as _for } from './for';
 import { default as get } from './get';
 import { default as _if } from './if';
 import { default as lb } from './lb';
@@ -20,5 +21,6 @@ export const subtags: Array<ISubtag<SystemContext>> = [
     _if,
     bool,
     get,
-    set
+    set,
+    _for
 ];

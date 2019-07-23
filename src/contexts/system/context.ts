@@ -21,8 +21,6 @@ export class SystemContext {
     public readonly errors: ISubtagError[];
     public fallback: SubtagResult;
 
-    public readonly discrim1!: number; // TODO Remove this as it is temporary to force clashes between the context types
-
     public constructor(engine: BBTagEngine<typeof SystemContext>, args: ISubtagContextArgs) {
         this.type = this.constructor as any;
         this.engine = engine as BBTagEngine<ContextCtor<this>>;
