@@ -1,4 +1,4 @@
-import { ISubtag } from '../..';
+import { SubtagCollection } from '../..';
 import { DiscordContext } from '../context';
 
-export const subtags: Array<ISubtag<DiscordContext>> = [];
+export const subtags: SubtagCollection<DiscordContext> = new SubtagCollection();

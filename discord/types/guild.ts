@@ -1,8 +1,9 @@
 import { Duration, Moment } from 'moment-timezone';
 import { TryResult } from '../..';
 import { GuildChannel } from './channel';
-import { ICollection, IEntity, Snowflake } from './generic';
+import { ICollection, IEntity } from './generic';
 import { ModerationError, ModerationResult } from './instances';
+import { Snowflake } from './primitives';
 import { IRole, IRoleCreateOptions } from './role';
 import { IGuildMember, IUser } from './user';
 

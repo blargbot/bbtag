@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { AggregateError, EventManager } from '../..';
-import { resultOf } from '../testHelpers/utility';
+import { AggregateError, EventManager } from '../../..';
+import { resultOf } from '../../testUtils';
 
 interface ITestEvents {
     test1: (arg1: { name: string }) => string;

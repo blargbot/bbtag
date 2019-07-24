@@ -4,17 +4,19 @@ import * as util from './util';
 
 export function optimizeSubtagToken(input: ISubtagToken, context: OptimizationContext): ISubtagToken | string {
     const name = optimizeStringToken(input.name, context);
-    input = { ...input, name };
-    if (name.subtags.length !== 0) {
-        return input;
+    input = { name, args: input.args, range: input.range };
+    if (name.subtags.length === 0) {
+        const optimiser = context.inner.subtags.find(name.format);
+        if (optimiser !== undefined) {
+            return optimiser.optimize(input, context);
+        }
     }
 
-    const optimiser = context.inner.subtags.find(name.format);
-    if (optimiser === undefined) {
-        return input;
-    }
-
-    return optimiser.optimize(input, context);
+    return {
+        name,
+        args: input.args.map(t => optimizeStringToken(t, context)),
+        range: input.range
+    };
 }
 
 export function optimizeStringToken(input: IStringToken, context: OptimizationContext): IStringToken {

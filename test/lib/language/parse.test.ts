@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, IStringToken } from '../..';
-import { str, stripStrToken, tag } from '../testHelpers/subtag';
+import { bbtag, IStringToken } from '../../..';
+import { str, stripStrToken, tag } from '../../testUtils';
 
 describe('function parse', () => {
     const testCases: Array<{ input: string, expected: string | IStringToken }> = [

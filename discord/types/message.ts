@@ -2,8 +2,9 @@ import { Moment } from 'moment-timezone';
 import * as Channels from './channel';
 import { IEmbed } from './embed';
 import { IReaction } from './emoji';
-import { IEntity, Snowflake } from './generic';
+import { IEntity } from './generic';
 import { AddReactionResult, MessageType, ModerationResult, RemoveReactionResult } from './instances';
+import { Snowflake } from './primitives';
 import { IRole } from './role';
 import { IGuildMember, IUser } from './user';
 

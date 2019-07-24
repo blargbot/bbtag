@@ -25,7 +25,7 @@ export class SubtagContext {
         this.type = this.constructor as any;
         this.engine = engine as Engine<ContextCtor<this>>;
         this.variables = new VariableCache(this);
-        this.subtags = engine.subtags.createChild() as any;
+        this.subtags = engine.subtags.createChild();
         this.tagName = args.name;
         this.fallback = undefined;
         this.scope = args.scope;

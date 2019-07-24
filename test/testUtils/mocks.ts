@@ -1,12 +1,4 @@
-import { Awaitable, Engine, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../..';
-import { DatabaseValue, IDatabase } from '../../lib/structures/database';
-import { SystemContext } from '../../system';
-
-export class MockEngine extends Engine<typeof MockExecutionContext> {
-    public constructor() {
-        super(MockExecutionContext, new MockDatabase());
-    }
-}
+import { Awaitable, DatabaseValue, IDatabase, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../..';
 
 export class MockDatabase implements IDatabase {
     public delete: (path: Iterable<string>) => Awaitable<void>;
@@ -22,21 +14,23 @@ export class MockDatabase implements IDatabase {
     }
 }
 
-export class MockExecutionContext extends SystemContext {
-    public constructor() {
-        super(new MockEngine(), { scope: 'TESTS', name: 'Tests' });
-    }
-}
+type FunctionsOf<T extends { [key: string]: any }> = { [P in keyof T]?: T[P] extends (...args: any) => any ? T[P] : never };
 
-export class MockSubtag<T extends SubtagContext> implements ISubtag<T> {
-    public context: new (...args: any[]) => T;
+export class MockSubtag<T extends SubtagContext = SubtagContext> implements ISubtag<T> {
     public name: string;
     public aliases: Set<string>;
 
-    public constructor(context: new (...args: any[]) => T, name: string) {
-        this.context = context;
+    public constructor(name: string, handlers: FunctionsOf<ISubtag<T>> = {}) {
         this.name = name;
         this.aliases = new Set();
+
+        for (const key of Object.keys(handlers)) {
+            // @ts-ignore
+            if (key in this && handlers[key] !== undefined) {
+                // @ts-ignore
+                this[key] = handlers[key];
+            }
+        }
     }
 
     public execute(): Awaitable<SubtagResult> {
@@ -45,5 +39,4 @@ export class MockSubtag<T extends SubtagContext> implements ISubtag<T> {
     public optimize(): string | ISubtagToken {
         throw new Error('Method not implemented.');
     }
-
 }

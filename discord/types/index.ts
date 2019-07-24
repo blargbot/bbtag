@@ -7,3 +7,5 @@ export * from './message';
 export * from './role';
 export * from './emoji';
 export * from './instances';
+export * from './mappings';
+export * from './primitives';

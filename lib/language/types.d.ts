@@ -1,5 +1,5 @@
-import { Range } from '../util'
 import { SubtagContext } from '../structures';
+import { TokenRange } from '../util';
 
 export type SubtagPrimitiveResult = null | undefined | void | string | number | boolean;
 export type SubtagResult = SubtagPrimitiveResult | SubtagResultArray | ISubtagError;
@@ -23,13 +23,13 @@ export interface IBBTag {
 export interface IStringToken {
     readonly format: string;
     readonly subtags: readonly ISubtagToken[];
-    readonly range: Range;
+    readonly range: TokenRange;
 }
 
 export interface ISubtagToken {
     readonly name: IStringToken;
     readonly args: readonly IStringToken[];
-    readonly range: Range;
+    readonly range: TokenRange;
 }
 
 export interface ISubtagError {

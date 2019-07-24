@@ -1,4 +1,4 @@
-import { Snowflake } from './generic';
+import { Snowflake } from './primitives';
 
 export type ReactionEmoji = IStandardEmoji | ICustomEmoji;
 

@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, ISerializer, SubtagResultArray } from '../..';
-import { arr, toName } from '../testHelpers/subtag';
+import { bbtag, ISerializer, SubtagResultArray } from '../../..';
+import { arr, toName } from '../../testUtils';
 
 type TestCase<T> = { input: string, value: undefined, output?: undefined } | { input: string, value: T, output?: string };
 interface ITestType<T> { name: string; serializer: ISerializer<T>; data: Array<TestCase<T>>; deserializeAssert(expected: T, actual: T): void; }

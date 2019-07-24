@@ -1,5 +1,6 @@
-import { Color, ICollection, IEntity, Permissions } from './generic';
+import { ICollection, IEntity } from './generic';
 import { ModerationResult } from './instances';
+import { Color, Permissions } from './primitives';
 import { IGuildMember, IUser } from './user';
 
 export interface IRole extends IEntity {

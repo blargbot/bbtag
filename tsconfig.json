@@ -11,6 +11,7 @@
         "noUnusedParameters": true,
         "allowUnreachableCode": false,
         "sourceMap": true,
+        "resolveJsonModule": true,
         "lib": [
             "es2018.promise",
             "es2018"

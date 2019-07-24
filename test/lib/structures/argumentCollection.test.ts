@@ -1,16 +1,14 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { ArgumentCollection, IStringToken, SubtagContext } from '../..';
-import { MockExecutionContext } from '../testHelpers/mocks';
-import { str, tag } from '../testHelpers/subtag';
-import { resultOf } from '../testHelpers/utility';
+import { ArgumentCollection, IStringToken, SubtagContext } from '../../..';
+import { ctx, resultOf, str, tag } from '../../testUtils';
 
 const testToken = tag(str('test'), str('arg0'), str('arg1'), str('arg2'), str('arg3'));
 
 describe('class ArgumentCollection', () => {
     it('should successfully construct', () => {
         // arrange
-        const context = new MockExecutionContext();
+        const context = ctx();
 
         // act
         const result = new ArgumentCollection(context, testToken);
@@ -22,7 +20,7 @@ describe('class ArgumentCollection', () => {
     describe('property length', () => {
         it('should successfully get length', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -35,7 +33,7 @@ describe('class ArgumentCollection', () => {
     describe('function getRaw', () => {
         it('should successfully getRaw a single value', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -46,7 +44,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should successfully getRaw multiple values', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -57,7 +55,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should gracefully fail to getRaw when out of bounds', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -72,7 +70,7 @@ describe('class ArgumentCollection', () => {
     describe('function execute', () => {
         it('should successfully execute a single value', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 2;
             const arg = testToken.args[index];
@@ -91,7 +89,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should successfully execute multiple values', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const indexes = [3, 1];
             const arg = indexes.map(i => testToken.args[i]);
@@ -110,7 +108,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should gracefully fail to execute when out of bounds', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 10;
 
@@ -122,7 +120,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should not execute duplicate indexes more than once', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 2;
             const arg = testToken.args[index];
@@ -144,7 +142,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should not execute values more than once', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 2;
             const arg = testToken.args[index];
@@ -173,7 +171,7 @@ describe('class ArgumentCollection', () => {
     describe('function executeAll', () => {
         it('should successfully execute all values', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: SubtagContext) => {
@@ -190,7 +188,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should not execute arguments multiple times', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             const callCount = expected.map(_ => 0);
@@ -215,7 +213,7 @@ describe('class ArgumentCollection', () => {
     describe('function get', () => {
         it('should successfully get a single cached value', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 3;
             const arg = testToken.args[index];
@@ -235,7 +233,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should successfully get multiple cached values', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const indexes = [3, 1];
             const arg = indexes.map(i => testToken.args[i]);
@@ -255,7 +253,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should fail to get an uncached value', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 10;
 
@@ -267,7 +265,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should fail to get an out of bounds value even after executing it', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const index = 10;
             await args.execute(index);
@@ -282,7 +280,7 @@ describe('class ArgumentCollection', () => {
     describe('function getAll', () => {
         it('should successfully get all values if cached', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: SubtagContext) => {
@@ -300,7 +298,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should fail to getAll if not all values have been executed', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             const expected = testToken.args.map(t => ({ context, token: t, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: SubtagContext) => {
@@ -320,7 +318,7 @@ describe('class ArgumentCollection', () => {
     describe('function has', () => {
         it('should return true if index is in bounds', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -331,7 +329,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should return false if index is below bounds', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -342,7 +340,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should return false if index is above bounds', () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
 
             // act
@@ -355,7 +353,7 @@ describe('class ArgumentCollection', () => {
     describe('function hasExecuted', () => {
         it('should return true if all indexes has been executed', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             await args.execute(0, 1, 2, 3);
 
@@ -367,7 +365,7 @@ describe('class ArgumentCollection', () => {
         });
         it('should return false if any index has not been executed', async () => {
             // arrange
-            const context = new MockExecutionContext();
+            const context = ctx();
             const args = new ArgumentCollection(context, testToken);
             await args.execute(0, 1, 3);
 

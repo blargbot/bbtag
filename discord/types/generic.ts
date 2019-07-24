@@ -1,6 +1,4 @@
-export type Snowflake = string & { __value__: never };
-export type Color = number;
-export type Permissions = number;
+import { Snowflake } from './primitives';
 
 export interface IEntity {
     readonly id: Snowflake;

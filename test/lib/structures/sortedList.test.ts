@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { SortedList } from '../..';
+import { SortedList } from '../../..';
 
 interface ITestData { name: string; }
 

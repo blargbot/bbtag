@@ -1,8 +1,9 @@
 import { Duration, Moment } from 'moment-timezone';
 import { IDMSingleChannel } from './channel';
-import { ICollection, IEntity, Snowflake } from './generic';
+import { ICollection, IEntity } from './generic';
 import { IGuild } from './guild';
 import { ActivityType, ModerationResult } from './instances';
+import { Snowflake } from './primitives';
 import { IRole } from './role';
 
 export interface ISelfUser extends IUser {

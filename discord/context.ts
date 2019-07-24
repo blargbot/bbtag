@@ -1,11 +1,11 @@
-import { Engine } from '..';
+import { Awaitable, Engine } from '..';
 import { ISystemContextArgs, SystemContext } from '../system';
-import { DMMessage, GuildMessage, IDefaultMessage, ISelfUser, IUser } from './types';
+import { DMMessage, GuildMessage, IDefaultMessage, ISelfUser, IUser, Snowflake } from './types';
 
 export interface IDiscordContextArgs extends ISystemContextArgs {
     readonly message: IDefaultMessage;
     readonly self: ISelfUser;
-    isUserStaff(this: DiscordContext, user: IUser): Promise<boolean>;
+    isUserStaff(this: DiscordContext, user: IUser | Snowflake): Awaitable<boolean>;
 }
 
 export type DiscordGuildContext = DiscordContext & { message: GuildMessage };
@@ -23,5 +23,5 @@ export class DiscordContext extends SystemContext {
         this.isUserStaff = args.isUserStaff;
     }
 
-    public isUserStaff(user: IUser): Promise<boolean> { throw user; }
+    public isUserStaff(user: IUser): Awaitable<boolean> { throw user; }
 }

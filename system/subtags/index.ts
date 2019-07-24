@@ -1,4 +1,4 @@
-import { ISubtag } from '../..';
+import { SubtagCollection } from '../..';
 import { SystemContext } from '../context';
 
 import { default as bool } from './bool';
@@ -12,7 +12,7 @@ import { default as semi } from './semi';
 import { default as set } from './set';
 import { default as zws } from './zws';
 
-export const subtags: Array<ISubtag<SystemContext>> = [
+export const subtags: SubtagCollection<SystemContext> = new SubtagCollection().register(...[
     comment,
     lb,
     rb,
@@ -23,4 +23,4 @@ export const subtags: Array<ISubtag<SystemContext>> = [
     get,
     set,
     _for
-];
+]);

@@ -1,7 +1,8 @@
 import { IEmbed } from './embed';
-import { IEntity, Snowflake } from './generic';
+import { IEntity } from './generic';
 import { IGuild } from './guild';
 import { ChannelType, ModerationResult } from './instances';
+import { Snowflake } from './primitives';
 import { IUser } from './user';
 
 // Typing
@@ -30,7 +31,7 @@ export interface IGuildChannel extends IChannel {
     readonly guildId: this['guild']['id'];
     readonly guild: IGuild;
     readonly position: number;
-    readonly parentId?: Snowflake;
+    readonly parent?: IGuildCategoryChannel;
     readonly nsfw: boolean;
 }
 
@@ -72,7 +73,7 @@ export interface IDMGroupChannel extends IDMChannel, IMessageChannel, IVoiceChan
 
 export interface IGuildCategoryChannel extends IGuildChannel {
     readonly type: ChannelType.GuildCategory;
-    readonly parentId: undefined;
+    readonly parent: undefined;
 }
 
 export interface IGuildNewsChannel extends IGuildChannel, IMessageChannel {

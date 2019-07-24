@@ -1,17 +1,18 @@
+import { Awaitable } from '../..';
 import { Color, IChannel, IEmbedField, IGuild, IUser, Snowflake } from '../../discord';
 
-export interface IBlargBot {
+export interface IBlargbot {
     readonly modlog: IModLog;
-    getCommandPrefix(guildId: Snowflake): Promise<string>;
-    getTimezone(user: IUser | Snowflake): Promise<string>;
-    dump(content: string, channel: IChannel): Promise<Snowflake>;
+    getCommandPrefix(guildId: Snowflake): Awaitable<string>;
+    getTimezone(user: IUser | Snowflake): Awaitable<string>;
+    dump(content: string, channel: IChannel): Awaitable<Snowflake>;
 }
 
 export interface IModLog {
-    createEntry(guild: IGuild, user: IUser | IUser[], mod?: IUser, type?: string, reason?: string, color?: Color, fields?: IEmbedField[]): Promise<void>;
-    warn(guild: IGuild, user: IUser, count?: number): Promise<IModLogWarnResult>;
-    pardon(guild: IGuild, user: IUser, count?: number): Promise<number>;
-    getWarnings(guild: IGuild, user: IUser): Promise<number>;
+    createEntry(guild: IGuild, user: IUser | IUser[], mod?: IUser, type?: string, reason?: string, color?: Color, fields?: IEmbedField[]): Awaitable<void>;
+    warn(guild: IGuild, user: IUser, count?: number): Awaitable<IModLogWarnResult>;
+    pardon(guild: IGuild, user: IUser, count?: number): Awaitable<number>;
+    getWarnings(guild: IGuild, user: IUser): Awaitable<number>;
 }
 
 export interface IModLogWarnResult {

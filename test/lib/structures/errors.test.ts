@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { AggregateError } from '../..';
+import { AggregateError } from '../../..';
 
 describe('class AggregateError', () => {
     const testCases: Array<{ message?: string, innerErrors: any[] }> = [

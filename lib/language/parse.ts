@@ -1,4 +1,4 @@
-import { Cursor, Enumerator, Position, Range } from '../util';
+import { Cursor, Enumerator, Position, Range, TokenRange } from '../util';
 import { IStringToken, ISubtagToken } from './types';
 
 interface IStateTracker { cursor: Cursor; lastYield: Position; }
@@ -74,7 +74,7 @@ function readStringToken(tokenStream: Enumerator<IToken>, ignoreSemi: boolean = 
     return {
         subtags,
         format: formatParts.join('').trim(),
-        range: new Range(start, end)
+        range: TokenRange.from(start, end)
     };
 }
 
@@ -91,7 +91,7 @@ function readSubtagToken(tokenStream: Enumerator<IToken>): ISubtagToken {
             return {
                 name: parts[0],
                 args: parts.slice(1),
-                range: new Range(start, tokenStream.current.range.end)
+                range: TokenRange.from(start, tokenStream.current.range.end)
             };
         }
     }
