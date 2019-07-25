@@ -1,9 +1,9 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { argumentBuilder, Enumerable, IArgumentSource, IHandlerArgumentValue } from '../../..';
+import { argumentBuilder, Enumerable, IArgumentSource, IEnumerable, IHandlerArgumentValue } from '../../..';
 
 type TestCaseInput = [string, boolean] | [string, boolean, boolean] | [string, boolean, string] | [string, boolean, boolean, string];
-type TestCases = Enumerable<{ input: TestCaseInput, structure: IHandlerArgumentValue, string: string }>;
+type TestCases = IEnumerable<{ input: TestCaseInput, structure: IHandlerArgumentValue, string: string }>;
 
 function arg(name: string, required: boolean, many: boolean, type: string | undefined): IHandlerArgumentValue {
     return { name, required, many, type };
@@ -143,7 +143,7 @@ describe('constant argumentBuilder', () => {
         it('should turn multiple arguments into one space separated string', () => {
             // arrange
             const input = testCases.select(c => c.structure);
-            const expected = testCases.select(c => c.string).join(';');
+            const expected = testCases.select(c => c.string).joinString(';');
 
             // act
             const result = argumentBuilder.stringify(';', input.toArray());
@@ -159,7 +159,7 @@ describe('constant argumentBuilder', () => {
             const result = argumentBuilder.stringify(';', [{ required: true, values: parts.select(p => p.structure).toArray() }]);
 
             // assert
-            expect(result).to.equal(`<${parts.select(p => p.string).join(';')}>`);
+            expect(result).to.equal(`<${parts.select(p => p.string).joinString(';')}>`);
         });
         it(`should turn an optional group of 2 arguments into <arg1 arg2>`, () => {
             // arrange
@@ -169,7 +169,7 @@ describe('constant argumentBuilder', () => {
             const result = argumentBuilder.stringify(';', [{ required: false, values: parts.select(p => p.structure).toArray() }]);
 
             // assert
-            expect(result).to.equal(`[${parts.select(p => p.string).join(';')}]`);
+            expect(result).to.equal(`[${parts.select(p => p.string).joinString(';')}]`);
         });
     });
 });

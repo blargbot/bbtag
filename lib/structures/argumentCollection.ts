@@ -1,5 +1,5 @@
 import { IStringToken, ISubtagToken, SubtagResult } from '../language';
-import { Awaitable, Enumerable } from '../util';
+import { Awaitable, Enumerable, IEnumerable } from '../util';
 import { SubtagContext } from './context';
 
 export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
@@ -18,8 +18,8 @@ export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
     }
 
     public getRaw(key: number): IStringToken | undefined;
-    public getRaw(...keys: number[]): Enumerable<IStringToken | undefined>;
-    public getRaw(...keys: number[]): Enumerable<IStringToken | undefined> | IStringToken | undefined {
+    public getRaw(...keys: number[]): IEnumerable<IStringToken | undefined>;
+    public getRaw(...keys: number[]): IEnumerable<IStringToken | undefined> | IStringToken | undefined {
         if (keys.length === 1) {
             return this._getRaw(keys).first();
         }
@@ -27,28 +27,28 @@ export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
     }
 
     public get(key: number): SubtagResult;
-    public get(...keys: number[]): Enumerable<SubtagResult>;
-    public get(...keys: number[]): Enumerable<SubtagResult> | SubtagResult {
+    public get(...keys: number[]): IEnumerable<SubtagResult>;
+    public get(...keys: number[]): IEnumerable<SubtagResult> | SubtagResult {
         if (keys.length === 1) {
             return this._get(keys).first();
         }
         return this._get(keys);
     }
 
-    public getAll(): Enumerable<SubtagResult> {
+    public getAll(): IEnumerable<SubtagResult> {
         return this._get(Enumerable.range(0, this.token.args.length));
     }
 
     public execute(key: number): Awaitable<SubtagResult>;
-    public execute(...keys: number[]): Awaitable<Enumerable<SubtagResult>>;
-    public execute(...keys: number[]): Awaitable<Enumerable<SubtagResult> | SubtagResult> {
+    public execute(...keys: number[]): Awaitable<IEnumerable<SubtagResult>>;
+    public execute(...keys: number[]): Awaitable<IEnumerable<SubtagResult> | SubtagResult> {
         if (keys.length === 1) {
             return this._execute(keys[0]);
         }
         return Promise.all(this._execute(keys)).then(v => Enumerable.from(v));
     }
 
-    public executeAll(): Awaitable<Enumerable<SubtagResult>> {
+    public executeAll(): Awaitable<IEnumerable<SubtagResult>> {
         return this.execute(...Enumerable.range(0, this.token.args.length));
     }
 
@@ -70,11 +70,11 @@ export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
         return true;
     }
 
-    private _getRaw(indexes: Iterable<number>): Enumerable<IStringToken | undefined> {
+    private _getRaw(indexes: Iterable<number>): IEnumerable<IStringToken | undefined> {
         return Enumerable.from(indexes).select(index => this.token.args[index]);
     }
 
-    private _get(indexes: Iterable<number>): Enumerable<SubtagResult> {
+    private _get(indexes: Iterable<number>): IEnumerable<SubtagResult> {
         return Enumerable.from(indexes).select(index => {
             if (!this._resultCache.has(index)) {
                 throw new Error(`Key ${index} has not yet been executed or does not exist`);

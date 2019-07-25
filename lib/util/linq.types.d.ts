@@ -8,7 +8,7 @@ export type Source<T> =
     | (T extends string ? string : never)
     | EnumerableCtorArg<T>
     | ISingleLinkedListNode<T>
-    | IDoubleLinkedListNode<T>
+    | IDoubleLinkedListNode<T>;
 
 export type S<T, R, _ extends true = true> = _ extends true ? (element: T, index: number) => R : never;
 export type C<T, R extends T, _ extends true = true> = _ extends true ? (element: T, index: number) => element is R : never;
@@ -28,9 +28,15 @@ export interface IEnumerable<T> extends Iterable<T> {
     contains(value: T, comparer?: P<T, T, boolean>): boolean;
     count(): number;
     elementAt(index: number): T;
+    elementAtOr(index: number, value: T): T;
     first(predicate?: S<T, boolean>): T;
     firstOr(value: T): T;
     firstOr(predicate: S<T, boolean>, value: T): T;
+    isDataEqual(other: Source<T>): boolean;
+    isDataEqual<K>(other: Source<T>, key: S<T, K>): boolean;
+    isSequenceEqual(other: Source<T>, comparer?: P<T, T, boolean>): boolean;
+    isSetEqual(other: Source<T>): boolean;
+    isSetEqual<K>(other: Source<T>, key: S<T, K>): boolean;
     joinString(separator?: string): string;
     last(predicate?: S<T, boolean>): T;
     lastOr(value: T): T;
@@ -40,7 +46,6 @@ export interface IEnumerable<T> extends Iterable<T> {
     max(this: IEnumerable<number>): number;
     min(selector: S<T, number>): number;
     min(this: IEnumerable<number>): number;
-    sequenceEqual(other: Source<T>, comparer?: P<T, T, boolean>): boolean;
     single(predicate?: S<T, boolean>): T;
     singleOr(value: T): T;
     singleOr(predicate: S<T, boolean>, value: T): T;
@@ -58,9 +63,11 @@ export interface IEnumerable<T> extends Iterable<T> {
     // #region Chains
 
     append(...values: T[]): IEnumerable<T>;
+    asEnumerable(): IEnumerable<T>;
     buffer(): IEnumerable<T>;
     concat(...sources: Array<Source<T>>): IEnumerable<T>;
     cache(): IEnumerable<T>;
+    defaultIfEmpty(value: T): IEnumerable<T>;
     distinct(): IEnumerable<T>;
     distinctBy<K>(key: S<T, K>): IEnumerable<T>;
     except(other: Source<T>): IEnumerable<T>;
@@ -80,6 +87,7 @@ export interface IEnumerable<T> extends Iterable<T> {
     reverse(): IEnumerable<T>;
     scan<R>(selector: (...args: T[]) => R, width: number): IEnumerable<R>;
     select<R>(selector: S<T, R>): IEnumerable<R>;
+    selectMany<R>(this: IEnumerable<Source<R>>): IEnumerable<R>;
     selectMany<R>(selector: S<T, Source<R>>): IEnumerable<R>;
     skip(count: number): IEnumerable<T>;
     skipWhile(predicate: S<T, boolean>): IEnumerable<T>;

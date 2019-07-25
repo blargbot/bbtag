@@ -10,7 +10,7 @@ export class GetSubtag extends SystemSubtag {
             description: ctx =>
                 'Returns the stored variable `varName`, or an index within it if it is a stored array. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
-                'Valid scopes are: ' + ctx.engine.variableScopes.select(s => s.prefix ? `\`${s.prefix}\`` : 'none').join(',') + '.',
+                'Valid scopes are: ' + ctx.engine.variableScopes.select(s => s.prefix ? `\`${s.prefix}\`` : 'none').joinString(',') + '.',
             examples: [
                 {
                     code:

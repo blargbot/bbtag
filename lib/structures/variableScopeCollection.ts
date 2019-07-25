@@ -1,9 +1,9 @@
-import { Enumerable, IsBetween, IterableEnumerable } from '../util';
+import { Enumerable, IsBetween } from '../util';
 import { SubtagContext } from './context';
 import { SortedList } from './sortedList';
 import { IVariableScope } from './variableScope';
 
-export class VariableScopeCollection<T extends SubtagContext> extends IterableEnumerable<IVariableScope<T>> {
+export class VariableScopeCollection<T extends SubtagContext> extends Enumerable<IVariableScope<T>> {
     private readonly _scopes: SortedList<IVariableScope<T>>;
 
     public constructor()

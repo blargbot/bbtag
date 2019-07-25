@@ -1,8 +1,8 @@
-import { Enumerable, IsBetween, IterableEnumerable } from '../util';
+import { Enumerable, IEnumerable, IsBetween } from '../util';
 import { SubtagContext } from './context';
 import { ISubtag } from './subtag';
 
-export class SubtagCollection<T extends SubtagContext> extends IterableEnumerable<ISubtag<T>> {
+export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubtag<T>> {
     private readonly _parent?: SubtagCollection<T>;
     private readonly _nameMap: Map<string, Array<ISubtag<T>>>;
     private readonly _aliasMap: Map<string, Array<ISubtag<T>>>;
@@ -10,8 +10,9 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
     public constructor()
     public constructor(parent: SubtagCollection<T>)
     public constructor(...args: [] | [SubtagCollection<T>]) {
-        super(() => this[Symbol.iterator]());
+        super(() => allSubtags.getEnumerator());
 
+        const allSubtags = (this._parent || Enumerable.empty()).concat(this.owned());
         this._nameMap = new Map();
         this._aliasMap = new Map();
         this._parent = undefined;
@@ -21,20 +22,12 @@ export class SubtagCollection<T extends SubtagContext> extends IterableEnumerabl
         }
     }
 
-    public [Symbol.iterator](): Iterator<ISubtag<T>> {
-        return Enumerable.from(this._parent || [])
-            .concat(Enumerable.from(this._nameMap.values()).selectMany(x => x))
-            .getEnumerator();
-    }
-
     public createChild(): SubtagCollection<T> {
         return new SubtagCollection(this);
     }
 
-    public * list(): IterableIterator<ISubtag<T>> {
-        for (const subtags of this._nameMap.values()) {
-            yield* subtags;
-        }
+    public owned(): IEnumerable<ISubtag<T>> {
+        return Enumerable.from(this._nameMap).selectMany(([, v]) => v);
     }
 
     public find(name: string): ISubtag<T> | undefined {

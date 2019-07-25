@@ -1,6 +1,26 @@
 import { C, EnumerableCtorArg, IDoubleLinkedListNode, IEnumerable, IEnumerator, IGrouping, ILookup, IOrderedEnumerable, ISingleLinkedListNode, P, S, Source } from './linq.types';
 
+export {
+    IEnumerable,
+    IEnumerator,
+    IGrouping,
+    ILookup,
+    IOrderedEnumerable,
+    ISingleLinkedListNode,
+    IDoubleLinkedListNode,
+    Source,
+    EnumerableCtorArg
+};
+
 const UNIQUE_KEY: any = {};
+
+const functions = {
+    identity(x: any): any { return x; },
+    blank(): void { },
+    true(): true { return true; },
+    false(): false { return false; },
+    eq<T>(l: T, r: T): boolean { return comp(l, r) === 0; }
+};
 
 export class Enumerable<T> implements IEnumerable<T> {
     // #region Static methods
@@ -9,12 +29,12 @@ export class Enumerable<T> implements IEnumerable<T> {
     public static from(value: Source<any>): IEnumerable<any> {
         switch (typeof value) {
             case 'string':
-                return new StringEnumerable(value) as IEnumerable<string>;
+                return new StringEnumerable(value).asEnumerable();
             case 'object':
                 if (Array.isArray(value)) { return new ArrayEnumerable(value); }
-                if (value instanceof Set) { return new SetEnumerable(value); }
-                if (value instanceof Map) { return new MapEnumerable(value) as IEnumerable<[any, any]>; }
                 if (value instanceof Enumerable) { return value; }
+                if (value instanceof Set) { return new SetEnumerable(value); }
+                if (value instanceof Map) { return new MapEnumerable(value).asEnumerable(); }
                 if ('getEnumerator' in value) { return new Enumerable(value); }
                 if ('length' in value) { return new ArrayLikeEnumerable(value); }
                 if ('next' in value) { return new LinkedListEnumerable(value); }
@@ -28,7 +48,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     public static empty<T>(): IEnumerable<T> { return EmptyEnumerable; }
     public static range(start: number, count: number, step: number = 1): IEnumerable<number> { return new RangeEnumerable(start, count, step); }
     public static repeat<T>(element: T, count: number): IEnumerable<T> { return new RepeatEnumerable(element, count); }
-    public static concat<T>(...sources: Array<Source<T>>): IEnumerable<T> { return new ConcatEnumerable(...sources.map(Enumerable.from)); }
+    public static concat<T>(...sources: Array<Source<T>>): IEnumerable<T> { return new ConcatEnumerable(new ArrayEnumerable(sources)); }
 
     // #endregion Static Methods
 
@@ -66,7 +86,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     public all(this: IEnumerable<boolean>): boolean;
     public all(predicate: S<T, boolean>): boolean;
-    public all(predicate: S<T, boolean> = e => e as any): boolean {
+    public all(predicate: S<T, boolean> = functions.identity): boolean {
         for (const [element, index] of indexed(this)) {
             if (!predicate(element, index)) {
                 return false;
@@ -82,7 +102,7 @@ export class Enumerable<T> implements IEnumerable<T> {
         return initial;
     }
 
-    public any(predicate: S<T, boolean> = () => true): boolean {
+    public any(predicate: S<T, boolean> = functions.true): boolean {
         for (const [element, index] of indexed(this)) {
             if (predicate(element, index)) {
                 return true;
@@ -93,7 +113,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     public average(selector: S<T, number>): number;
     public average(this: IEnumerable<number>): number;
-    public average(selector: S<T, number> = e => e as any): number {
+    public average(selector: S<T, number> = functions.identity): number {
         let total = 0;
         let count = 0;
         for (const args of indexed(this)) {
@@ -104,7 +124,7 @@ export class Enumerable<T> implements IEnumerable<T> {
         return total / count;
     }
 
-    public contains(value: T, comparer: P<T, T, boolean> = (l, r) => l === r): boolean {
+    public contains(value: T, comparer: P<T, T, boolean> = functions.eq): boolean {
         for (const [element, index] of indexed(this)) {
             if (comparer(value, element, index)) {
                 return true;
@@ -122,13 +142,21 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     public elementAt(index: number): T {
+        const result = this.elementAtOr(index, UNIQUE_KEY);
+        if (result === UNIQUE_KEY) {
+            throw new Error('Index out of range');
+        }
+        return result;
+    }
+
+    public elementAtOr(index: number, value: T): T {
         if (index < 0) { throw new Error('Cannot get a negative index'); }
         for (const element of this) {
             if (index-- === 0) {
                 return element;
             }
         }
-        throw new Error('Index out of range');
+        return value;
     }
 
     public first(predicate?: S<T, boolean>): T {
@@ -142,9 +170,44 @@ export class Enumerable<T> implements IEnumerable<T> {
     public firstOr(value: T): T;
     public firstOr(predicate: S<T, boolean>, value: T): T;
     public firstOr(...args: [T] | [S<T, boolean>, T]): T {
-        const [predicate, value] = args.length === 1 ? [() => true, args[0]] : args;
+        const [predicate, value] = args.length === 1 ? [functions.true, args[0]] : args;
         const enumerator = this.where(predicate).getEnumerator();
         return enumerator.moveNext() ? enumerator.current : value;
+    }
+    public isDataEqual(other: Source<T>): boolean;
+    public isDataEqual<K>(other: Source<T>, key: S<T, K>): boolean;
+    public isDataEqual<K>(other: Source<T>, key: S<T, K> = functions.identity): boolean {
+        const target = this.select(key).toArray();
+        for (const [element, i] of indexed(Enumerable.from(other))) {
+            const index = target.indexOf(key(element, i));
+            if (index === -1) { return false; }
+            target.splice(index, 1);
+        }
+        return target.length === 0;
+    }
+
+    public isSequenceEqual(other: Source<T>, compare: P<T, T, boolean> = functions.eq): boolean {
+        const [t, o] = [this.getEnumerator(), Enumerable.from(other).getEnumerator()];
+
+        let tMoved = false;
+        let i = 0;
+        while ((tMoved = t.moveNext()) && o.moveNext()) {
+            if (!compare(t.current, o.current, i++)) {
+                return false;
+            }
+        }
+
+        return tMoved ? false : !o.moveNext();
+    }
+
+    public isSetEqual(other: Source<T>): boolean;
+    public isSetEqual<K>(other: Source<T>, key: S<T, K>): boolean;
+    public isSetEqual<K>(other: Source<T>, key: S<T, K> = functions.identity): boolean {
+        const l = this.select(key).toSet();
+        let allMatched = true;
+        const r = Enumerable.from(other).select(key).forEach(k => allMatched = allMatched && l.has(k)).toSet();
+        if (r.size !== l.size) { return false; }
+        return allMatched;
     }
 
     public joinString(separator: string = ','): string {
@@ -162,7 +225,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     public lastOr(value: T): T;
     public lastOr(predicate: S<T, boolean>, value: T): T;
     public lastOr(...args: [T] | [S<T, boolean>, T]): T {
-        const [predicate, value] = args.length === 1 ? [() => true, args[0]] : args;
+        const [predicate, value] = args.length === 1 ? [functions.true, args[0]] : args;
         const enumerator = this.where(predicate).getEnumerator();
         let result = value;
         while (enumerator.moveNext()) { result = enumerator.current; }
@@ -175,7 +238,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     public max(selector: S<T, number>): number;
     public max(this: IEnumerable<number>): number;
-    public max(selector: S<T, number> = e => e as any): number {
+    public max(selector: S<T, number> = functions.identity): number {
         let max: number = Number.MIN_VALUE;
         let empty = true;
         for (const args of indexed(this)) {
@@ -188,7 +251,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     public min(selector: S<T, number>): number;
     public min(this: Enumerable<number>): number;
-    public min(selector: S<T, number> = e => e as any): number {
+    public min(selector: S<T, number> = functions.identity): number {
         let min = Number.MAX_VALUE;
         let empty = true;
         for (const args of indexed(this)) {
@@ -199,21 +262,7 @@ export class Enumerable<T> implements IEnumerable<T> {
         return min;
     }
 
-    public sequenceEqual(other: Source<T>, compare: P<T, T, boolean> = (l, r) => comp(l, r) === 0): boolean {
-        const [t, o] = [this.getEnumerator(), Enumerable.from(other).getEnumerator()];
-
-        let tMoved = false;
-        let i = 0;
-        while ((tMoved = t.moveNext()) && o.moveNext()) {
-            if (!compare(t.current, o.current, i++)) {
-                return false;
-            }
-        }
-
-        return tMoved ? false : !o.moveNext();
-    }
-
-    public single(predicate: S<T, boolean> = () => true): T {
+    public single(predicate: S<T, boolean> = functions.true): T {
         const result = this.singleOr(predicate, UNIQUE_KEY);
         if (result === UNIQUE_KEY) {
             throw new Error('No element found');
@@ -234,7 +283,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     public sum(selector: S<T, number>): number;
     public sum(this: IEnumerable<number>): number;
-    public sum(selector: S<T, number> = e => e as any): number {
+    public sum(selector: S<T, number> = functions.identity): number {
         let total = 0;
         for (const args of indexed(this)) {
             total += selector(...args);
@@ -278,22 +327,24 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     // #region FluentApi methods
 
-    public append(...values: T[]): IEnumerable<T> { return new ConcatEnumerable(this, new ArrayEnumerable(values)); }
+    public asEnumerable(): IEnumerable<T> { return this; }
+    public append(...values: T[]): IEnumerable<T> { return Enumerable.concat(this, new ArrayEnumerable(values)); }
     public buffer(): IEnumerable<T> { return new ArrayEnumerable([...this]); }
     public cache(): IEnumerable<T> { return new CachedEnumerable(this); }
-    public concat(...sources: Array<Source<T>>): IEnumerable<T> { return new ConcatEnumerable<T>(this, ...sources.map(Enumerable.from)); }
-    public distinct(): IEnumerable<T> { return this.distinctBy(e => e); }
+    public concat(...sources: Array<Source<T>>): IEnumerable<T> { return Enumerable.concat(this, ...sources); }
+    public defaultIfEmpty(value: T): IEnumerable<T> { return new DefaultIfEmptyEnumerable(this, value); }
+    public distinct(): IEnumerable<T> { return this.distinctBy(functions.identity); }
     public distinctBy<K>(key: S<T, K>): IEnumerable<T> { return new DistinctEnumerable(this, key); }
-    public except(other: Source<T>): IEnumerable<T> { return this.exceptBy(other, e => e); }
+    public except(other: Source<T>): IEnumerable<T> { return this.exceptBy(other, functions.identity); }
     public exceptBy<K>(other: Source<T>, key: S<T, K>): IEnumerable<T> { return new ExceptEnumerable(this, Enumerable.from(other), key); }
     public forEach(action: S<T, any>): IEnumerable<T> { return this.select((...args) => { action(...args); return args[0]; }); }
-    public flatten<R>(this: IEnumerable<Source<R>>): IEnumerable<R> { return this.selectMany(e => e); }
+    public flatten<R>(this: IEnumerable<Source<R>>): IEnumerable<R> { return this.selectMany(functions.identity); }
     public groupBy<K>(key: S<T, K>): IEnumerable<IGrouping<T, K>>;
-    public groupBy<K, E>(key: S<T, K>, element: S<T, E> = e => e as any): IEnumerable<IGrouping<E, K>> { return new GroupByEnumerable(this, key, element); }
+    public groupBy<K, E>(key: S<T, K>, element: S<T, E> = functions.identity): IEnumerable<IGrouping<E, K>> { return new GroupByEnumerable(this, key, element); }
     public groupJoin<R, K, RE>(right: Source<R>, keyLeft: S<T, K>, keyRight: S<R, K>, result: P<T, IEnumerable<R>, RE>): IEnumerable<RE> {
         return new GroupJoinEnumerable(this, Enumerable.from(right), keyLeft, keyRight, result);
     }
-    public intersect(other: Source<T>): IEnumerable<T> { return this.intersectBy(other, e => e); }
+    public intersect(other: Source<T>): IEnumerable<T> { return this.intersectBy(other, functions.identity); }
     public intersectBy<K>(other: Source<T>, key: S<T, K>): IEnumerable<T> { return new IntersectEnumerable(this, Enumerable.from(other), key); }
     public join<R, K, RE>(right: Source<R>, keyLeft: S<T, K>, keyRight: S<R, K>, result: P<T, R, RE>): IEnumerable<RE> {
         return this.groupJoin(right, keyLeft, keyRight, (l, rs) => rs.select(r => ({ l, r })))
@@ -305,19 +356,21 @@ export class Enumerable<T> implements IEnumerable<T> {
     public orderByAsc<K>(ks: S<T, K>, c: P<K, K, number, false> = comp): IOrderedEnumerable<T> { return new OrderedEnumerable(this, ks, c); }
     public orderByDesc<K>(key: S<T, K>, comparer?: P<K, K, number, false>): IOrderedEnumerable<T>;
     public orderByDesc<K>(ks: S<T, K>, c: P<K, K, number, false> = comp): IOrderedEnumerable<T> { return this.orderByAsc(ks, c).reverse(); }
-    public prepend(...values: T[]): IEnumerable<T> { return new ConcatEnumerable(new ArrayEnumerable(values), this); }
-    public reverse(): IEnumerable<T> { return ReversedEnumerable.create(this); }
+    public prepend(...values: T[]): IEnumerable<T> { return Enumerable.concat(new ArrayEnumerable(values), this); }
+    public reverse(): IEnumerable<T> { return new ReversedEnumerable<T>(this); }
     public scan<R>(selector: (...args: T[]) => R, width: number): IEnumerable<R> { return new ScanEnumerable(this, selector, width); }
     public select<R>(selector: S<T, R>): IEnumerable<R> { return new SelectEnumerable(this, selector); }
-    public selectMany<R>(selector: S<T, Source<R>>): IEnumerable<R> { return new SelectManyEnumerable(this, selector); }
+    public selectMany<R>(this: IEnumerable<Source<R>>): IEnumerable<R>;
+    public selectMany<R>(selector: S<T, Source<R>>): IEnumerable<R>;
+    public selectMany<R>(selector: S<T, Source<R>> = functions.identity): IEnumerable<R> { return new SelectManyEnumerable(this, selector); }
     public skip(count: number): IEnumerable<T> { return this.skipWhile((_, i) => i < count); }
     public skipWhile(predicate: S<T, boolean>): IEnumerable<T> { return new SkipEnumerable(this, predicate); }
     public take(count: number): IEnumerable<T> { return this.takeWhile((_, i) => i < count); }
     public takeWhile(predicate: S<T, boolean>): IEnumerable<T> { return new TakeEnumerable(this, predicate); }
     public toLookup<K>(key: S<T, K>): ILookup<T, K>;
     public toLookup<K, E>(key: S<T, K>, element: S<T, E>): ILookup<E, K>;
-    public toLookup(ks: S<T, any>, es: S<T, any> = e => e): ILookup<any, any> { return new Lookup(this, ks, es); }
-    public union(other: Source<T>): IEnumerable<T> { return this.unionBy(other, e => e); }
+    public toLookup(ks: S<T, any>, es: S<T, any> = functions.identity): ILookup<any, any> { return new Lookup(this, ks, es); }
+    public union(other: Source<T>): IEnumerable<T> { return this.unionBy(other, functions.identity); }
     public unionBy<K>(other: Source<T>, key: S<T, K>): IEnumerable<T> { return this.concat(other).distinctBy(key); }
     public where(predicate: S<T, boolean>): IEnumerable<T>;
     public where<R extends T>(predicate: C<T, R>): IEnumerable<R>;
@@ -453,7 +506,7 @@ class ArrayLikeEnumerable<T> extends Enumerable<T> {
     public buffer(): IEnumerable<T> { return this; }
     public cache(): IEnumerable<T> { return this; }
     public reverse(): IEnumerable<T> {
-        return ReversedEnumerable.create(this, () => ArrayLikeEnumerable.reverse(this._arrayLike));
+        return new ReversedEnumerable(this, () => ArrayLikeEnumerable.reverse(this._arrayLike));
     }
 
     // #endregion FluentApi overrides
@@ -630,7 +683,7 @@ class CachedEnumerable<T> extends Enumerable<T> {
     }
 
     public reverse(): IEnumerable<T> {
-        return ReversedEnumerable.create(this, () => {
+        return new ReversedEnumerable(this, () => {
             while (this._enumerator.moveNext()) { }
             return ArrayEnumerable.reverse(this._cache);
         });
@@ -638,22 +691,33 @@ class CachedEnumerable<T> extends Enumerable<T> {
 }
 
 class ConcatEnumerable<T> extends Enumerable<T> {
-    protected readonly _sources: Array<IEnumerable<T>>;
+    protected readonly _sources: IEnumerable<IEnumerable<T>>;
 
-    public constructor(...sources: Array<IEnumerable<T>>) {
+    public constructor(sources: Source<Source<T>>) {
+        const _sources = Enumerable.from(sources).select(Enumerable.from).cache();
         super(function* concat(): Iterator<T> {
-            for (const source of sources) {
-                yield* source;
+            for (const source of _sources) {
+                yield* source as IEnumerable<T>;
             }
         });
 
-        this._sources = sources;
+        this._sources = _sources;
     }
 
     public reverse(): IEnumerable<T> {
-        return ReversedEnumerable.create(this, function* reversed(): Iterator<T> {
-            for (let i = this._sources.length; i > 0;) {
-                yield* this._sources[--i].reverse();
+        return new ReversedEnumerable(this, new ConcatEnumerable(this._sources.reverse().select(s => s.reverse())));
+    }
+}
+
+class DefaultIfEmptyEnumerable<T> extends Enumerable<T> {
+    public constructor(source: IEnumerable<T>, value: T) {
+        super(function* defaultIfEmpty(): Iterator<T> {
+            const enumerator = source.getEnumerator();
+            if (enumerator.moveNext()) {
+                yield enumerator.current;
+                yield* enumerator.remaining(false);
+            } else {
+                yield value;
             }
         });
     }
@@ -676,7 +740,7 @@ class DistinctEnumerable<T, K> extends Enumerable<T> {
 class ExceptEnumerable<T, K> extends Enumerable<T> {
     protected readonly _source: IEnumerable<T>;
     protected readonly _remove: IEnumerable<T>;
-    protected readonly _key: (element: T, index: number) => K;
+    protected readonly _key: S<T, K>;
 
     public constructor(source: IEnumerable<T>, remove: IEnumerable<T>, key: S<T, K>) {
         super(function* except(): Iterator<T> {
@@ -698,7 +762,7 @@ class ExceptEnumerable<T, K> extends Enumerable<T> {
 class IntersectEnumerable<T, K> extends Enumerable<T> {
     protected readonly _source: IEnumerable<T>;
     protected readonly _allow: IEnumerable<T>;
-    protected readonly _key: (element: T, index: number) => K;
+    protected readonly _key: S<T, K>;
 
     public constructor(source: IEnumerable<T>, allow: IEnumerable<T>, key: S<T, K>) {
         super(function* except(): Iterator<T> {
@@ -742,8 +806,8 @@ class Group<T, K> extends Enumerable<T> implements IGrouping<T, K> {
 
 class GroupByEnumerable<T, K, E> extends Enumerable<IGrouping<E, K>> {
     protected readonly _source: IEnumerable<T>;
-    protected readonly _key: (element: T, index: number) => K;
-    protected readonly _element: (element: T, index: number) => E;
+    protected readonly _key: S<T, K>;
+    protected readonly _element: S<T, E>;
 
     public constructor(source: IEnumerable<T>, key: S<T, K>, element: S<T, E>) {
         super(function* groupBy(): Iterator<IGrouping<E, K>> {
@@ -792,31 +856,31 @@ class GroupJoinEnumerable<L, R, K, RE> extends Enumerable<RE> {
 
 class Lookup<T, K, E> extends Enumerable<IGrouping<E, K>> implements ILookup<E, K> {
     protected readonly _groups: Map<K, IGrouping<E, K>>;
-    protected readonly _values: IEnumerable<IGrouping<E, K>>;
-    protected readonly _enumerator: IEnumerator<IGrouping<E, K>>;
+    protected readonly _order: IEnumerable<IGrouping<E, K>>;
+    protected readonly _discover: IEnumerator<void>;
 
     public constructor(source: IEnumerable<T>, key: S<T, K>, element: S<T, E>) {
-        super(() => this._values.getEnumerator());
+        super(() => this._order.getEnumerator());
         this._groups = new Map<K, IGrouping<E, K>>();
-        this._values = source.groupBy(key, element)
+        this._order = source.groupBy(key, element)
             .forEach(e => this._groups.set(e.key, e))
             .cache();
 
-        this._enumerator = this._values.getEnumerator();
+        this._discover = this._order.select(functions.blank).getEnumerator();
     }
 
     public get(key: K): IEnumerable<E> | undefined {
-        while (!this._groups.has(key) && this._enumerator.moveNext()) { }
+        while (!this._groups.has(key) && this._discover.moveNext()) { }
         return this._groups.get(key);
     }
 
     public has(key: K): boolean {
-        while (!this._groups.has(key) && this._enumerator.moveNext()) { }
+        while (!this._groups.has(key) && this._discover.moveNext()) { }
         return this._groups.has(key);
     }
 
     public reverse(): ILookup<E, K> {
-        return new ReversedLookup(this, this._values, this._enumerator);
+        return new ReversedLookup(this, this._order);
     }
 }
 
@@ -900,14 +964,10 @@ class OrderedEnumerable<T, K> extends Enumerable<T> implements IOrderedEnumerabl
 
 }
 
-class ReversedEnumerable<T> extends Enumerable<T> {
-    public static create<T, ThisType extends IEnumerable<T>>(source: ThisType, reverse?: Iterable<T> | ((this: ThisType) => Iterator<T>)): IEnumerable<T> {
-        return new ReversedEnumerable(source, typeof reverse === 'function' ? reverse.bind(source) as EnumerableCtorArg<T> : reverse);
-    }
+class ReversedEnumerable<T, ThisType extends IEnumerable<T> = IEnumerable<T>> extends Enumerable<T> {
+    protected readonly _source: ThisType;
 
-    protected readonly _source: IEnumerable<T>;
-
-    protected constructor(source: IEnumerable<T>, reversed?: EnumerableCtorArg<T>) {
+    public constructor(source: ThisType, reversed?: EnumerableCtorArg<T>) {
         super(reversed || function* reverse(): Iterator<T> {
 
         });
@@ -915,12 +975,11 @@ class ReversedEnumerable<T> extends Enumerable<T> {
         this._source = source;
     }
 
-    public reverse(): IEnumerable<T> { return this._source; }
+    public reverse(): ThisType { return this._source; }
 }
 
-class ReversedGroup<T, K> extends ReversedEnumerable<T> implements IGrouping<T, K> {
+class ReversedGroup<T, K> extends ReversedEnumerable<T, IGrouping<T, K>> implements IGrouping<T, K> {
     public readonly key: K;
-    public reverse!: () => IGrouping<T, K>;
 
     public constructor(source: IGrouping<T, K>, members: T[], enumerator: IEnumerator<void>, key: K) {
         super(source, function reverse(): Iterator<T> {
@@ -932,17 +991,13 @@ class ReversedGroup<T, K> extends ReversedEnumerable<T> implements IGrouping<T, 
     }
 }
 
-class ReversedLookup<T, K> extends ReversedEnumerable<IGrouping<T, K>> implements ILookup<T, K> {
-    public reverse!: () => ILookup<T, K>;
-
+class ReversedLookup<T, K> extends ReversedEnumerable<IGrouping<T, K>, ILookup<T, K>> implements ILookup<T, K> {
     protected readonly _source: ILookup<T, K>;
-    protected readonly _enumerator: IEnumerator<IGrouping<T, K>>;
 
-    public constructor(source: ILookup<T, K>, values: IEnumerable<IGrouping<T, K>>, enumerator: IEnumerator<IGrouping<T, K>>) {
-        super(source, () => values.reverse().getEnumerator());
+    public constructor(source: ILookup<T, K>, order: IEnumerable<IGrouping<T, K>>) {
+        super(source, () => order.reverse().getEnumerator());
 
         this._source = source;
-        this._enumerator = enumerator;
     }
 
     public get(key: K): IEnumerable<T> | undefined { return this._source.get(key); }
@@ -997,9 +1052,7 @@ class SkipEnumerable<T> extends Enumerable<T> {
             const enumerator = source.getEnumerator();
             let i = 0;
             while (enumerator.moveNext() && predicate(enumerator.current, i++)) { }
-            while (enumerator.moveNext()) {
-                yield enumerator.current;
-            }
+            yield* enumerator.remaining(false);
         });
     }
 }

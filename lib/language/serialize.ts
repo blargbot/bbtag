@@ -31,7 +31,7 @@ const rawArrayKeys = Enumerable.from(Object.keys(namedRawArray));
 
 function isRawArray(value: any): value is IRawArray {
     return typeof value === 'object' &&
-        rawArrayKeys.equivalentTo(Object.keys(value)) &&
+        rawArrayKeys.isSetEqual(Object.keys(value)) &&
         Array.isArray(value.v) &&
         typeof value.n === 'string';
 }

@@ -11,7 +11,7 @@ interface IToken {
 export type BBTagParser = (source: string) => IStringToken;
 
 export function parse(source: string): IStringToken {
-    const tokens = Enumerator.from(createTokenStream(source));
+    const tokens = new Enumerator(createTokenStream(source));
     const result = readStringToken(tokens, true);
     if (tokens.moveNext()) {
         throw new Error('Unpaired \'}\'');

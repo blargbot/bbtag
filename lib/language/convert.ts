@@ -119,7 +119,7 @@ export const isValue: { [K in keyof SubtagResultTypeMap]: (target: SubtagResult)
             return false;
         }
 
-        return errorKeys.equivalentTo(Object.keys(target), false);
+        return errorKeys.isSetEqual(Object.keys(target));
     }
 };
 

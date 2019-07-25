@@ -1,8 +1,8 @@
-import { IterableEnumerable } from '../util';
+import { Enumerable } from '../util';
 
 type SortedListKey = string | number | boolean;
 
-export class SortedList<T> extends IterableEnumerable<T> {
+export class SortedList<T> extends Enumerable<T> {
     private readonly _baseValue: T[];
     private readonly _keySelector: (item: T) => SortedListKey;
     private readonly _descending: boolean;

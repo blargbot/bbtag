@@ -1,5 +1,5 @@
 export * from './stringUtil';
-export * from './enumerable';
+export * from './linq';
 export * from './types';
 export * from './cursor';
 export * from './range';

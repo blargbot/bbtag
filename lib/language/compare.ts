@@ -1,4 +1,4 @@
-import { Enumerable, EnumerableSource } from '../util';
+import { Enumerable, Source } from '../util';
 import { getType, toNumber, toString } from './convert';
 import { ISubtagError, SubtagPrimitiveResult, SubtagResult } from './types';
 
@@ -74,10 +74,7 @@ function* toStringOrNumber(values: SubtagPrimitiveResult[]): IterableIterator<st
     }
 }
 
-function compareIterable(left: EnumerableSource<number>, right: EnumerableSource<number>): -1 | 0 | 1;
-function compareIterable(left: EnumerableSource<string>, right: EnumerableSource<string>): -1 | 0 | 1;
-function compareIterable(left: EnumerableSource<string | number>, right: EnumerableSource<string | number>): -1 | 0 | 1;
-function compareIterable<T extends string | number>(left: EnumerableSource<T>, right: EnumerableSource<T>): -1 | 0 | 1 {
+function compareIterable<T extends string | number>(left: Source<T>, right: Source<T>): -1 | 0 | 1 {
     const leftE = Enumerable.from(left).getEnumerator();
     const rightE = Enumerable.from(right).getEnumerator();
 
