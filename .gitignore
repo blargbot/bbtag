@@ -1,10 +1,11 @@
-node_modules
 *.log
 *.js
 *.js.map
-dist
-coverage
-.vscode
-.vs
-.nyc_output
 bbtag-*.tgz
+
+/node_modules
+/coverage
+/.vs
+/.nyc_output
+/.vscode/*
+!/.vscode/launch.json
