@@ -1,6 +1,6 @@
 import { Enumerable, Source } from '../util';
-import { getType, toNumber, toString } from './convert';
-import { ISubtagError, SubtagPrimitiveResult, SubtagResult } from './types';
+import { getType, switchType, toNumber, toString } from './convert';
+import { SubtagPrimitiveResult, SubtagResult } from './types';
 
 /**
  * Compares left to right. If left comes before right, -1 is returned. If right comes before left, +1 is returned.
@@ -23,14 +23,15 @@ function compareByBlock(left: string, right: string): -1 | 0 | 1 {
 }
 
 function compareSameType<T extends SubtagResult>(left: T, right: T): -1 | 0 | 1 {
-    switch (getType(left)) {
-        case 'string': return compareByBlock(left as string, right as string);
-        case 'number':
-        case 'boolean': return compareAsNumber((left as number), (right as number));
-        case 'null': return 0;
-        case 'error': return compareByBlock((left as ISubtagError).message, (right as ISubtagError).message);
-        case 'array': return compareAsArray(left as any[], right as any[]);
-    }
+    const r: any = right;
+    return switchType(left, {
+        string: l => compareByBlock(l, r),
+        number: l => compareAsNumber(l, r),
+        boolean: l => compareAsNumber(+l, +r),
+        null: _ => 0,
+        error: l => compareByBlock(l.message, r.message),
+        array: l => compareAsArray(l, r)
+    });
 }
 
 function compareAsNumber(left: number, right: number): -1 | 0 | 1 {
@@ -75,29 +76,25 @@ function* toStringOrNumber(values: SubtagPrimitiveResult[]): IterableIterator<st
 }
 
 function compareIterable<T extends string | number>(left: Source<T>, right: Source<T>): -1 | 0 | 1 {
-    const leftE = Enumerable.from(left).getEnumerator();
-    const rightE = Enumerable.from(right).getEnumerator();
+    const [le, re] = [left, right].map(Enumerable.from).map(e => e.getEnumerator());
 
-    let leftCont = true;
+    let lc: boolean;
+    while ((lc = le.moveNext()) && re.moveNext()) {
+        const [l, r] = [le, re].map(e => e.current);
 
-    while ((leftCont = leftE.moveNext()) && rightE.moveNext()) {
-        let result = 0;
-        const [l, r] = [leftE.current, rightE.current];
-        if (l === r) { continue; }
-        if (typeof l === 'number' && !isNaN(l)) { result--; }
-        if (typeof r === 'number' && !isNaN(r)) { result++; }
-        if (result !== 0) { return result as -1 | 1; }
+        if (typeof l !== typeof r) {
+            return typeof l === 'number' ? -1 : 1;
+        }
 
+        if (typeof l === 'number' && typeof r === 'number') {
+            if (isNaN(l) && isNaN(r)) { continue; }
+            if (isNaN(l)) { return 1; }
+            if (isNaN(r)) { return -1; }
+        }
+
+        if (l < r) { return -1; }
         if (l > r) { return 1; }
-        if (r > l) { return -1; }
-
-        if (isTrueNaN(l) && !isTrueNaN(r)) { return 1; }
-        if (!isTrueNaN(l) && isTrueNaN(r)) { return -1; }
     }
 
-    return leftCont ? 1 : rightE.moveNext() ? -1 : 0;
-}
-
-function isTrueNaN(value: any): boolean {
-    return typeof value === 'number' && isNaN(value);
+    return lc ? 1 : re.moveNext() ? -1 : 0;
 }

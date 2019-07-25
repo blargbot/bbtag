@@ -12,7 +12,6 @@ export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubta
     public constructor(...args: [] | [SubtagCollection<T>]) {
         super(() => allSubtags.getEnumerator());
 
-        const allSubtags = (this._parent || Enumerable.empty()).concat(this.owned());
         this._nameMap = new Map();
         this._aliasMap = new Map();
         this._parent = undefined;
@@ -20,6 +19,8 @@ export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubta
         if (args[0] instanceof SubtagCollection) {
             this._parent = args[0];
         }
+
+        const allSubtags = (this._parent || Enumerable.empty()).concat(this.owned());
     }
 
     public createChild(): SubtagCollection<T> {

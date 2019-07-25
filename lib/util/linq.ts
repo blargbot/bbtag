@@ -22,6 +22,31 @@ const functions = {
     eq<T>(l: T, r: T): boolean { return comp(l, r) === 0; }
 };
 
+function indexed<T>(source: IEnumerable<T>): Iterable<[T, number]> {
+    return {
+        *[Symbol.iterator](): Iterator<[T, number]> {
+            let i = 0;
+            for (const element of source) {
+                yield [element, i++];
+            }
+        }
+    };
+}
+
+function comp<T>(l: T, r: T): number {
+    if (l < r) { return -1; }
+    if (l > r) { return 1; }
+    if (l === r) { return 0; }
+    if (typeof l === 'number' && typeof r === 'number' && isNaN(l) && isNaN(r)) { return 0; }
+    if (typeof l === 'number' && isNaN(l)) { return 1; }
+    if (typeof r === 'number' && isNaN(r)) { return -1; }
+    return 0;
+}
+
+function isIterable(value: any): value is Iterable<any> {
+    return Symbol.iterator in Object(value);
+}
+
 export class Enumerable<T> implements IEnumerable<T> {
     // #region Static methods
 
@@ -30,17 +55,18 @@ export class Enumerable<T> implements IEnumerable<T> {
         switch (typeof value) {
             case 'string':
                 return new StringEnumerable(value).asEnumerable();
+            case 'function':
+                return new Enumerable(value as () => Iterator<any>);
+            case 'undefined':
+                return EmptyEnumerable;
             case 'object':
                 if (Array.isArray(value)) { return new ArrayEnumerable(value); }
                 if (value instanceof Enumerable) { return value; }
                 if (value instanceof Set) { return new SetEnumerable(value); }
                 if (value instanceof Map) { return new MapEnumerable(value).asEnumerable(); }
-                if ('getEnumerator' in value) { return new Enumerable(value); }
+                if (isIterable(value)) { return new Enumerable(value); }
                 if ('length' in value) { return new ArrayLikeEnumerable(value); }
                 if ('next' in value) { return new LinkedListEnumerable(value); }
-                return new Enumerable(value);
-            case 'function':
-                return new Enumerable(value as () => Iterator<any>);
         }
         throw new Error(`Unable to convert ${value} to IEnumerable`);
     }
@@ -49,6 +75,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     public static range(start: number, count: number, step: number = 1): IEnumerable<number> { return new RangeEnumerable(start, count, step); }
     public static repeat<T>(element: T, count: number): IEnumerable<T> { return new RepeatEnumerable(element, count); }
     public static concat<T>(...sources: Array<Source<T>>): IEnumerable<T> { return new ConcatEnumerable(new ArrayEnumerable(sources)); }
+    public static isEnumerable<T = any>(value: any): value is Enumerable<T> { return value instanceof Enumerable; }
 
     // #endregion Static Methods
 
@@ -415,27 +442,6 @@ export class Enumerator<T> implements IEnumerator<T> {
         const result = new Enumerable(() => this);
         return cache ? result.cache() : result;
     }
-}
-
-function indexed<T>(source: IEnumerable<T>): Iterable<[T, number]> {
-    return {
-        *[Symbol.iterator](): Iterator<[T, number]> {
-            let i = 0;
-            for (const element of source) {
-                yield [element, i++];
-            }
-        }
-    };
-}
-
-function comp<T>(l: T, r: T): number {
-    if (l < r) { return -1; }
-    if (l > r) { return 1; }
-    if (l === r) { return 0; }
-    if (typeof l === 'number' && typeof r === 'number' && isNaN(l) && isNaN(r)) { return 0; }
-    if (typeof l === 'number' && isNaN(l)) { return 1; }
-    if (typeof r === 'number' && isNaN(r)) { return -1; }
-    return 0;
 }
 
 // #region Adapters
