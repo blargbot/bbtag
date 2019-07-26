@@ -1,22 +1,28 @@
-import { Awaitable, ISubtagToken, SubtagResult } from '..';
-import { ISystemSubtagArgs, SystemSubtag } from '../system';
+import { Awaitable, Constructor, ISubtagToken, SubtagResult } from '..';
+import { ISystemSubtagArgs, SystemSubtagBase } from '../system';
 import { DiscordContext, DiscordDMContext, DiscordGuildContext } from './context';
 import { ChannelType } from './types';
 
 // tslint:disable-next-line: no-empty-interface
-export interface IDiscordSubtagArgs<T extends DiscordContext = DiscordContext> extends ISystemSubtagArgs<T> {
+export interface IDiscordSubtagArgs<T extends DiscordContext> extends ISystemSubtagArgs<T> {
     // TODO: define IDiscordSubtagArgs
 }
 
-export class DiscordSubtag<T extends DiscordContext = DiscordContext> extends SystemSubtag<T> {
-    protected constructor(args: IDiscordSubtagArgs) {
-        super(args);
+export class DiscordSubtagBase<T extends DiscordContext> extends SystemSubtagBase<T> {
+    protected constructor(context: Constructor<T>, args: IDiscordSubtagArgs<T>) {
+        super(context, args);
     }
 }
 
-export class DiscordGuildSubtag extends DiscordSubtag<DiscordGuildContext> {
-    protected constructor(args: IDiscordSubtagArgs) {
-        super(args);
+export class DiscordSubtag extends DiscordSubtagBase<DiscordContext> {
+    public constructor(args: ISystemSubtagArgs<DiscordContext>) {
+        super(DiscordContext, args);
+    }
+}
+
+export class DiscordGuildSubtag extends DiscordSubtagBase<DiscordGuildContext> {
+    protected constructor(args: IDiscordSubtagArgs<DiscordGuildContext>) {
+        super(DiscordContext, args);
     }
 
     public execute(token: ISubtagToken, context: DiscordGuildContext): Awaitable<SubtagResult> {
@@ -30,9 +36,9 @@ export class DiscordGuildSubtag extends DiscordSubtag<DiscordGuildContext> {
     }
 }
 
-export class DiscordDMSubtag extends DiscordSubtag<DiscordDMContext> {
-    protected constructor(args: IDiscordSubtagArgs) {
-        super(args);
+export class DiscordDMSubtag extends DiscordSubtagBase<DiscordDMContext> {
+    protected constructor(args: IDiscordSubtagArgs<DiscordDMContext>) {
+        super(DiscordContext, args);
     }
 
     public execute(token: ISubtagToken, context: DiscordDMContext): Awaitable<SubtagResult> {

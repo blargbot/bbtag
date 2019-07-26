@@ -12,7 +12,7 @@ describe('class ' + SubtagContext.name, () => {
             scope: 'test',
             name: 'testName'
         };
-        engine.subtags.register(new MockSubtag(name));
+        engine.subtags.register(new MockSubtag(SubtagContext, name));
 
         // act
         const result = new SubtagContext(engine, args);

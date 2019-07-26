@@ -4,8 +4,8 @@ import { bbtag, IStringToken, SubtagContext, SubtagResult } from '../..';
 import { ctx, eng, MockSubtag, str, stripStrToken, tag } from '../testUtils';
 
 const subtags: MockSubtag[] = [
-    new MockSubtag('//', { optimize: _ => '' }),
-    new MockSubtag('count', { optimize: t => t, execute: t => t.args.length })
+    new MockSubtag(SubtagContext, '//', { optimize: _ => '' }),
+    new MockSubtag(SubtagContext, 'count', { optimize: t => t, execute: t => t.args.length })
 ];
 
 describe('class Engine', () => {

@@ -1,13 +1,19 @@
 import { ISubtagArgs, Subtag } from '..';
-import { SubtagContext } from '../lib';
+import { Constructor, SubtagContext } from '../lib';
 
 // tslint:disable-next-line: no-empty-interface
 export interface ISystemSubtagArgs<T extends SubtagContext = SubtagContext> extends ISubtagArgs<T> {
     // TODO: define ISystemSubtagArgs
 }
 
-export class SystemSubtag<T extends SubtagContext = SubtagContext> extends Subtag<T> {
-    protected constructor(args: ISystemSubtagArgs<T>) {
-        super(args);
+export class SystemSubtagBase<T extends SubtagContext> extends Subtag<T> {
+    protected constructor(context: Constructor<T>, args: ISystemSubtagArgs<T>) {
+        super(context, args);
+    }
+}
+
+export class SystemSubtag extends SystemSubtagBase<SubtagContext> {
+    public constructor(args: ISystemSubtagArgs<SubtagContext>) {
+        super(SubtagContext, args);
     }
 }

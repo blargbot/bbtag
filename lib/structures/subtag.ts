@@ -1,5 +1,5 @@
 import { ISubtagToken, SubtagResult } from '../bbtag';
-import { Awaitable, conditionParsers, Enumerable, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
+import { Awaitable, conditionParsers, Constructor, Enumerable, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
 import { OptimizationContext, SubtagContext } from './context';
@@ -14,11 +14,12 @@ interface ISubtagConditionalHandler<T extends SubtagContext, TSelf extends Subta
     preExecute: PreExecute<T>;
 }
 
-export interface ISubtag<TContext extends SubtagContext> {
+export interface ISubtag<T extends SubtagContext> {
+    readonly context: Constructor<T>;
     readonly name: string;
     readonly aliases: ReadonlySet<string>;
 
-    execute(token: ISubtagToken, context: TContext): Awaitable<SubtagResult>;
+    execute(token: ISubtagToken, context: T): Awaitable<SubtagResult>;
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
 }
 
@@ -34,21 +35,23 @@ export interface ISubtagArgs<TContext extends SubtagContext> {
     arraySupport?: boolean;
 }
 
-export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<TContext> {
+export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
     protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
 
+    public readonly context: Constructor<T>;
     public readonly name: string;
     public readonly category: string;
     public readonly aliases: Set<string>;
-    public readonly description: (context: TContext) => string;
+    public readonly description: (context: T) => string;
     public readonly arguments: SubtagArgumentDefinition[];
     public readonly examples?: IUsageExample[];
     public readonly arraySupport: boolean;
 
-    private readonly _conditionals: Array<ISubtagConditionalHandler<TContext, this>>;
-    private _defaultHandler?: ISubtagConditionalHandler<TContext, this>;
+    private readonly _conditionals: Array<ISubtagConditionalHandler<T, this>>;
+    private _defaultHandler?: ISubtagConditionalHandler<T, this>;
 
-    protected constructor(args: ISubtagArgs<TContext>) {
+    protected constructor(context: Constructor<T>, args: ISubtagArgs<T>) {
+        this.context = context;
         this.name = args.name;
         this.category = args.category;
         this.aliases = Enumerable.from(args.aliases || []).toSet();
@@ -60,10 +63,10 @@ export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<
         this._conditionals = [];
     }
 
-    public execute(token: ISubtagToken, context: TContext): Awaitable<SubtagResult>;
-    public async execute(token: ISubtagToken, context: TContext): Promise<SubtagResult> {
+    public execute(token: ISubtagToken, context: T): Awaitable<SubtagResult>;
+    public async execute(token: ISubtagToken, context: T): Promise<SubtagResult> {
         let action;
-        let preExecute: undefined | PreExecute<TContext>;
+        let preExecute: undefined | PreExecute<T>;
         for (const { condition, handler, preExecute: pre } of this._conditionals) {
             if (condition(token.args)) {
                 action = handler;
@@ -99,7 +102,7 @@ export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<
         return `{${this.name};${argumentBuilder.stringify(';', this.arguments)}}`;
     }
 
-    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<TContext, this>, autoResolve?: AutoResolvable<TContext>): this {
+    protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
         switch (typeof condition) {
             case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
             case 'string': return this.whenArgs(this.parseCondition(condition), handler, autoResolve);
@@ -108,7 +111,7 @@ export abstract class Subtag<TContext extends SubtagContext> implements ISubtag<
         return this;
     }
 
-    protected default(handler: SubtagHandler<TContext, this>, autoResolve?: AutoResolvable<TContext>): this {
+    protected default(handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
         this._defaultHandler = { condition: () => true, handler: handler.bind(this), preExecute: toFunction(autoResolve) };
         return this;
     }

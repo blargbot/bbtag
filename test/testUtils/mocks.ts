@@ -1,4 +1,4 @@
-import { Awaitable, DatabaseValue, IDatabase, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../..';
+import { Awaitable, Constructor, DatabaseValue, IDatabase, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../..';
 
 export class MockDatabase implements IDatabase {
     public delete: (path: Iterable<string>) => Awaitable<void>;
@@ -17,10 +17,12 @@ export class MockDatabase implements IDatabase {
 type FunctionsOf<T extends { [key: string]: any }> = { [P in keyof T]?: T[P] extends (...args: any) => any ? T[P] : never };
 
 export class MockSubtag<T extends SubtagContext = SubtagContext> implements ISubtag<T> {
+    public readonly context: Constructor<T>;
     public name: string;
     public aliases: Set<string>;
 
-    public constructor(name: string, handlers: FunctionsOf<ISubtag<T>> = {}) {
+    public constructor(context: Constructor<T>, name: string, handlers: FunctionsOf<ISubtag<T>> = {}) {
+        this.context = context;
         this.name = name;
         this.aliases = new Set();
 
