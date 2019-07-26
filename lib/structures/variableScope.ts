@@ -1,12 +1,13 @@
 import { ISubtagError } from '../bbtag';
-import { Awaitable, Enumerable } from '../util';
+import { Awaitable, Constructor, Enumerable } from '../util';
 import { SubtagContext } from './context';
 import { DatabaseValue } from './database';
 
-export interface IVariableScope<T extends SubtagContext = SubtagContext> {
-    name: string;
-    prefix: string;
-    description: string;
+export interface IVariableScope<T extends SubtagContext> {
+    readonly context: Constructor<T>;
+    readonly name: string;
+    readonly prefix: string;
+    readonly description: string;
 
     /**
      * Sets the `key` in `context.database` to `value`
@@ -45,7 +46,7 @@ export interface IVariableScope<T extends SubtagContext = SubtagContext> {
     getKey(context: T, key: string): Iterable<string>;
 }
 
-export interface IPartialVariableScope<T extends SubtagContext = SubtagContext> {
+export interface IPartialVariableScope<T extends SubtagContext> {
     name: IVariableScope<T>['name'];
     prefix: IVariableScope<T>['prefix'];
     description: IVariableScope<T>['description'];
@@ -56,7 +57,8 @@ export interface IPartialVariableScope<T extends SubtagContext = SubtagContext> 
     getKey: IVariableScope<T>['getKey'];
 }
 
-export class VariableScope<T extends SubtagContext = SubtagContext> implements IVariableScope<T> {
+export class VariableScope<T extends SubtagContext> implements IVariableScope<T> {
+    public readonly context: Constructor<T>;
     public readonly name: string;
     public readonly prefix: string;
     public readonly description: string;
@@ -68,7 +70,8 @@ export class VariableScope<T extends SubtagContext = SubtagContext> implements I
      */
     public readonly getKey: (context: T, key: string) => Iterable<string>;
 
-    public constructor(options: IPartialVariableScope<T>) {
+    public constructor(context: Constructor<T>, options: IPartialVariableScope<T>) {
+        this.context = context;
         this.name = options.name;
         this.prefix = options.prefix;
         this.description = options.description;

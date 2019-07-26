@@ -1,6 +1,6 @@
 import { SubtagContext, VariableScope } from '../..';
 
-export default new VariableScope({ // Local ''
+export default new VariableScope(SubtagContext, { // Local ''
     name: 'Local',
     prefix: '',
     description:

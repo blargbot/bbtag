@@ -10,7 +10,6 @@ export interface ISubtagContextArgs {
 }
 
 export class SubtagContext {
-    public readonly type: typeof SubtagContext;
     public readonly engine: Engine<this>;
     public readonly variables: VariableCache<this>;
     public readonly subtags: SubtagCollection<this>;
@@ -20,7 +19,6 @@ export class SubtagContext {
     public fallback: SubtagResult;
 
     public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs) {
-        this.type = this.constructor as any;
         this.engine = engine as Engine<this>;
         this.variables = new VariableCache(this);
         this.subtags = engine.subtags.createChild() as SubtagCollection<this>;

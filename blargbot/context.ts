@@ -11,7 +11,6 @@ export type BlargbotGuildContext = BlargbotContext<GuildMessage>;
 export type BlargbotDMContext = BlargbotContext<DMMessage>;
 
 export class BlargbotContext<T extends IDefaultMessage = IDefaultMessage> extends DiscordContext<T> {
-    public readonly type!: typeof BlargbotContext;
     public readonly blargbot: IBlargbot;
 
     // @ts-ignore

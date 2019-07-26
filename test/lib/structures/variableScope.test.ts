@@ -6,7 +6,7 @@ import { ctx } from '../../testUtils';
 describe('class VariableScope', () => {
     it('should correctly apply minimal overrides', () => {
         // arrange
-        const options: IPartialVariableScope = {
+        const options: IPartialVariableScope<SubtagContext> = {
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -14,7 +14,7 @@ describe('class VariableScope', () => {
         };
 
         // act
-        const result = new VariableScope(options);
+        const result = new VariableScope(SubtagContext, options);
 
         // assert
         for (const key of Object.keys(options)) {
@@ -23,7 +23,7 @@ describe('class VariableScope', () => {
     });
     it('should correctly apply all overrides', () => {
         // arrange
-        const options: IPartialVariableScope = {
+        const options: IPartialVariableScope<SubtagContext> = {
             description: 'abc',
             name: 'name',
             prefix: 'x',
@@ -35,7 +35,7 @@ describe('class VariableScope', () => {
         };
 
         // act
-        const result = new VariableScope(options);
+        const result = new VariableScope(SubtagContext, options);
 
         // assert
         for (const key of Object.keys(options)) {
@@ -58,7 +58,7 @@ describe('class VariableScope', () => {
                 return keys;
             }
         };
-        const scope = new VariableScope(options);
+        const scope = new VariableScope(SubtagContext, options);
         let callCount = 0;
         context.engine.database.set = (p: Iterable<string>, v: DatabaseValue) => {
             expect(p).to.equal(keys);
@@ -88,7 +88,7 @@ describe('class VariableScope', () => {
                 return keys;
             }
         };
-        const scope = new VariableScope(options);
+        const scope = new VariableScope(SubtagContext, options);
         let callCount = 0;
         context.engine.database.setBulk = (v: Iterable<[string, DatabaseValue]>) => {
             expect([...v]).to.deep.equal(values.map(e => [keys, e[1]]));
@@ -118,7 +118,7 @@ describe('class VariableScope', () => {
                 return keys;
             }
         };
-        const scope = new VariableScope(options);
+        const scope = new VariableScope(SubtagContext, options);
         context.engine.database.get = (p: Iterable<string>) => {
             expect(p).to.equal(keys);
             return values;
@@ -145,7 +145,7 @@ describe('class VariableScope', () => {
                 return keys;
             }
         };
-        const scope = new VariableScope(options);
+        const scope = new VariableScope(SubtagContext, options);
         let callCount = 0;
         context.engine.database.delete = (p: Iterable<string>) => {
             expect(p).to.equal(keys);

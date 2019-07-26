@@ -11,7 +11,6 @@ export type DiscordGuildContext = DiscordContext<GuildMessage>;
 export type DiscordDMContext = DiscordContext<DMMessage>;
 
 export class DiscordContext<T extends IDefaultMessage = IDefaultMessage> extends SubtagContext {
-    public readonly type!: typeof DiscordContext;
     public readonly self: ISelfUser;
     public readonly message: T;
 

@@ -17,10 +17,10 @@ export class Engine<T extends SubtagContext> {
     protected readonly events: EventManager<IEngineEvents>;
 
     public constructor(context: Constructor<T>, database: IDatabase) {
-        this.subtags = new SubtagCollection(context);
-        this.database = database;
         this.events = new EventManager();
-        this.variableScopes = new VariableScopeCollection();
+        this.subtags = new SubtagCollection(context);
+        this.variableScopes = new VariableScopeCollection(context);
+        this.database = database;
     }
 
     public execute(token: IStringToken, context: SubtagContext): Awaitable<SubtagResult>;

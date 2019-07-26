@@ -1,6 +1,6 @@
 import { SubtagContext, VariableScope } from '../..';
 
-export default new VariableScope({ // Global '*'
+export default new VariableScope(SubtagContext, { // Global '*'
     name: 'Global',
     prefix: '*',
     description:

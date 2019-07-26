@@ -4,7 +4,7 @@ type SortedListKey = string | number | boolean;
 
 export class SortedList<T> extends Enumerable<T> {
     private readonly _baseValue: T[];
-    private readonly _keySelector: (item: T) => SortedListKey;
+    private readonly _keySelector: <R extends T>(item: R) => SortedListKey;
     private readonly _descending: boolean;
 
     public constructor(keySelector: (item: T) => SortedListKey, descending: boolean = false) {

@@ -1,6 +1,6 @@
-import { VariableScope } from '../..';
+import { SubtagContext, VariableScope } from '../..';
 
-export default new VariableScope({ // Temporary '~'
+export default new VariableScope(SubtagContext, { // Temporary '~'
     name: 'Temporary',
     prefix: '~',
     description:
