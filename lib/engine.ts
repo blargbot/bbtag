@@ -10,6 +10,8 @@ interface IEngineEvents {
     'subtag-error': (token: ISubtagToken, context: SubtagContext, error: any) => Awaitable<void>;
 }
 
+type Super<T extends SubtagContext> = T & { stackTrace: Array<T['stackTrace'][number]> };
+
 export class Engine<T extends SubtagContext> {
     public readonly subtags: SubtagCollection<T>;
     public readonly variableScopes: VariableScopeCollection<T>;
@@ -23,17 +25,13 @@ export class Engine<T extends SubtagContext> {
         this.database = database;
     }
 
-    public execute(token: IStringToken, context: SubtagContext): Awaitable<SubtagResult>;
-    public async execute(token: IStringToken, context: SubtagContext): Promise<SubtagResult> {
-        const parts: SubtagResult[] = [];
-        for (const subtag of token.subtags) {
-            parts.push(await this.executeSubtag(subtag, context));
-        }
-        if (parts.length === 1 && format(token.format, '') === '') {
-            return parts[0];
-        } else {
-            return format(token.format, parts.map(bbtag.convert.toString));
-        }
+    public execute(token: IStringToken, context: T): Awaitable<SubtagResult>;
+    public async execute(token: IStringToken, context: Super<T>): Promise<SubtagResult> {
+        context.stackTrace.push(token);
+        const parts = await Promise.all(token.subtags.map(t => this.executeSubtag(t, context)));
+        context.stackTrace.pop();
+
+        return token.format === '{0}' ? parts[0] : format(token.format, parts.map(bbtag.convert.toString));
     }
 
     public process(source: string, context: T): IBBTag {
@@ -54,24 +52,26 @@ export class Engine<T extends SubtagContext> {
         return this;
     }
 
-    protected async executeSubtag(token: ISubtagToken, context: SubtagContext): Promise<SubtagResult> {
+    protected async executeSubtag(token: ISubtagToken, context: Super<T>): Promise<SubtagResult> {
         await Promise.all(this.events.raise('before-execute', token, context));
+        context.stackTrace.push(token);
         const name = bbtag.convert.toString(await this.execute(token.name, context));
         const executor = context.subtags.find(name);
 
         let result: SubtagResult;
 
         if (executor === undefined) {
-            result = context.error(token, `Unknown subtag ${name}`);
+            result = bbtag.errors.subtagUnknown(context, token, name);
         } else {
             try {
                 result = await executor.execute(token, context);
             } catch (ex) {
                 await this.events.raise('subtag-error', token, context, ex);
-                result = bbtag.check.error(ex) ? ex : context.error(token, 'Internal server error');
+                result = bbtag.check.error(ex) ? ex : bbtag.errors.serverError(context, token);
             }
         }
 
+        context.stackTrace.pop();
         await Promise.all(this.events.raise('after-execute', token, context, result));
         return result;
     }

@@ -16,6 +16,7 @@ export class SubtagContext {
     public readonly tagName: string;
     public readonly scope: string;
     public readonly errors: ISubtagError[];
+    public readonly stackTrace: ReadonlyArray<ISubtagToken | IStringToken>;
     public fallback: SubtagResult;
 
     public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs) {
@@ -26,6 +27,7 @@ export class SubtagContext {
         this.fallback = undefined;
         this.scope = args.scope;
         this.errors = [];
+        this.stackTrace = [];
     }
 
     public execute(token: IStringToken): Awaitable<SubtagResult> {

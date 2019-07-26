@@ -50,7 +50,7 @@ export class GetSubtag extends SystemSubtag {
         } else if (!indexAsNumber.success) {
             return bbtag.errors.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return bbtag.errors.types.array.outOfRange(args, args.token);
+            return bbtag.errors.types.array.outOfBounds(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

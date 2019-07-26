@@ -13,7 +13,7 @@ export const bbtag = {
     check,
     compare,
     convert,
-    errors: errors,
+    errors,
     getType,
     parse,
     serializers,
