@@ -8,7 +8,7 @@ export class SystemContext extends SubtagContext {
     // @ts-ignore
     private readonly ['__SystemContextDiscriminator__']: undefined;
 
-    public constructor(engine: Engine<typeof SystemContext>, args: ISystemContextArgs) {
+    public constructor(engine: Engine<SystemContext>, args: ISystemContextArgs) {
         super(engine, args);
     }
 }

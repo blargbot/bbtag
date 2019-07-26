@@ -19,3 +19,4 @@ export type Awaitable<T> = Promise<T> | T;
  * const d = test<D>(); // Fails
  */
 export type IsSupertypeOf<T1 extends TRoot, T2 extends TRoot, TRoot extends object = object> = TRoot & (T2 extends T1 ? TRoot : void);
+export type Constructor<T, Args extends any[] = any[]> = new (...args: Args) => T;

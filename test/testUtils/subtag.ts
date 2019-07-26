@@ -1,5 +1,5 @@
 import {
-    ContextCtor, Engine, IDatabase, IStringToken, ISubtagError, ISubtagToken,
+    Engine, IDatabase, IStringToken, ISubtagError, ISubtagToken,
     SubtagContext, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, TokenRange
 } from '../..';
 import { MockDatabase } from './mocks';
@@ -30,22 +30,22 @@ export function db(setup: (db: MockDatabase) => any = () => { }): IDatabase {
     return result;
 }
 
-export function eng(): Engine<typeof SubtagContext>;
-export function eng(context: undefined, database?: IDatabase): Engine<typeof SubtagContext>;
-export function eng<T extends ContextCtor>(context: T, database?: IDatabase): Engine<T>;
+export function eng(): Engine<SubtagContext>;
+export function eng(context: undefined, database?: IDatabase): Engine<SubtagContext>;
+export function eng<T extends SubtagContext>(context: T, database?: IDatabase): Engine<T>;
 export function eng(context: any = SubtagContext, database: IDatabase = db()): Engine<any> {
     return new Engine(context, database);
 }
 
 export function ctx(): SubtagContext;
 export function ctx(setup: (context: SubtagContext) => any): SubtagContext;
-export function ctx(engine: Engine<typeof SubtagContext>): SubtagContext;
-export function ctx(engine: Engine<typeof SubtagContext>, setup: (context: SubtagContext) => any): SubtagContext;
+export function ctx(engine: Engine<SubtagContext>): SubtagContext;
+export function ctx(engine: Engine<SubtagContext>, setup: (context: SubtagContext) => any): SubtagContext;
 export function ctx(...args:
     [] |
     [(context: SubtagContext) => any] |
-    [Engine<typeof SubtagContext>] |
-    [Engine<typeof SubtagContext>, (context: SubtagContext) => any]
+    [Engine<SubtagContext>] |
+    [Engine<SubtagContext>, (context: SubtagContext) => any]
 ): SubtagContext {
     if (args.length === 2) { return _ctx(...args); }
     if (args.length === 0) { return _ctx(eng()); }
@@ -53,7 +53,7 @@ export function ctx(...args:
     return _ctx(undefined, args[0]);
 }
 
-function _ctx(engine: Engine<typeof SubtagContext> = eng(), setup: (context: SubtagContext) => any = () => { }): SubtagContext {
+function _ctx(engine: Engine<SubtagContext> = eng(), setup: (context: SubtagContext) => any = () => { }): SubtagContext {
     const result = new SubtagContext(engine, { name: 'test', scope: 'test' });
     setup(result);
     return result;

@@ -4,8 +4,6 @@ import { Awaitable } from '../util';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCache } from './variableCache';
 
-export type ContextCtor<T = SubtagContext> = new (engine: Engine<any>, ...args: any[]) => T;
-
 export interface ISubtagContextArgs {
     readonly name: string;
     readonly scope: string;
@@ -13,7 +11,7 @@ export interface ISubtagContextArgs {
 
 export class SubtagContext {
     public readonly type: typeof SubtagContext;
-    public readonly engine: Engine<this['type']>;
+    public readonly engine: Engine<this>;
     public readonly variables: VariableCache<this>;
     public readonly subtags: SubtagCollection<this>;
     public readonly tagName: string;
@@ -21,9 +19,9 @@ export class SubtagContext {
     public readonly errors: ISubtagError[];
     public fallback: SubtagResult;
 
-    public constructor(engine: Engine<typeof SubtagContext>, args: ISubtagContextArgs) {
+    public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs) {
         this.type = this.constructor as any;
-        this.engine = engine as Engine<ContextCtor<this>>;
+        this.engine = engine as Engine<this>;
         this.variables = new VariableCache(this);
         this.subtags = engine.subtags.createChild();
         this.tagName = args.name;

@@ -1,8 +1,8 @@
 import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './bbtag';
 import { optimizeStringToken } from './optimizer';
-import { ContextCtor, EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
+import { EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
 import { IDatabase } from './structures/database';
-import { Awaitable, format } from './util';
+import { Awaitable, Constructor, format } from './util';
 
 interface IEngineEvents {
     'before-execute': (token: ISubtagToken, context: SubtagContext) => Awaitable<void>;
@@ -10,14 +10,14 @@ interface IEngineEvents {
     'subtag-error': (token: ISubtagToken, context: SubtagContext, error: any) => Awaitable<void>;
 }
 
-export class Engine<TContextType extends ContextCtor> {
-    public readonly contextType: TContextType;
-    public readonly subtags: SubtagCollection<InstanceType<TContextType>>;
-    public readonly variableScopes: VariableScopeCollection<InstanceType<TContextType>>;
+export class Engine<T extends SubtagContext> {
+    public readonly contextType: Constructor<T>;
+    public readonly subtags: SubtagCollection<T>;
+    public readonly variableScopes: VariableScopeCollection<T>;
     public readonly database: IDatabase;
     protected readonly events: EventManager<IEngineEvents>;
 
-    public constructor(context: TContextType, database: IDatabase) {
+    public constructor(context: Constructor<T>, database: IDatabase) {
         this.contextType = context;
         this.subtags = new SubtagCollection();
         this.database = database;
@@ -38,7 +38,7 @@ export class Engine<TContextType extends ContextCtor> {
         }
     }
 
-    public process(source: string, context: InstanceType<TContextType>): IBBTag {
+    public process(source: string, context: T): IBBTag {
         const root = bbtag.parse(source);
         return {
             source,

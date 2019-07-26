@@ -17,7 +17,7 @@ export class BlargbotContext extends DiscordContext {
     // @ts-ignore
     private readonly ['__BlargbotContextDiscriminator__']: undefined;
 
-    public constructor(engine: Engine<typeof BlargbotContext>, args: IBlargbotContextArgs) {
+    public constructor(engine: Engine<BlargbotContext>, args: IBlargbotContextArgs) {
         super(engine, args);
 
         this.blargbot = args.blargbot;
