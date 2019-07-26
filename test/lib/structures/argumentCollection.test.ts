@@ -91,7 +91,7 @@ describe('class ArgumentCollection', () => {
             // arrange
             const context = ctx();
             const args = new ArgumentCollection(context, testToken);
-            const indexes = [3, 1];
+            const indexes = [3, 1] as [number, number];
             const arg = indexes.map(i => testToken.args[i]);
             const expected = arg.map(a => ({ context, token: a, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: SubtagContext) => {
@@ -235,7 +235,7 @@ describe('class ArgumentCollection', () => {
             // arrange
             const context = ctx();
             const args = new ArgumentCollection(context, testToken);
-            const indexes = [3, 1];
+            const indexes = [3, 1] as [number, number];
             const arg = indexes.map(i => testToken.args[i]);
             const expected = arg.map(a => ({ context, token: a, message: 'test' }));
             context.engine.execute = (t: IStringToken, c: SubtagContext) => {
@@ -322,7 +322,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
 
             // act
-            const result = args.has(0, 1, 2, 3);
+            const result = args.hasIndex(0, 1, 2, 3);
 
             // assert
             expect(result).to.be.true;
@@ -333,7 +333,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
 
             // act
-            const result = args.has(0, 1, -1, 2, 3);
+            const result = args.hasIndex(0, 1, -1, 2, 3);
 
             // assert
             expect(result).to.be.false;
@@ -344,7 +344,7 @@ describe('class ArgumentCollection', () => {
             const args = new ArgumentCollection(context, testToken);
 
             // act
-            const result = args.has(0, 1, 4, 2, 3);
+            const result = args.hasIndex(0, 1, 4, 2, 3);
 
             // assert
             expect(result).to.be.false;

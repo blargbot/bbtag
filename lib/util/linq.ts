@@ -446,7 +446,7 @@ export class Enumerator<T> implements IEnumerator<T> {
 
 // #region Adapters
 
-class ArrayLikeEnumerable<T> extends Enumerable<T> {
+export class ArrayLikeEnumerable<T> extends Enumerable<T> {
     public static * reverse<T>(source: ArrayLike<T>): Iterator<T> {
         for (let i = source.length; i > 0;) {
             yield source[--i];
@@ -1100,3 +1100,5 @@ class ZipEnumerable<T1, T2, R> extends Enumerable<R> {
 }
 
 // #endregion FluentApi
+
+export default Enumerable;

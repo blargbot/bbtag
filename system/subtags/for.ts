@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult, validation } from '../..';
+import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult } from '../..';
 import { default as bool } from './bool';
 
 export class ForSubtag extends SystemSubtag {
@@ -20,15 +20,13 @@ export class ForSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0-4', validation.notEnoughArgs)
+        this.whenArgs('0-4', bbtag.errors.notEnoughArgs)
             .whenArgs('5', this.run, [0, 1, 2, 3])
             .whenArgs('6', this.run, [0, 1, 2, 3, 4])
-            .default(validation.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public async run(args: ArgumentCollection): Promise<SubtagResult> {
-        const context = args.context;
-
         const result: SubtagResult[] = [];
         const [varName, operator] = args.get(0, 2).select(n => bbtag.convert.toString(n));
         const [initial, limit] = args.get(1, 3).select(n => bbtag.convert.toNumber(n, NaN));
@@ -37,17 +35,17 @@ export class ForSubtag extends SystemSubtag {
 
         const nanValue = [[initial, 1], [limit, 3], [increment, 4]].find(x => isNaN(x[0]));
         if (nanValue !== undefined) {
-            return validation.types.notNumber(args, args.getRaw(nanValue[1]));
+            return bbtag.errors.types.notNumber(args, args.getRaw(nanValue[1]));
         }
 
         // TODO: implement limits
 
         for (let i = initial; bool.check(i, operator, limit); i += increment) {
-            await context.variables.set(varName, i);
-            result.push(await context.execute(code));
-            const next = bbtag.convert.tryToNumber(await context.variables.get(varName));
+            await args.context.variables.set(varName, i);
+            result.push(await args.context.execute(code));
+            const next = bbtag.convert.tryToNumber(await args.context.variables.get(varName));
             if (!next.success) {
-                result.push(validation.types.notNumber(args));
+                result.push(bbtag.errors.types.notNumber(args));
                 break;
             }
             i = next.value;
@@ -55,7 +53,7 @@ export class ForSubtag extends SystemSubtag {
             // TODO: Handle {return} subtag
         }
 
-        context.variables.rollback(varName);
+        args.context.variables.rollback(varName);
         return result.map(bbtag.convert.toString).join('');
     }
 }

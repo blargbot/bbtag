@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult, validation } from '../..';
+import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../..';
 import { BoolSubtag, default as bool } from './bool';
 
 export class IfSubtag extends SystemSubtag {
@@ -23,10 +23,10 @@ export class IfSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=1', validation.notEnoughArgs)
+        this.whenArgs('<=1', bbtag.errors.notEnoughArgs)
             .whenArgs('2,3', this.runNoComp, [0]) // {if;RESOLVE;DEFER[;DEFER]}
             .whenArgs('4,5', this.runWithComp, [0, 1, 2]) // {if;RESOLVE;RESOLVE;RESOLVE;DEFER[;DEFER]}
-            .default(validation.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
@@ -34,7 +34,7 @@ export class IfSubtag extends SystemSubtag {
         const tryBool = bbtag.convert.tryToBoolean(success);
 
         if (!tryBool.success) {
-            return validation.types.notBool(args, args.token.args[0]);
+            return bbtag.errors.types.notBool(args, args.token.args[0]);
         } else if (tryBool.value) {
             return args.execute(1);
         } else {
@@ -47,7 +47,7 @@ export class IfSubtag extends SystemSubtag {
         const success = bool.check(left, comp, right);
 
         if (success === undefined) {
-            return validation.types.notOperator(args);
+            return bbtag.errors.types.notOperator(args);
         } else if (success === true) {
             return args.execute(3);
         } else {

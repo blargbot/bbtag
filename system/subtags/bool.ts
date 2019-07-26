@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult, validation } from '../..';
+import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult } from '../..';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
@@ -30,9 +30,9 @@ export class BoolSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=2', validation.notEnoughArgs)
+        this.whenArgs('<=2', bbtag.errors.notEnoughArgs)
             .whenArgs('3', this.run, true) // {bool;RESOLVE;RESOLVE;RESOLVE}
-            .default(validation.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public run(args: ArgumentCollection): SubtagResult {

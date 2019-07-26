@@ -1,118 +1,63 @@
 import { IStringToken, ISubtagToken, SubtagResult } from '../bbtag';
-import { Awaitable, Enumerable, IEnumerable } from '../util';
+import { ArrayLikeEnumerable, Awaitable, Enumerable, IEnumerable } from '../util';
+import { AsyncCache } from './asyncCache';
 import { SubtagContext } from './context';
 
-export class ArgumentCollection<T extends SubtagContext = SubtagContext> {
+function unknownIndex(index: number): never {
+    throw new Error(`No argument ${index} has been supplied`);
+}
+
+export class ArgumentCollection<T extends SubtagContext = SubtagContext> extends ArrayLikeEnumerable<IStringToken> {
     public readonly context: T;
     public readonly token: ISubtagToken;
-    private readonly _resultCache: Map<number, SubtagResult>;
-    private readonly _promiseCache: Map<number, Promise<SubtagResult>>;
-
-    public get length(): number { return this.token.args.length; }
+    private readonly _cache: AsyncCache<number, SubtagResult>;
 
     constructor(context: T, token: ISubtagToken) {
+        super(token.args);
         this.context = context;
         this.token = token;
-        this._resultCache = new Map();
-        this._promiseCache = new Map();
-    }
-
-    public getRaw(key: number): IStringToken | undefined;
-    public getRaw(...keys: number[]): IEnumerable<IStringToken | undefined>;
-    public getRaw(...keys: number[]): IEnumerable<IStringToken | undefined> | IStringToken | undefined {
-        if (keys.length === 1) {
-            return this._getRaw(keys).first();
-        }
-        return this._getRaw(keys);
-    }
-
-    public get(key: number): SubtagResult;
-    public get(...keys: number[]): IEnumerable<SubtagResult>;
-    public get(...keys: number[]): IEnumerable<SubtagResult> | SubtagResult {
-        if (keys.length === 1) {
-            return this._get(keys).first();
-        }
-        return this._get(keys);
-    }
-
-    public getAll(): IEnumerable<SubtagResult> {
-        return this._get(Enumerable.range(0, this.token.args.length));
-    }
-
-    public execute(key: number): Awaitable<SubtagResult>;
-    public execute(...keys: number[]): Awaitable<IEnumerable<SubtagResult>>;
-    public execute(...keys: number[]): Awaitable<IEnumerable<SubtagResult> | SubtagResult> {
-        if (keys.length === 1) {
-            return this._execute(keys[0]);
-        }
-        return Promise.all(this._execute(keys)).then(v => Enumerable.from(v));
-    }
-
-    public executeAll(): Awaitable<IEnumerable<SubtagResult>> {
-        return this.execute(...Enumerable.range(0, this.token.args.length));
-    }
-
-    public has(...indexes: number[]): boolean {
-        for (const index of indexes) {
-            if (index < 0 || index >= this.token.args.length) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public hasExecuted(...indexes: number[]): boolean {
-        for (const index of indexes) {
-            if (!this._resultCache.has(index)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private _getRaw(indexes: Iterable<number>): IEnumerable<IStringToken | undefined> {
-        return Enumerable.from(indexes).select(index => this.token.args[index]);
-    }
-
-    private _get(indexes: Iterable<number>): IEnumerable<SubtagResult> {
-        return Enumerable.from(indexes).select(index => {
-            if (!this._resultCache.has(index)) {
-                throw new Error(`Key ${index} has not yet been executed or does not exist`);
-            }
-            return this._resultCache.get(index);
+        this._cache = new AsyncCache<number, SubtagResult>(async index => {
+            if (!this.hasIndex(index)) { unknownIndex(index); }
+            return this.context.execute(this.token.args[index]);
         });
     }
 
-    private _execute(index: number): Awaitable<SubtagResult>;
-    private _execute(indexes: Iterable<number>): Array<Awaitable<SubtagResult>>;
-    private _execute(indexes: Iterable<number> | number): Array<Awaitable<SubtagResult>> | Awaitable<SubtagResult> {
-        const result = [];
-        for (const index of typeof indexes === 'number' ? [indexes] : indexes) {
-            if (this._resultCache.has(index)) {
-                result.push(this._resultCache.get(index));
-                continue;
-            }
-            if (!this._promiseCache.has(index)) {
-                this._promiseCache.set(index, this._executeSingle(index));
-            }
-            result.push(this._promiseCache.get(index));
-        }
-
-        if (typeof indexes === 'number') {
-            return result[0];
-        }
-
-        return result;
+    public getRaw(key: number): IStringToken;
+    public getRaw(key1: number, key2: number, ...keys: number[]): IEnumerable<IStringToken | undefined>;
+    public getRaw(...keys: [number] | [number, number, ...number[]]): IEnumerable<IStringToken | undefined> | IStringToken {
+        const result = Enumerable.from(keys).forEach(i => this.hasIndex(i)).select(i => this.token.args[i]);
+        return keys.length === 1 ? result.first() : result.cache();
     }
 
-    private async _executeSingle(index: number): Promise<SubtagResult> {
-        const token = this.token.args[index];
-        if (token === undefined) {
-            return undefined;
-        }
-        const result = await this.context.execute(token);
-        this._resultCache.set(index, result);
-        this._promiseCache.delete(index);
-        return result;
+    public get(key: number): SubtagResult;
+    public get(key1: number, key2: number, ...keys: number[]): IEnumerable<SubtagResult>;
+    public get(...keys: [number] | [number, number, ...number[]]): IEnumerable<SubtagResult> | SubtagResult {
+        const result = Enumerable.from(keys).select(i => this._cache.get(i));
+        return keys.length === 1 ? result.first() : result.cache();
+    }
+
+    public getAll(): IEnumerable<SubtagResult> {
+        return this.select((_, i) => this._cache.get(i));
+    }
+
+    public execute(key: number): Awaitable<SubtagResult>;
+    public execute(key1: number, key2: number, ...keys: number[]): Awaitable<IEnumerable<SubtagResult>>;
+    public execute(...keys: number[]): Awaitable<IEnumerable<SubtagResult> | SubtagResult> {
+        const result = Enumerable.from(keys).select(i => this._cache.getAsync(i));
+        return keys.length === 1 ? result.first() : Promise.all(result).then(Enumerable.from);
+    }
+
+    public executeAll(): Awaitable<IEnumerable<SubtagResult>> {
+        return Promise.all(this.select((_, i) => this._cache.getAsync(i))).then(Enumerable.from);
+    }
+
+    public hasIndex(key: number, ...indexes: number[]): boolean;
+    public hasIndex(...indexes: number[]): boolean {
+        return Enumerable.from(indexes).all(i => 0 <= i && i < this.token.args.length);
+    }
+
+    public hasExecuted(key: number, ...indexes: number[]): boolean;
+    public hasExecuted(...indexes: number[]): boolean {
+        return Enumerable.from(indexes).all(i => this._cache.has(i));
     }
 }

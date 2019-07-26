@@ -1,11 +1,11 @@
 import { ISubtagToken, SubtagResult } from '../bbtag';
-import { Awaitable, conditionParsers, Constructor, Enumerable, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
+import { Awaitable, conditionParsers, Constructor, Enumerable, functions, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
 import { OptimizationContext, SubtagContext } from './context';
 
 type SubtagHandler<T extends SubtagContext, TSelf extends Subtag<T>> = (this: TSelf, args: ArgumentCollection<T>) => Awaitable<SubtagResult>;
-type PreExecute<T extends SubtagContext> = (args: ArgumentCollection<T>, context: T) => Awaitable<void>;
+type PreExecute<T extends SubtagContext> = (context: T, args: ArgumentCollection<T>) => Awaitable<void>;
 type AutoResolvable<T extends SubtagContext> = Iterable<number> | PreExecute<T> | boolean;
 
 interface ISubtagConditionalHandler<T extends SubtagContext, TSelf extends Subtag<T>> {
@@ -63,6 +63,10 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         this._conditionals = [];
     }
 
+    public [Symbol.toStringTag](): string {
+        return this.toString();
+    }
+
     public execute(token: ISubtagToken, context: T): Awaitable<SubtagResult>;
     public async execute(token: ISubtagToken, context: T): Promise<SubtagResult> {
         let action;
@@ -86,7 +90,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
 
         const args = new ArgumentCollection(context, token);
         if (preExecute !== undefined) {
-            await preExecute(args, context);
+            await preExecute(context, args);
         }
         return action.call(this, args);
     }
@@ -106,14 +110,19 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         switch (typeof condition) {
             case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
             case 'string': return this.whenArgs(this.parseCondition(condition), handler, autoResolve);
-            case 'function': this._conditionals.push({ condition, handler: handler.bind(this), preExecute: toFunction(autoResolve) });
         }
+
+        this._conditionals.push({
+            condition,
+            handler: handler.bind(this as ThisParameterType<SubtagHandler<T, this>>),
+            preExecute: toFunction(autoResolve)
+        });
+
         return this;
     }
 
     protected default(handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
-        this._defaultHandler = { condition: () => true, handler: handler.bind(this), preExecute: toFunction(autoResolve) };
-        return this;
+        return this.whenArgs(functions.true, handler, autoResolve);
     }
 
     protected parseCondition(condition: string): Exclude<SubtagCondition, string> {
@@ -139,15 +148,11 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
 function toFunction<T extends SubtagContext>(preExecute?: Iterable<number> | PreExecute<T> | boolean): PreExecute<T> {
     switch (typeof preExecute) {
         case 'function': return preExecute;
-        case 'boolean': return args => voidResult(args.executeAll());
+        case 'boolean': return (_, args) => functions.blank(args.executeAll());
         case 'undefined': return toFunction<T>(false);
     }
 
     const enumerable = Enumerable.from(preExecute);
 
-    return args => voidResult(Promise.all(enumerable.select(index => args.execute(index))));
-}
-
-function voidResult(values: Awaitable<any>): Awaitable<void> {
-    return values;
+    return (_, args) => functions.blank(Promise.all(enumerable.select(index => args.execute(index))));
 }

@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { ISubtagToken, validation } from '../..';
+import { bbtag, ISubtagToken } from '../..';
 
 export class ZWSSubtag extends SystemSubtag {
     public constructor() {
@@ -14,7 +14,7 @@ export class ZWSSubtag extends SystemSubtag {
         });
 
         this.whenArgs('0', () => '\u200b')
-            .default(validation.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public optimize(token: ISubtagToken): ISubtagToken | string {

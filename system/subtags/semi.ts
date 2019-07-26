@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { ISubtagToken, validation } from '../..';
+import { bbtag, ISubtagToken } from '../..';
 
 export class SemiSubtag extends SystemSubtag {
     public constructor() {
@@ -14,7 +14,7 @@ export class SemiSubtag extends SystemSubtag {
         });
 
         this.whenArgs('0', () => ';')
-            .default(validation.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public optimize(token: ISubtagToken): ISubtagToken | string {

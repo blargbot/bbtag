@@ -38,7 +38,7 @@ const toStringSwitch: SwitchHandlers<string> = {
     boolean: serializers.boolean.serialize,
     number: serializers.number.serialize,
     array: serializers.array.serialize,
-    null: functions.always('')
+    null: () => ''
 };
 
 const toPrimitiveSwitch: SwitchHandlers<SubtagPrimitiveResult> = {

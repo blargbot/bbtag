@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult, validation } from '../..';
+import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../..';
 
 export class GetSubtag extends SystemSubtag {
     public constructor() {
@@ -28,10 +28,10 @@ export class GetSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0', validation.notEnoughArgs)
+        this.whenArgs('0', bbtag.errors.notEnoughArgs)
             .whenArgs('1', this.getKey, true)
             .whenArgs('2', this.getIndex, true)
-            .default(validation.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
@@ -48,9 +48,9 @@ export class GetSubtag extends SystemSubtag {
         if (!asArray.success) {
             return value;
         } else if (!indexAsNumber.success) {
-            return validation.types.notNumber(args, args.token.args[1]);
+            return bbtag.errors.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return validation.types.array.outOfRange(args, args.token);
+            return bbtag.errors.types.array.outOfRange(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

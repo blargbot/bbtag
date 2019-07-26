@@ -1,5 +1,5 @@
 import { SystemSubtag } from '..';
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, validation } from '../..';
+import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag } from '../..';
 
 export class SetSubtag extends SystemSubtag {
     public constructor() {
@@ -29,7 +29,7 @@ export class SetSubtag extends SystemSubtag {
             arraySupport: true
         });
 
-        this.whenArgs('0', validation.notEnoughArgs)
+        this.whenArgs('0', bbtag.errors.notEnoughArgs)
             .whenArgs('1', this.clearKey, true)
             .default(this.setKey, true);
     }
