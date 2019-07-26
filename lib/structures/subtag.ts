@@ -1,4 +1,4 @@
-import { ISubtagToken, SubtagResult } from '../language';
+import { ISubtagToken, SubtagResult } from '../bbtag';
 import { Awaitable, conditionParsers, Enumerable, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';

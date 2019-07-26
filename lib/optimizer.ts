@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagToken } from './language';
+import { IStringToken, ISubtagToken } from './bbtag';
 import { OptimizationContext } from './structures';
 import * as util from './util';
 

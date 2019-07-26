@@ -32,7 +32,7 @@ describe('module convert', () => {
                 // arrange
 
                 // act
-                const result = bbtag.toString(input);
+                const result = bbtag.convert.toString(input);
 
                 // assert
                 expect(result).to.equal(expected);
@@ -83,7 +83,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.toBoolean(input, defaultValue);
+                    const result = bbtag.convert.toBoolean(input, defaultValue);
 
                     // assert
                     expect(result).to.equal(expected);
@@ -93,7 +93,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const test = () => bbtag.toBoolean(input);
+                    const test = () => bbtag.convert.toBoolean(input);
 
                     // assert
                     expect(test).to.throw(expected);
@@ -133,7 +133,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.tryToBoolean(input);
+                    const result = bbtag.convert.tryToBoolean(input);
 
                     // assert
                     expect(result.success).to.be.true;
@@ -146,7 +146,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.tryToBoolean(input);
+                    const result = bbtag.convert.tryToBoolean(input);
 
                     // assert
                     expect(result.success).to.be.false;
@@ -203,7 +203,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.toNumber(input, defaultValue);
+                    const result = bbtag.convert.toNumber(input, defaultValue);
 
                     // assert
                     if (isNaN(expected)) {
@@ -217,7 +217,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const test = () => bbtag.toNumber(input);
+                    const test = () => bbtag.convert.toNumber(input);
 
                     // assert
                     expect(test).to.throw(expected);
@@ -260,7 +260,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.tryToNumber(input);
+                    const result = bbtag.convert.tryToNumber(input);
 
                     // assert
                     expect(result.success).to.be.true;
@@ -277,7 +277,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.tryToNumber(input);
+                    const result = bbtag.convert.tryToNumber(input);
 
                     // assert
                     expect(result.success).to.be.false;
@@ -326,7 +326,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.toArray(input, defaultValue);
+                    const result = bbtag.convert.toArray(input, defaultValue);
 
                     // assert
                     expect(result).to.have.ordered.members(expected);
@@ -337,7 +337,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const test = () => bbtag.toArray(input);
+                    const test = () => bbtag.convert.toArray(input);
 
                     // assert
                     expect(test).to.throw(expected);
@@ -373,7 +373,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.tryToArray(input);
+                    const result = bbtag.convert.tryToArray(input);
 
                     // assert
                     expect(result.success).to.be.true;
@@ -387,7 +387,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.tryToArray(input);
+                    const result = bbtag.convert.tryToArray(input);
 
                     // assert
                     expect(result.success).to.be.false;
@@ -427,7 +427,7 @@ describe('module convert', () => {
                 // arrange
 
                 // act
-                const result = bbtag.toPrimitive(input);
+                const result = bbtag.convert.toPrimitive(input);
 
                 // assert
                 if (typeof expected === 'number' && isNaN(expected)) {
@@ -467,7 +467,7 @@ describe('module convert', () => {
                 // arrange
 
                 // act
-                const result = bbtag.toCollection(input);
+                const result = bbtag.convert.toCollection(input);
 
                 // assert
                 function message(v: SubtagResult, r: boolean): string {
@@ -515,7 +515,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.isValue.string(input);
+                    const result = bbtag.check.string(input);
 
                     // assert
                     expect(result).to.equal(!!isString);
@@ -529,7 +529,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.isValue.number(input);
+                    const result = bbtag.check.number(input);
 
                     // assert
                     expect(result).to.equal(!!isNumber);
@@ -543,7 +543,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.isValue.boolean(input);
+                    const result = bbtag.check.boolean(input);
 
                     // assert
                     expect(result).to.equal(!!isBool);
@@ -557,7 +557,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.isValue.null(input);
+                    const result = bbtag.check.null(input);
 
                     // assert
                     expect(result).to.equal(!!isNull);
@@ -571,7 +571,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.isValue.array(input);
+                    const result = bbtag.check.array(input);
 
                     // assert
                     expect(result).to.equal(!!isArray);
@@ -585,7 +585,7 @@ describe('module convert', () => {
                     // arrange
 
                     // act
-                    const result = bbtag.isValue.error(input);
+                    const result = bbtag.check.error(input);
 
                     // assert
                     expect(result).to.equal(!!isError);

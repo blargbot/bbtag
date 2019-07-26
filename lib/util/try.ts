@@ -1,39 +1,44 @@
-export function tryResult<T>(success: false, value?: T): ITryFailure;
-export function tryResult<T>(success: true, value: T): ITrySuccess<T>;
-export function tryResult<T>(success: boolean, value: T): TryResult<T>;
-export function tryResult<T>(success: boolean, value: T): TryResult<T> {
-    return success ? trySuccess(value) : tryFailure();
-}
-
-export function tryFailure<T extends undefined>(reason?: T): ITryFailure<T>;
-export function tryFailure<T>(reason: T): ITryFailure<T>;
-export function tryFailure<T>(reason: T): ITryFailure<T> {
-    return { success: false, reason };
-}
-export function trySuccess<T extends undefined>(value?: T): ITrySuccess<T>;
-export function trySuccess<T>(value: T): ITrySuccess<T>;
-export function trySuccess<T>(value: T): ITrySuccess<T> {
-    return { success: true, value };
-}
-
-export function tryCatch<T>(action: () => T): TryResult<T>;
-export function tryCatch<T, TReason>(action: () => T): TryResult<T, TReason>;
-export function tryCatch<T>(action: () => T): TryResult<T> {
-    try {
-        return trySuccess(action());
-    } catch (ex) {
-        return tryFailure(ex);
+// tslint:disable-next-line: no-namespace
+export namespace Try {
+    export type Result<T, R = any> = ISuccess<T> | IFailure<R>;
+    export interface ISuccess<T> {
+        readonly success: true;
+        readonly value: T;
     }
+    export interface IFailure<T> {
+        readonly success: false;
+        readonly reason: T;
+    }
+
+    export function from(success: false): IFailure<undefined>;
+    export function from<T>(success: true, value: T): ISuccess<T>;
+    export function from<R>(success: false, reason: R): IFailure<R>;
+    export function from<T, R>(success: boolean, value: T, reason: R): Result<T, R>;
+    export function from<T, R>(...args: [true, T] | [false] | [false, R] | [boolean, T, R]): Result<T, R> {
+        switch (args.length) {
+            case 1:
+            case 3: return { success: false, reason: args[2] as R };
+            case 2: switch (args[0]) {
+                case true: return { success: true, value: args[1] };
+                case false: return { success: false, reason: args[1] };
+            }
+        }
+        throw new Error('Invalid arguments provided');
+    }
+
+    export function failure(): IFailure<undefined>;
+    export function failure<R>(reason: R): IFailure<R>;
+    export function failure<R>(reason: R = undefined!): IFailure<R> {
+        return from(false, reason);
+    }
+
+    export function success(): ISuccess<undefined>;
+    export function success<R>(reason: R): ISuccess<R>;
+    export function success<R>(reason: R = undefined!): ISuccess<R> {
+        return from(true, reason);
+    }
+
+    export const failed = failure();
 }
 
-export type TryResult<TValue, TReason = any> = ITryFailure<TReason> | ITrySuccess<TValue>;
-
-export interface ITrySuccess<T> {
-    readonly success: true;
-    readonly value: T;
-}
-
-export interface ITryFailure<T = any> {
-    readonly success: false;
-    readonly reason: T;
-}
+export default Try;

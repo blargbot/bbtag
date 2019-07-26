@@ -36,14 +36,14 @@ export class GetSubtag extends SystemSubtag {
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
         const key = args.get(0);
-        return args.context.variables.get(bbtag.toString(key));
+        return args.context.variables.get(bbtag.convert.toString(key));
     }
 
     public async getIndex(args: ArgumentCollection): Promise<SubtagResult> {
         const [key, index] = args.get(0, 1);
-        const value = await args.context.variables.get(bbtag.toString(key));
-        const asArray = bbtag.tryToArray(value);
-        const indexAsNumber = bbtag.tryToNumber(index);
+        const value = await args.context.variables.get(bbtag.convert.toString(key));
+        const asArray = bbtag.convert.tryToArray(value);
+        const indexAsNumber = bbtag.convert.tryToNumber(index);
 
         if (!asArray.success) {
             return value;

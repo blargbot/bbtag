@@ -19,7 +19,7 @@ function c<T>(input: string, value?: T, output?: string): TestCase<T> {
 
 describe('module serialize', () => {
     const tests: Array<ITestType<any>> = [
-        t('array', bbtag.array, [
+        t('array', bbtag.serializers.array, [
             c('[1,2,3]', arr([1, 2, 3])),
             c('{"v":[1,2,3],"n":"test"}', arr([1, 2, 3], 'test')),
             c('{"v":123,"n":"test"}'),
@@ -29,7 +29,7 @@ describe('module serialize', () => {
             expect(actual).to.have.ordered.members(expected);
             expect(actual.name).to.equal(expected.name);
         }),
-        t('number', bbtag.number, [
+        t('number', bbtag.serializers.number, [
             c('0', 0),
             c('1', 1),
             c('-1', -1),
@@ -51,7 +51,7 @@ describe('module serialize', () => {
                 expect(actual).to.equal(expected);
             }
         }),
-        t('boolean', bbtag.boolean, [
+        t('boolean', bbtag.serializers.boolean, [
             c('true', true),
             c('TruE', true, 'true'),
             c('t', true, 'true'),

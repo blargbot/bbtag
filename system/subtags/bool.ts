@@ -11,9 +11,9 @@ export class BoolSubtag extends SystemSubtag {
         '>': (l, r) => bbtag.compare(l, r) > 0,
         '<=': (l, r) => bbtag.compare(l, r) <= 0,
         '<': (l, r) => bbtag.compare(l, r) < 0,
-        'startswith': (l, r) => bbtag.toCollection(l).startsWith(r),
-        'endswith': (l, r) => bbtag.toCollection(l).endsWith(r),
-        'includes': (l, r) => bbtag.toCollection(l).includes(r)
+        'startswith': (l, r) => bbtag.convert.toCollection(l).startsWith(r),
+        'endswith': (l, r) => bbtag.convert.toCollection(l).endsWith(r),
+        'includes': (l, r) => bbtag.convert.toCollection(l).includes(r)
     };
 
     public constructor() {
@@ -46,13 +46,13 @@ export class BoolSubtag extends SystemSubtag {
         let comparer: (left: SubtagResult, right: SubtagResult) => boolean;
         let key: string;
 
-        if ((key = bbtag.toString(val2)) in BoolSubtag.operators) {
+        if ((key = bbtag.convert.toString(val2)) in BoolSubtag.operators) {
             left = val1;
             right = val3;
-        } else if ((key = bbtag.toString(val1)) in BoolSubtag.operators) {
+        } else if ((key = bbtag.convert.toString(val1)) in BoolSubtag.operators) {
             left = val2;
             right = val3;
-        } else if ((key = bbtag.toString(val3)) in BoolSubtag.operators) {
+        } else if ((key = bbtag.convert.toString(val3)) in BoolSubtag.operators) {
             left = val1;
             right = val2;
         } else {

@@ -36,12 +36,12 @@ export class SetSubtag extends SystemSubtag {
 
     public clearKey(args: ArgumentCollection): Awaitable<void> {
         const key = args.get(0);
-        return args.context.variables.delete(bbtag.toString(key));
+        return args.context.variables.delete(bbtag.convert.toString(key));
     }
 
     public setKey(args: ArgumentCollection): Awaitable<void> {
         const [key, ...values] = args.getAll();
-        return args.context.variables.set(bbtag.toString(key), values.map(bbtag.toPrimitive));
+        return args.context.variables.set(bbtag.convert.toString(key), values.map(bbtag.convert.toPrimitive));
     }
 }
 

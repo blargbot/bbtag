@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagToken, SubtagResult } from '../language';
+import { IStringToken, ISubtagToken, SubtagResult } from '../bbtag';
 import { Awaitable, Enumerable, IEnumerable } from '../util';
 import { SubtagContext } from './context';
 

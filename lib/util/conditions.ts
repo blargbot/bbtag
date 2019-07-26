@@ -1,4 +1,4 @@
-import { bbtag, IStringToken } from '../language';
+import { bbtag, IStringToken } from '../bbtag';
 
 export type SubtagConditionFunc = (args: readonly IStringToken[]) => boolean;
 // tslint:disable-next-line: interface-over-type-literal
@@ -11,7 +11,7 @@ conditionParsers.push(
     {
         regex: /^\s*?(<=?|>=?|={1,3}|!={0,2})\s*?(\d+)\s*?$/, //
         parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            const num = bbtag.number.deserialize(match[2]);
+            const num = bbtag.serializers.number.deserialize(match[2]);
             switch (match[1]) {
                 case '>': return args => args.length > num;
                 case '>=': return args => args.length >= num;
@@ -28,8 +28,8 @@ conditionParsers.push(
     }, {
         regex: /^\s*?(\d+)(!?)\s*?-\s*?(\d+)(!?)\s*?$/, // Matches anything of the form '1!-5!' (1 to 5 exclusive) or '1-5' (1 to 5 inclusive)
         parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            let from = bbtag.number.deserialize(match[1]);
-            let to = bbtag.number.deserialize(match[3]);
+            let from = bbtag.serializers.number.deserialize(match[1]);
+            let to = bbtag.serializers.number.deserialize(match[3]);
             const includeFrom = !match[2];
             const includeTo = !match[4];
             if (from > to) {
@@ -45,7 +45,7 @@ conditionParsers.push(
     }, {
         regex: /^\s*?\d+(?:\s*?,\s*?\d+)+\s*?$/, // Matches anything of the form '1, 2, 3, 4' etc
         parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            const counts: number[] = Array.from(match[0].match(/\d+/g) || [], bbtag.number.deserialize);
+            const counts: number[] = Array.from(match[0].match(/\d+/g) || [], bbtag.serializers.number.deserialize);
             return args => counts.indexOf(args.length) !== -1;
         }
     }

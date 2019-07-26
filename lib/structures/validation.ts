@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagError, ISubtagToken } from '../language';
+import { IStringToken, ISubtagError, ISubtagToken } from '../bbtag';
 import { ArgumentCollection } from './argumentCollection';
 import { SubtagContext } from './context';
 

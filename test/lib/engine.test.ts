@@ -55,10 +55,10 @@ describe('class Engine', () => {
         const setupContext = ctx(engine);
 
         const testCases: Array<{ input: string, token?: IStringToken, assert: (context: SubtagContext, result: SubtagResult) => void }> = [
-            { input: 'hi {count;a}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi 1') },
-            { input: 'hi {count}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi 0') },
-            { input: 'hi {count;a, b;c d}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi 2') },
-            { input: 'hi {aaaaa;a}', assert: (_, r) => expect(bbtag.toString(r)).to.equal('hi `Unknown subtag aaaaa`') }
+            { input: 'hi {count;a}', assert: (_, r) => expect(bbtag.convert.toString(r)).to.equal('hi 1') },
+            { input: 'hi {count}', assert: (_, r) => expect(bbtag.convert.toString(r)).to.equal('hi 0') },
+            { input: 'hi {count;a, b;c d}', assert: (_, r) => expect(bbtag.convert.toString(r)).to.equal('hi 2') },
+            { input: 'hi {aaaaa;a}', assert: (_, r) => expect(bbtag.convert.toString(r)).to.equal('hi `Unknown subtag aaaaa`') }
         ];
 
         for (const entry of testCases) {

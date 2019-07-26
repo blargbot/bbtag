@@ -1,5 +1,5 @@
+import { IStringToken, ISubtagError, ISubtagToken, SubtagResult } from '../bbtag';
 import { Engine } from '../engine';
-import { IStringToken, ISubtagError, ISubtagToken, SubtagResult } from '../language';
 import { Awaitable } from '../util';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCache } from './variableCache';

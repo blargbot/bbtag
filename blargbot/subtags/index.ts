@@ -1,4 +1,4 @@
 import { SubtagCollection } from '../..';
 import { BlargbotContext } from '../context';
 
-export const subtags: SubtagCollection<BlargbotContext> = new SubtagCollection();
+export const subtags = new SubtagCollection<BlargbotContext>();

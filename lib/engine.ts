@@ -1,4 +1,4 @@
-import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './language';
+import { bbtag, IBBTag, IStringToken, ISubtagToken, SubtagResult } from './bbtag';
 import { optimizeStringToken } from './optimizer';
 import { ContextCtor, EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
 import { IDatabase } from './structures/database';
@@ -34,7 +34,7 @@ export class Engine<TContextType extends ContextCtor> {
         if (parts.length === 1 && format(token.format, '') === '') {
             return parts[0];
         } else {
-            return format(token.format, parts.map(bbtag.toString));
+            return format(token.format, parts.map(bbtag.convert.toString));
         }
     }
 
@@ -58,7 +58,7 @@ export class Engine<TContextType extends ContextCtor> {
 
     protected async executeSubtag(token: ISubtagToken, context: SubtagContext): Promise<SubtagResult> {
         await Promise.all(this.events.raise('before-execute', token, context));
-        const name = bbtag.toString(await this.execute(token.name, context));
+        const name = bbtag.convert.toString(await this.execute(token.name, context));
         const executor = context.subtags.find(name);
 
         let result: SubtagResult;
@@ -70,7 +70,7 @@ export class Engine<TContextType extends ContextCtor> {
                 result = await executor.execute(token, context);
             } catch (ex) {
                 await this.events.raise('subtag-error', token, context, ex);
-                result = bbtag.isValue.error(ex) ? ex : context.error(token, 'Internal server error');
+                result = bbtag.check.error(ex) ? ex : context.error(token, 'Internal server error');
             }
         }
 

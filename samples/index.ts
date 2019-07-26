@@ -10,7 +10,7 @@ import { InMemoryDiscord } from './discord';
 const database = new InMemoryDatabase();
 const client = new InMemoryDiscord();
 const bot = new InMemoryBlargbot(client);
-const engine = new bbtag.Engine(blargbot.BlargbotContext, database);
+const engine = new bbtag.Engine(blargbot.Context, database);
 
 engine.subtags.register(...system.subtags);
 engine.subtags.register(...discord.subtags);

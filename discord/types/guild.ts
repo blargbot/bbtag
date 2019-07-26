@@ -1,5 +1,5 @@
 import { Duration, Moment } from 'moment-timezone';
-import { TryResult } from '../..';
+import { Try } from '../..';
 import { GuildChannel } from './channel';
 import { ICollection, IEntity } from './generic';
 import { ModerationError, ModerationResult } from './instances';
@@ -21,6 +21,6 @@ export interface IGuild extends IEntity {
     kick(moderator: IUser, user: IUser | Snowflake, reason?: string): Promise<ModerationResult>;
     getBans(): Promise<IUser[]>;
     getChannel(id: Snowflake): Promise<GuildChannel>;
-    createRole(moderator: IUser, options: IRoleCreateOptions, reason?: string): Promise<TryResult<Snowflake, ModerationError>>;
+    createRole(moderator: IUser, options: IRoleCreateOptions, reason?: string): Promise<Try.Result<Snowflake, ModerationError>>;
     deleteRole(moderator: IUser, options: IRoleCreateOptions, reason?: string): Promise<ModerationResult>;
 }

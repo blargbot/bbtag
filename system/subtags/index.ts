@@ -12,7 +12,7 @@ import { default as semi } from './semi';
 import { default as set } from './set';
 import { default as zws } from './zws';
 
-export const subtags: SubtagCollection<SystemContext> = new SubtagCollection().register(...[
+export const subtags = new SubtagCollection<SystemContext>().register(
     comment,
     lb,
     rb,
@@ -23,4 +23,4 @@ export const subtags: SubtagCollection<SystemContext> = new SubtagCollection().r
     get,
     set,
     _for
-]);
+);

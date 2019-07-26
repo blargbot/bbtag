@@ -16,6 +16,9 @@ export class DiscordContext extends SystemContext {
     public readonly self: ISelfUser;
     public readonly message: IDefaultMessage;
 
+    // @ts-ignore
+    private readonly ['__DiscordContextDiscriminator__']: undefined;
+
     public constructor(engine: Engine<typeof DiscordContext>, args: IDiscordContextArgs) {
         super(engine, args);
         this.self = args.self;

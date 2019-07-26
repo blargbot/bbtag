@@ -1,4 +1,4 @@
-import { Enumerable, IsBetween } from '../util';
+import { Enumerable, IsSupertypeOf } from '../util';
 import { SubtagContext } from './context';
 import { SortedList } from './sortedList';
 import { IVariableScope } from './variableScope';
@@ -18,13 +18,13 @@ export class VariableScopeCollection<T extends SubtagContext> extends Enumerable
         return new VariableScopeCollection(this);
     }
 
-    public remove<TSubtag extends IsBetween<TSubtag, T, SubtagContext>>(...scopes: Array<IVariableScope<TSubtag>>): this;
+    public remove<TSubtag extends IsSupertypeOf<TSubtag, T, SubtagContext>>(...scopes: Array<IVariableScope<TSubtag>>): this;
     public remove(...scopes: Array<IVariableScope<any>>): this {
         this._scopes.add(...scopes);
         return this;
     }
 
-    public register<TSubtag extends IsBetween<TSubtag, T, SubtagContext>>(...scopes: Array<IVariableScope<TSubtag>>): this;
+    public register<TSubtag extends IsSupertypeOf<TSubtag, T, SubtagContext>>(...scopes: Array<IVariableScope<TSubtag>>): this;
     public register(...scopes: Array<IVariableScope<any>>): this {
         this._scopes.delete(...scopes);
         return this;

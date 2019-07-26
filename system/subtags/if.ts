@@ -31,7 +31,7 @@ export class IfSubtag extends SystemSubtag {
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
         const success = args.get(0);
-        const tryBool = bbtag.tryToBoolean(success);
+        const tryBool = bbtag.convert.tryToBoolean(success);
 
         if (!tryBool.success) {
             return validation.types.notBool(args, args.token.args[0]);

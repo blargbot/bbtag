@@ -8,8 +8,6 @@ interface IToken {
     content: string;
 }
 
-export type BBTagParser = (source: string) => IStringToken;
-
 export function parse(source: string): IStringToken {
     const tokens = new Enumerator(createTokenStream(source));
     const result = readStringToken(tokens, true);
@@ -98,3 +96,5 @@ function readSubtagToken(tokenStream: Enumerator<IToken>): ISubtagToken {
 
     throw new Error('Unpaired \'{\'');
 }
+
+export default parse;

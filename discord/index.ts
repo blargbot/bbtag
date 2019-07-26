@@ -3,3 +3,5 @@ export * from './subtag';
 export * from './subtags';
 export * from './variableScopes';
 export * from './context';
+
+export { DiscordContext as Context } from './context';

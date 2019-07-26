@@ -1,4 +1,4 @@
-import { ISubtagError } from '../language';
+import { ISubtagError } from '../bbtag';
 import { Awaitable, Enumerable } from '../util';
 import { SubtagContext } from './context';
 import { DatabaseValue } from './database';

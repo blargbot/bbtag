@@ -1,4 +1,4 @@
-export type EnumerableCtorArg<T> = Iterable<T> | ((this: undefined) => Iterator<T>);
+export type EnumerableCtorArg<T> = Iterable<T> | ((this: void) => Iterator<T>);
 export type Source<T> =
     | IEnumerable<T>
     | Set<T>
