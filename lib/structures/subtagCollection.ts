@@ -1,24 +1,23 @@
-import { Enumerable, IEnumerable, IsSupertypeOf } from '../util';
+import { Constructor, Enumerable, IEnumerable, IsSupertypeOf } from '../util';
 import { SubtagContext } from './context';
 import { ISubtag } from './subtag';
 
 export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubtag<T>> {
-    private readonly _parent?: SubtagCollection<T>;
+    private readonly _context: Constructor<T>;
+    private readonly _parent: SubtagCollection<T> | undefined;
     private readonly _nameMap: Map<string, Array<ISubtag<T>>>;
     private readonly _aliasMap: Map<string, Array<ISubtag<T>>>;
 
-    public constructor()
+    public constructor(context: Constructor<T>)
     public constructor(parent: SubtagCollection<T>)
-    public constructor(...args: [] | [SubtagCollection<T>]) {
+    public constructor(...args: [Constructor<T>] | [SubtagCollection<T>]) {
+        const [context, parent] = args[0] instanceof SubtagCollection ? [args[0]._context, args[0]] : [args[0], undefined];
         super(() => allSubtags.getEnumerator());
 
+        this._context = context;
+        this._parent = parent;
         this._nameMap = new Map();
         this._aliasMap = new Map();
-        this._parent = undefined;
-
-        if (args[0] instanceof SubtagCollection) {
-            this._parent = args[0];
-        }
 
         const allSubtags = (this._parent || Enumerable.empty()).concat(this.owned());
     }
@@ -51,6 +50,10 @@ export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubta
     public register<TSubtag extends IsSupertypeOf<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
     public register(...subtags: Array<ISubtag<any>>): this {
         for (const subtag of subtags) {
+            if (subtag.context !== this._context && !subtag.context.isPrototypeOf(this._context)) {
+                throw new Error(`Subtag ${subtag.name} cannot be loaded into a collection which only accepts subtags of type ${this._context}`);
+            }
+
             _register(this._nameMap, subtag.name, subtag);
             for (const alias of subtag.aliases) {
                 _register(this._aliasMap, alias, subtag);

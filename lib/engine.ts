@@ -11,15 +11,13 @@ interface IEngineEvents {
 }
 
 export class Engine<T extends SubtagContext> {
-    public readonly contextType: Constructor<T>;
     public readonly subtags: SubtagCollection<T>;
     public readonly variableScopes: VariableScopeCollection<T>;
     public readonly database: IDatabase;
     protected readonly events: EventManager<IEngineEvents>;
 
     public constructor(context: Constructor<T>, database: IDatabase) {
-        this.contextType = context;
-        this.subtags = new SubtagCollection();
+        this.subtags = new SubtagCollection(context);
         this.database = database;
         this.events = new EventManager();
         this.variableScopes = new VariableScopeCollection();

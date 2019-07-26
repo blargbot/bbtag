@@ -11,7 +11,7 @@ import { default as semi } from './semi';
 import { default as set } from './set';
 import { default as zws } from './zws';
 
-export const subtags = new SubtagCollection<SubtagContext>().register(
+export const subtags = new SubtagCollection(SubtagContext).register(
     comment,
     lb,
     rb,
