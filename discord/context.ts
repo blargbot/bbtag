@@ -1,8 +1,7 @@
-import { Awaitable, Engine } from '..';
-import { ISystemContextArgs, SystemContext } from '../system';
+import { Awaitable, Engine, ISubtagContextArgs, SubtagContext } from '..';
 import { DMMessage, GuildMessage, IDefaultMessage, ISelfUser, IUser, Snowflake } from './types';
 
-export interface IDiscordContextArgs extends ISystemContextArgs {
+export interface IDiscordContextArgs extends ISubtagContextArgs {
     readonly message: IDefaultMessage;
     readonly self: ISelfUser;
     isUserStaff(this: DiscordContext, user: IUser | Snowflake): Awaitable<boolean>;
@@ -11,7 +10,7 @@ export interface IDiscordContextArgs extends ISystemContextArgs {
 export type DiscordGuildContext = DiscordContext & { message: GuildMessage };
 export type DiscordDMContext = DiscordContext & { message: DMMessage };
 
-export class DiscordContext extends SystemContext {
+export class DiscordContext extends SubtagContext {
     public readonly type!: typeof DiscordContext;
     public readonly self: ISelfUser;
     public readonly message: IDefaultMessage;

@@ -1,5 +1,4 @@
-import { SubtagCollection } from '../..';
-import { SystemContext } from '../context';
+import { SubtagCollection, SubtagContext } from '../..';
 
 import { default as bool } from './bool';
 import { default as comment } from './comment';
@@ -12,7 +11,7 @@ import { default as semi } from './semi';
 import { default as set } from './set';
 import { default as zws } from './zws';
 
-export const subtags = new SubtagCollection<SystemContext>().register(
+export const subtags = new SubtagCollection<SubtagContext>().register(
     comment,
     lb,
     rb,

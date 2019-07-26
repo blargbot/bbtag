@@ -2,6 +2,5 @@
 export * from './subtag';
 export * from './subtags';
 export * from './variableScopes';
-export * from './context';
 
-export { SystemContext as Context } from './context';
+export { SubtagContext as Context } from '..';
