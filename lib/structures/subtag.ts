@@ -1,4 +1,4 @@
-import { ISubtagToken, SubtagResult } from '../bbtag';
+import bbtag, { ISubtagToken, SubtagResult } from '../bbtag';
 import { Awaitable, conditionParsers, Constructor, Enumerable, functions, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
@@ -21,6 +21,7 @@ export interface ISubtag<T extends SubtagContext> {
 
     execute(token: ISubtagToken, context: T): Awaitable<SubtagResult>;
     optimize(token: ISubtagToken, tracker: OptimizationContext): ISubtagToken | string;
+    toString(): string;
 }
 
 interface IUsageExample { code: string; arguments?: string[]; output: string; effects?: string; }
@@ -85,7 +86,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         }
 
         if (action === undefined) {
-            return context.error(token, `Missing handler for execution of subtag {${[this.name, ...token.args.map(_ => '')].join(';')}}`);
+            return bbtag.errors.system.unknownHandler(context, token, this);
         }
 
         const args = new ArgumentCollection(context, token);

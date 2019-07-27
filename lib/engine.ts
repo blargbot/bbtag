@@ -61,13 +61,13 @@ export class Engine<T extends SubtagContext> {
         let result: SubtagResult;
 
         if (executor === undefined) {
-            result = bbtag.errors.subtagUnknown(context, token, name);
+            result = bbtag.errors.system.unknownSubtag(context, token, name);
         } else {
             try {
                 result = await executor.execute(token, context);
             } catch (ex) {
                 await this.events.raise('subtag-error', token, context, ex);
-                result = bbtag.check.error(ex) ? ex : bbtag.errors.serverError(context, token);
+                result = bbtag.check.error(ex) ? ex : bbtag.errors.system.internal(context, token);
             }
         }
 
