@@ -16,7 +16,7 @@ export class Engine<T extends SubtagContext> {
     public readonly subtags: SubtagCollection<T>;
     public readonly variableScopes: VariableScopeCollection<T>;
     public readonly database: IDatabase;
-    protected readonly events: EventManager<IEngineEvents>;
+    public readonly events: EventManager<IEngineEvents>;
 
     public constructor(context: Constructor<T>, database: IDatabase) {
         this.events = new EventManager();
@@ -40,16 +40,6 @@ export class Engine<T extends SubtagContext> {
             source,
             root: optimizeStringToken(root, new OptimizationContext(context))
         };
-    }
-
-    public on<TKey extends keyof IEngineEvents>(event: TKey, handler: IEngineEvents[TKey]): this {
-        this.events.on(event, handler);
-        return this;
-    }
-
-    public off<TKey extends keyof IEngineEvents>(event: TKey, handler: IEngineEvents[TKey]): this {
-        this.events.off(event, handler);
-        return this;
     }
 
     protected async executeSubtag(token: ISubtagToken, context: Super<T>): Promise<SubtagResult> {
