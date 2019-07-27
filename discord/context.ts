@@ -1,4 +1,4 @@
-import { Awaitable, Cloner, Engine, ISubtagContextArgs, SubtagContext } from '../lib';
+import { Awaitable, Engine, ISubtagContextArgs, SubtagContext } from '../lib';
 import { discord, DMMessage, GuildMessage, IDiscordClient, IUser, Message, Snowflake } from './types';
 
 export interface IDiscordContextArgs<T extends Message> extends ISubtagContextArgs {
@@ -10,20 +10,15 @@ export type DiscordGuildContext = DiscordContext<GuildMessage>;
 export type DiscordDMContext = DiscordContext<DMMessage>;
 
 export class DiscordContext<T extends Message = Message> extends SubtagContext {
-    protected static clone<T extends Message>(parent: SubtagContext): DiscordContext<T> {
-        return parent instanceof DiscordContext ? parent : undefined!;
-    }
-
+    public readonly config!: IDiscordContextArgs<T>;
     public readonly client: IDiscordClient;
     public readonly message: T;
-
-    protected readonly _args!: IDiscordContextArgs<T>;
 
     // @ts-ignore
     private readonly ['__DiscordContextDiscriminator__']: never;
 
-    public constructor(engine: Engine<DiscordContext<T>>, args: IDiscordContextArgs<T>, ctor?: Cloner<SubtagContext, DiscordContext>) {
-        super(engine, args, ctor || DiscordContext.clone);
+    public constructor(engine: Engine<DiscordContext<T>>, args: IDiscordContextArgs<T>) {
+        super(engine, args);
         this.client = args.client;
         this.message = args.message;
     }
