@@ -1,9 +1,10 @@
 import { AggregateError } from './errors';
 
-type EventDeclaration<T> = { [P in keyof T]: (...args: any[]) => any };
+type Func = (...args: any[]) => any;
+type EventDeclaration<T> = { [P in keyof T]: Func };
 
-export class EventManager<TEvents extends EventDeclaration<TEvents> = { [key: string]: (...args: any[]) => any }> {
-    private readonly events: Map<keyof TEvents, Set<(...args: any[]) => any>>;
+export class EventManager<TEvents extends EventDeclaration<TEvents> = { [key: string]: Func }> {
+    private readonly events: Map<keyof TEvents, Set<Func>>;
 
     public constructor() {
         this.events = new Map();
