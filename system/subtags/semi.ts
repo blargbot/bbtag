@@ -1,5 +1,5 @@
-import { SystemSubtag } from '..';
 import { bbtag, ISubtagToken } from '../..';
+import { SystemSubtag } from '../subtag';
 
 export class SemiSubtag extends SystemSubtag {
     public constructor() {

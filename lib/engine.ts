@@ -53,6 +53,8 @@ export class Engine<T extends SubtagContext> {
     }
 
     protected async executeSubtag(token: ISubtagToken, context: Super<T>): Promise<SubtagResult> {
+        if (context.isTerminated) { return ''; }
+
         await Promise.all(this.events.raise('before-execute', token, context));
         context.stackTrace.push(token);
         const name = bbtag.convert.toString(await this.execute(token.name, context));

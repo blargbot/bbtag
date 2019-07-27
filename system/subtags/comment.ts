@@ -1,5 +1,5 @@
-import { SystemSubtag } from '..';
 import { argumentBuilder as A } from '../..';
+import { SystemSubtag } from '../subtag';
 
 export class CommentSubtag extends SystemSubtag {
     public constructor() {

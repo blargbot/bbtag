@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagError, ISubtagToken, SubtagResult } from '../bbtag';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult } from '../bbtag';
 import { Engine } from '../engine';
 import { Awaitable } from '../util';
 import { SubtagCollection } from './subtagCollection';
@@ -7,6 +7,7 @@ import { VariableCache } from './variableCache';
 export interface ISubtagContextArgs {
     readonly name: string;
     readonly scope: string;
+    readonly arguments: readonly SubtagPrimitiveResult[];
 }
 
 export class SubtagContext {
@@ -18,7 +19,13 @@ export class SubtagContext {
     public readonly errors: ISubtagError[];
     public readonly stackTrace: ReadonlyArray<ISubtagToken | IStringToken>;
     public fallback: SubtagResult;
+    public readonly arguments: readonly SubtagPrimitiveResult[];
 
+    public get isTerminated(): boolean { return this._terminated; }
+
+    private _terminated: boolean;
+
+    public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs)
     public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs) {
         this.engine = engine as Engine<this>;
         this.variables = new VariableCache(this);
@@ -28,6 +35,8 @@ export class SubtagContext {
         this.scope = args.scope;
         this.errors = [];
         this.stackTrace = [];
+        this._terminated = false;
+        this.arguments = args.arguments;
     }
 
     public execute(token: IStringToken): Awaitable<SubtagResult> {
@@ -44,6 +53,10 @@ export class SubtagContext {
         };
         this.errors.push(error);
         return error;
+    }
+
+    public terminate(): void {
+        this._terminated = true;
     }
 }
 

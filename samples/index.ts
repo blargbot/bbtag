@@ -29,6 +29,7 @@ const processContext = new blargbot.BlargbotContext(engine, {
     blargbot: bot,
     message: client.createMessage('b!t notes', discord.ChannelType.GuildText, 'name'),
     self: client.getSelf(),
+    arguments: [],
     isUserStaff: () => true
 });
 
@@ -40,6 +41,7 @@ const execContext = new blargbot.BlargbotContext(engine, {
     blargbot: bot,
     message: client.createMessage('b!t notes', discord.ChannelType.GuildText, 'name'),
     self: client.getSelf(),
+    arguments: [],
     isUserStaff: () => true
 });
 

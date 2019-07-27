@@ -1,5 +1,5 @@
-import { SystemSubtag } from '..';
 import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag } from '../..';
+import { SystemSubtag } from '../subtag';
 
 export class SetSubtag extends SystemSubtag {
     public constructor() {

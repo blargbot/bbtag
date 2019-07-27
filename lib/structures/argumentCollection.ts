@@ -51,6 +51,11 @@ export class ArgumentCollection<T extends SubtagContext = SubtagContext> extends
         return Promise.all(this.select((_, i) => this._cache.getAsync(i))).then(Enumerable.from);
     }
 
+    public pretend(key: number, value: SubtagResult): this {
+        this._cache.set(key, value);
+        return this;
+    }
+
     public hasIndex(key: number, ...indexes: number[]): boolean;
     public hasIndex(...indexes: number[]): boolean {
         return Enumerable.from(indexes).all(i => 0 <= i && i < this.token.args.length);

@@ -1,5 +1,5 @@
-import { SystemSubtag } from '..';
 import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult } from '../..';
+import { SystemSubtag } from '../subtag';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 

@@ -54,7 +54,7 @@ export function ctx(...args:
 }
 
 function _ctx(engine: Engine<SubtagContext> = eng(), setup: (context: SubtagContext) => any = () => { }): SubtagContext {
-    const result = new SubtagContext(engine, { name: 'test', scope: 'test' });
+    const result = new SubtagContext(engine, { name: 'test', scope: 'test', arguments: [] });
     setup(result);
     return result;
 }

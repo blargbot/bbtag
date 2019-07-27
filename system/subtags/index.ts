@@ -1,17 +1,23 @@
 import { SubtagCollection, SubtagContext } from '../..';
 
-import { default as bool } from './bool';
-import { default as comment } from './comment';
-import { default as _for } from './for';
-import { default as get } from './get';
-import { default as _if } from './if';
-import { default as lb } from './lb';
-import { default as rb } from './rb';
-import { default as semi } from './semi';
-import { default as set } from './set';
-import { default as zws } from './zws';
+import args from './args';
+import argsArray from './argsArray';
+import argsLength from './argsLength';
+import bool from './bool';
+import comment from './comment';
+import _for from './for';
+import get from './get';
+import _if from './if';
+import lb from './lb';
+import rb from './rb';
+import semi from './semi';
+import set from './set';
+import zws from './zws';
 
 export const subtags = new SubtagCollection(SubtagContext).register(
+    args,
+    argsArray,
+    argsLength,
     comment,
     lb,
     rb,

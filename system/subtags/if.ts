@@ -1,5 +1,5 @@
-import { SystemSubtag } from '..';
 import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../..';
+import { SystemSubtag } from '../subtag';
 import { BoolSubtag, default as bool } from './bool';
 
 export class IfSubtag extends SystemSubtag {

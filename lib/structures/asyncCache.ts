@@ -25,6 +25,10 @@ export class AsyncCache<K, T> {
         throw new Error(`Key ${key} has not yet been requested`);
     }
 
+    public set(key: K, value: T): void {
+        this._resultCache.set(key, () => value);
+    }
+
     public has(key: K): boolean {
         return this._resultCache.has(key);
     }

@@ -10,7 +10,8 @@ describe('class ' + SubtagContext.name, () => {
         const name = 'testName';
         const args: ISubtagContextArgs = {
             scope: 'test',
-            name: 'testName'
+            name: 'testName',
+            arguments: []
         };
         engine.subtags.register(new MockSubtag(SubtagContext, name));
 

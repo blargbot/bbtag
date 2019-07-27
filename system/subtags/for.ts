@@ -1,5 +1,5 @@
-import { SystemSubtag } from '..';
 import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult } from '../..';
+import { SystemSubtag } from '../subtag';
 import { default as bool } from './bool';
 
 export class ForSubtag extends SystemSubtag {
@@ -33,9 +33,9 @@ export class ForSubtag extends SystemSubtag {
         const code = args.getRaw(args.length - 1)!;
         const increment = args.length === 5 ? 1 : bbtag.convert.toNumber(args.get(4), NaN);
 
-        const nanValue = [[initial, 1], [limit, 3], [increment, 4]].find(x => isNaN(x[0]));
-        if (nanValue !== undefined) {
-            return bbtag.errors.types.notNumber(args, args.getRaw(nanValue[1]));
+        const nanIndex = [0, initial, 0, limit, increment].findIndex(isNaN);
+        if (nanIndex !== -1) {
+            return bbtag.errors.types.notNumber(args, args.getRaw(nanIndex));
         }
 
         // TODO: implement limits
@@ -50,6 +50,7 @@ export class ForSubtag extends SystemSubtag {
             }
             i = next.value;
 
+            if (args.context.isTerminated) { break; }
             // TODO: Handle {return} subtag
         }
 
