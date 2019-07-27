@@ -1,4 +1,4 @@
-import { argumentBuilder as A } from '../..';
+import { argumentBuilder as A } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class CommentSubtag extends SystemSubtag {

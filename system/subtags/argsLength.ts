@@ -1,4 +1,4 @@
-import { bbtag } from '../..';
+import { bbtag } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class ArgsLengthSubtag extends SystemSubtag {

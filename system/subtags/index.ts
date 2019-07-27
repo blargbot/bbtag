@@ -1,4 +1,4 @@
-import { SubtagCollection, SubtagContext } from '../..';
+import { SubtagCollection, SubtagContext } from '../../lib';
 
 import args from './args';
 import argsArray from './argsArray';

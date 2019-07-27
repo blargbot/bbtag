@@ -23,26 +23,24 @@ engine.variableScopes.register(...blargbot.variableScopes);
 import * as lines from './bbtag/notes.bbtag.json';
 const bbtagNotes = lines.join('\n');
 
-const processContext = new blargbot.BlargbotContext(engine, {
+const processContext = new blargbot.Context(engine, {
     name: 'notes',
     scope: 'tag',
     blargbot: bot,
-    message: client.createMessage('b!t notes', discord.ChannelType.GuildText, 'name'),
-    self: client.getSelf(),
+    message: undefined!, // These should be actual message instances
     arguments: [],
-    isUserStaff: () => true
+    client
 });
 
 const parsed = engine.process(bbtagNotes, processContext);
 
-const execContext = new blargbot.BlargbotContext(engine, {
+const execContext = new blargbot.Context(engine, {
     name: 'notes',
     scope: 'tag',
     blargbot: bot,
-    message: client.createMessage('b!t notes', discord.ChannelType.GuildText, 'name'),
-    self: client.getSelf(),
+    message: undefined!, // These should be actual message instances
     arguments: [],
-    isUserStaff: () => true
+    client
 });
 
 Promise.resolve(engine.execute(parsed.root, execContext))

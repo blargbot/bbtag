@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { argumentBuilder, Enumerable, IArgumentSource, IEnumerable, IHandlerArgumentValue } from '../../..';
+import { argumentBuilder, Enumerable, IArgumentSource, IEnumerable, IHandlerArgumentValue } from '../../../lib';
 
 type TestCaseInput = [string, boolean] | [string, boolean, boolean] | [string, boolean, string] | [string, boolean, boolean, string];
 type TestCases = IEnumerable<{ input: TestCaseInput, structure: IHandlerArgumentValue, string: string }>;

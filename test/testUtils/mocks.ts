@@ -1,4 +1,4 @@
-import { Awaitable, Constructor, DatabaseValue, IDatabase, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../..';
+import { Awaitable, Constructor, DatabaseValue, IDatabase, ISubtag, ISubtagToken, SubtagContext, SubtagResult } from '../../lib';
 
 export class MockDatabase implements IDatabase {
     public delete: (path: Iterable<string>) => Awaitable<void>;

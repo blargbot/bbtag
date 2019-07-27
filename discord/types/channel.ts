@@ -1,5 +1,5 @@
 import { IEmbed } from './embed';
-import { IEntity } from './generic';
+import { ICollection, IEntity } from './generic';
 import { IGuild } from './guild';
 import { ChannelType, ModerationResult } from './instances';
 import { Snowflake } from './primitives';
@@ -37,7 +37,7 @@ export interface IGuildChannel extends IChannel {
 
 export interface IDMChannel extends IChannel {
     readonly type: DMChannel['type'];
-    readonly recipients: IUser[];
+    readonly recipients: ICollection<IUser>;
 }
 
 export interface IMessageChannel extends IChannel {
@@ -59,7 +59,6 @@ export interface IGuildTextChannel extends IGuildChannel, IMessageChannel {
 
 export interface IDMSingleChannel extends IDMChannel, IMessageChannel, IVoiceChannel {
     readonly type: ChannelType.DMSingle;
-    readonly recipients: [IUser];
 }
 
 export interface IGuildVoiceChannel extends IGuildChannel, IVoiceChannel {

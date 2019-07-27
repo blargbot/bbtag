@@ -1,4 +1,4 @@
-import { Awaitable, Constructor, ISubtagToken, SubtagResult } from '..';
+import { Awaitable, Constructor, ISubtagToken, SubtagResult } from '../lib';
 import { ISystemSubtagArgs, SystemSubtagBase } from '../system';
 import { DiscordContext, DiscordDMContext, DiscordGuildContext } from './context';
 import { ChannelType } from './types';

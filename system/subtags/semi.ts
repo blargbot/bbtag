@@ -1,4 +1,4 @@
-import { bbtag, ISubtagToken } from '../..';
+import { bbtag, ISubtagToken } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class SemiSubtag extends SystemSubtag {

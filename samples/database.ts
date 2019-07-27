@@ -1,4 +1,4 @@
-import { DatabaseValue, Enumerable, IDatabase } from '..'; // 'bbtag'
+import { DatabaseValue, Enumerable, IDatabase } from '../lib'; // 'bbtag'
 
 // tslint:disable: interface-over-type-literal
 type DatabaseNode = { [key: string]: DatabaseNode | DatabaseValue };

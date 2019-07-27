@@ -3,4 +3,4 @@ export * from './subtag';
 export * from './subtags';
 export * from './variableScopes';
 
-export { SubtagContext as Context } from '..';
+export { SubtagContext as Context } from '../lib';

@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { Position, Range } from '../../..';
+import { Position, Range } from '../../../lib';
 
 describe('class Position', () => {
     it('should successfully construct', () => {

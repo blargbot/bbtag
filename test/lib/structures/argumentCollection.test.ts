@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { ArgumentCollection, IStringToken, SubtagContext } from '../../..';
+import { ArgumentCollection, IStringToken, SubtagContext } from '../../../lib';
 import { ctx, resultOf, str, tag } from '../../testUtils';
 
 const testToken = tag(str('test'), str('arg0'), str('arg1'), str('arg2'), str('arg3'));

@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultTypeMap } from '../../..';
+import { bbtag, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultTypeMap } from '../../../lib';
 import { arr, ctx, err, str, tag, toName } from '../../testUtils';
 
 type Default<T> = T | ((value: SubtagResult) => T);

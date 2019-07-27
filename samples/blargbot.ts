@@ -1,6 +1,5 @@
 import { IBlargbot, IModLog, IModLogWarnResult } from '../blargbot'; // 'bbtag/blargbot'
-import { IChannel, IEmbedField, IGuild, IUser, Snowflake } from '../discord'; // 'bbtag/discord'
-import { IDiscordClient } from './discord';
+import { IChannel, IDiscordClient, IEmbedField, IGuild, IUser, Snowflake } from '../discord'; // 'bbtag/discord'
 
 export class InMemoryBlargbot implements IBlargbot {
     public readonly modlog: IModLog;

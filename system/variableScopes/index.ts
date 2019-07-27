@@ -1,4 +1,4 @@
-import { IVariableScope, SubtagContext } from '../..';
+import { IVariableScope, SubtagContext } from '../../lib';
 import { default as global } from './global';
 import { default as local } from './local';
 import { default as temporary } from './temporary';

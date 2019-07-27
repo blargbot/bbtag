@@ -9,3 +9,5 @@ export * from './emoji';
 export * from './instances';
 export * from './mappings';
 export * from './primitives';
+export * from './client';
+export * from './helpers';

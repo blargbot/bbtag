@@ -176,7 +176,7 @@ export class Enumerable<T> implements IEnumerable<T> {
         return result;
     }
 
-    public elementAtOr(index: number, value: T): T {
+    public elementAtOr<R = T>(index: number, value: R): T | R {
         if (index < 0) { throw new Error('Cannot get a negative index'); }
         for (const element of this) {
             if (index-- === 0) {
@@ -194,9 +194,9 @@ export class Enumerable<T> implements IEnumerable<T> {
         return result;
     }
 
-    public firstOr(value: T): T;
-    public firstOr(predicate: S<T, boolean>, value: T): T;
-    public firstOr(...args: [T] | [S<T, boolean>, T]): T {
+    public firstOr<R = T>(value: R): T | R;
+    public firstOr<R = T>(predicate: S<T, boolean>, value: R): T | R;
+    public firstOr<R = T>(...args: [R] | [S<T, boolean>, R]): T | R {
         const [predicate, value] = args.length === 1 ? [functions.true, args[0]] : args;
         const enumerator = this.where(predicate).getEnumerator();
         return enumerator.moveNext() ? enumerator.current : value;
@@ -249,12 +249,12 @@ export class Enumerable<T> implements IEnumerable<T> {
         return result;
     }
 
-    public lastOr(value: T): T;
-    public lastOr(predicate: S<T, boolean>, value: T): T;
-    public lastOr(...args: [T] | [S<T, boolean>, T]): T {
+    public lastOr<R = T>(value: R): T | R;
+    public lastOr<R = T>(predicate: S<T, boolean>, value: R): T | R;
+    public lastOr<R = T>(...args: [R] | [S<T, boolean>, R]): T | R {
         const [predicate, value] = args.length === 1 ? [functions.true, args[0]] : args;
         const enumerator = this.where(predicate).getEnumerator();
-        let result = value;
+        let result: R | T = value;
         while (enumerator.moveNext()) { result = enumerator.current; }
         return result;
     }
@@ -297,9 +297,9 @@ export class Enumerable<T> implements IEnumerable<T> {
         return result;
     }
 
-    public singleOr(value: T): T;
-    public singleOr(predicate: S<T, boolean>, value: T): T;
-    public singleOr(...args: [T] | [S<T, boolean>, T]): T {
+    public singleOr<R = T>(value: R): T | R;
+    public singleOr<R = T>(predicate: S<T, boolean>, value: R): T | R;
+    public singleOr<R = T>(...args: [R] | [S<T, boolean>, R]): T | R {
         const [predicate, value] = args.length === 1 ? [() => true, args[0]] : args;
         const enumerator = this.where(predicate).getEnumerator();
         if (!enumerator.moveNext()) { return value; }
@@ -477,9 +477,9 @@ export class ArrayLikeEnumerable<T> extends Enumerable<T> {
         return super.first(predicate);
     }
 
-    public firstOr(value: T): T;
-    public firstOr(predicate: S<T, boolean>, value: T): T;
-    public firstOr(...args: [T] | [S<T, boolean>, T]): T {
+    public firstOr<R = T>(value: R): R;
+    public firstOr<R = T>(predicate: S<T, boolean>, value: R): T | R;
+    public firstOr<R = T>(...args: [R] | [S<T, boolean>, R]): T | R {
         if (args.length === 1) {
             return 0 in this._arrayLike ? this._arrayLike[0] : args[0];
         }
@@ -493,9 +493,9 @@ export class ArrayLikeEnumerable<T> extends Enumerable<T> {
         return super.first(predicate);
     }
 
-    public lastOr(value: T): T;
-    public lastOr(predicate: S<T, boolean>, value: T): T;
-    public lastOr(...args: [T] | [S<T, boolean>, T]): T {
+    public lastOr<R = T>(value: R): R;
+    public lastOr<R = T>(predicate: S<T, boolean>, value: R): T | R;
+    public lastOr<R = T>(...args: [R] | [S<T, boolean>, R]): T | R {
         if (args.length === 1) {
             const i = this._arrayLike.length - 1;
             return i in this._arrayLike ? this._arrayLike[i] : args[0];
@@ -602,22 +602,22 @@ class RangeEnumerable extends Enumerable<number> {
 
     public count(): number { return this._count; }
 
-    public firstOr(value: number): number;
-    public firstOr(predicate: S<number, boolean>, value: number): number;
-    public firstOr(...args: [number] | [S<number, boolean>, number]): number {
+    public firstOr<R = number>(value: R): number | R;
+    public firstOr<R = number>(predicate: S<number, boolean>, value: R): number | R;
+    public firstOr<R = number>(...args: [R] | [S<number, boolean>, R]): number | R {
         if (args.length === 1 && this._count > 0) {
             return this._start;
         }
-        return super.firstOr(...args as Parameters<Enumerable<number>['firstOr']>);
+        return super.firstOr<R>(...args as [any]);
     }
 
-    public lastOr(value: number): number;
-    public lastOr(predicate: S<number, boolean>, value: number): number;
-    public lastOr(...args: [number] | [S<number, boolean>, number]): number {
+    public lastOr<R = number>(value: R): number | R;
+    public lastOr<R = number>(predicate: S<number, boolean>, value: R): number | R;
+    public lastOr<R = number>(...args: [R] | [S<number, boolean>, R]): number | R {
         if (args.length === 1 && this._count > 0) {
             return this._start + this._step * (this._count - 1);
         }
-        return super.lastOr(...args as Parameters<Enumerable<number>['lastOr']>);
+        return super.lastOr(...args as [any]);
     }
 
     public get length(): number { return this._count; }

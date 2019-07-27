@@ -1,4 +1,4 @@
-import { SubtagContext, VariableScope } from '../..';
+import { SubtagContext, VariableScope } from '../../lib';
 
 export default new VariableScope(SubtagContext, { // Temporary '~'
     name: 'Temporary',

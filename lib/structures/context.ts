@@ -1,6 +1,6 @@
 import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult } from '../bbtag';
 import { Engine } from '../engine';
-import { Awaitable } from '../util';
+import { Awaitable, Cloner } from '../util';
 import { SubtagCollection } from './subtagCollection';
 import { VariableCache } from './variableCache';
 
@@ -11,6 +11,11 @@ export interface ISubtagContextArgs {
 }
 
 export class SubtagContext {
+    protected static clone(parent: SubtagContext): SubtagContext {
+        return parent;
+    }
+
+    public readonly cloner: Cloner<SubtagContext>;
     public readonly engine: Engine<this>;
     public readonly variables: VariableCache<this>;
     public readonly subtags: SubtagCollection<this>;
@@ -23,10 +28,13 @@ export class SubtagContext {
 
     public get isTerminated(): boolean { return this._terminated; }
 
+    protected readonly _args: ISubtagContextArgs;
+
     private _terminated: boolean;
 
-    public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs)
-    public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs) {
+    public constructor(engine: Engine<SubtagContext>, args: ISubtagContextArgs, ctor?: Cloner<SubtagContext, SubtagContext>) {
+        this.cloner = ctor || SubtagContext.clone;
+        this._args = args;
         this.engine = engine as Engine<this>;
         this.variables = new VariableCache(this);
         this.subtags = engine.subtags.createChild() as SubtagCollection<this>;
@@ -37,6 +45,10 @@ export class SubtagContext {
         this.stackTrace = [];
         this._terminated = false;
         this.arguments = args.arguments;
+    }
+
+    public clone(): SubtagContext {
+        return this.cloner(this);
     }
 
     public execute(token: IStringToken): Awaitable<SubtagResult> {

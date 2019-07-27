@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, IStringToken, SubtagContext, SubtagResult } from '../..';
+import { bbtag, IStringToken, SubtagContext, SubtagResult } from '../../lib';
 import { ctx, eng, MockSubtag, str, stripStrToken, tag } from '../testUtils';
 
 const subtags: MockSubtag[] = [

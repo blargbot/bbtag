@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { DatabaseValue, IPartialVariableScope, SubtagContext, VariableScope } from '../../..';
+import { DatabaseValue, IPartialVariableScope, SubtagContext, VariableScope } from '../../../lib';
 import { ctx } from '../../testUtils';
 
 describe('class VariableScope', () => {

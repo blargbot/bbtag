@@ -1,3 +1,5 @@
+import { IEntity } from './generic';
+
 export type Snowflake = string & { readonly ['PhantomType:Snowflake']: never };
 export type Color = number & { readonly ['PhantomType:Color']: never };
 export type Permissions = number & { readonly ['PhantomType:Permissions']: never };
@@ -10,18 +12,21 @@ const permissionMaxValue = Number('0b' + '1'.repeat(53));
 const permissionMinValue = Number('0b' + '0'.repeat(53));
 
 interface ISnowflakeGuard {
-    from(value: string): Snowflake;
+    from(value: string | Snowflake | IEntity): Snowflake;
     check(value: string): value is Snowflake;
+    check(value: any): value is Snowflake;
 }
 
 export const Snowflake: ISnowflakeGuard = {
-    from(source: string): Snowflake {
+    from(source: string | IEntity | Snowflake): Snowflake {
+        if (typeof source === 'object') { return (source as IEntity).id; }
         if (Snowflake.check(source)) {
             return source;
         }
         throw new Error('Invalid snowflake ' + source);
     },
-    check(source: string): source is Snowflake {
+    check(source: any): source is Snowflake {
+        if (typeof source !== 'string') { return false; }
         if (!/^\d+$/.test(source)) { return false; }
         const s = BigInt(source);
         return snowflakeMinValue <= s && s <= snowflakeMaxValue;

@@ -1,3 +1,4 @@
+import { Enumerable } from '../../lib';
 import { Snowflake } from './primitives';
 
 export interface IEntity {
@@ -6,6 +7,7 @@ export interface IEntity {
 
 type DefaultKey<T> = T extends { id: infer R } ? R : unknown;
 
-export interface ICollection<TEntry, TKey = DefaultKey<TEntry>> extends Iterable<TEntry> {
+export interface ICollection<TEntry, TKey = DefaultKey<TEntry>> extends Enumerable<TEntry> {
     get(key: TKey): TEntry | undefined;
+    has(key: TKey): boolean;
 }

@@ -1,5 +1,5 @@
-import { Constructor } from '..';
 import { DiscordSubtagBase, IDiscordSubtagArgs } from '../discord';
+import { Constructor } from '../lib';
 import { BlargbotContext, BlargbotDMContext, BlargbotGuildContext } from './context';
 
 // tslint:disable-next-line: no-empty-interface

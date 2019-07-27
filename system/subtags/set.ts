@@ -1,4 +1,4 @@
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag } from '../..';
+import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class SetSubtag extends SystemSubtag {

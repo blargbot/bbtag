@@ -1,5 +1,4 @@
-import { ISubtagArgs, Subtag } from '..';
-import { Constructor, SubtagContext } from '../lib';
+import { Constructor, ISubtagArgs, Subtag, SubtagContext } from '../lib';
 
 // tslint:disable-next-line: no-empty-interface
 export interface ISystemSubtagArgs<T extends SubtagContext = SubtagContext> extends ISubtagArgs<T> {

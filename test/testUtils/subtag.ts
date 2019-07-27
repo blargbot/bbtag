@@ -1,7 +1,7 @@
 import {
     Engine, IDatabase, IStringToken, ISubtagError, ISubtagToken,
     SubtagContext, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, TokenRange
-} from '../..';
+} from '../../lib';
 import { MockDatabase } from './mocks';
 
 const range: TokenRange = TokenRange.from('[0:0:0]:[0:0:0]'); // new Range(new Position(0, 0, 0), new Position(0, 0, 0));

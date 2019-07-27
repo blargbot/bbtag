@@ -1,5 +1,5 @@
 import { Duration, Moment } from 'moment-timezone';
-import { Try } from '../..';
+import { Try } from '../../lib';
 import { GuildChannel } from './channel';
 import { ICollection, IEntity } from './generic';
 import { ModerationError, ModerationResult } from './instances';

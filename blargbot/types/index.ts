@@ -1,5 +1,5 @@
-import { Awaitable } from '../..';
 import { Color, IChannel, IEmbedField, IGuild, IUser, Snowflake } from '../../discord';
+import { Awaitable } from '../../lib';
 
 export interface IBlargbot {
     readonly modlog: IModLog;

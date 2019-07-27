@@ -1,4 +1,4 @@
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../..';
+import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 import { BoolSubtag, default as bool } from './bool';
 

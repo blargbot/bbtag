@@ -1,6 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, SubtagResult } from '../../..';
+import { bbtag, SubtagResult } from '../../../lib';
 import { ctx, err, str } from '../../testUtils';
 
 describe('function compare', () => {

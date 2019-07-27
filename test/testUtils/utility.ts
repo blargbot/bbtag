@@ -1,4 +1,4 @@
-import { Awaitable } from '../..';
+import { Awaitable } from '../../lib';
 
 export function resultOf<T>(func: () => T): any {
     try {
