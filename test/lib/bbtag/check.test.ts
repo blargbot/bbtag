@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import check from '../../../lib/bbtag/check';
 import { typeMappingTestData } from './_helpers';
 
-export default () => describe('const check', () => {
+export default () => {
     for (const func of Object.keys(check) as Array<keyof typeof check>) {
         describe('function ' + func, () => {
             for (const { input, type } of typeMappingTestData) {
@@ -19,4 +19,4 @@ export default () => describe('const check', () => {
             }
         });
     }
-});
+};

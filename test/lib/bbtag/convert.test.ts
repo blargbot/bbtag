@@ -185,7 +185,7 @@ function failTo({ input }: { input: SubtagResult, kind: 'fail' }, type: string):
     return `should fail to convert ${toJSON(input)} to ${type}`;
 }
 
-export default () => describe('const convert', () => {
+export default () => {
     describe('function toString', () => {
         for (const testCase of toStringCases) {
             it(successfully(testCase), () => {
@@ -199,7 +199,6 @@ export default () => describe('const convert', () => {
             });
         }
     });
-
     describe('function toPrimitive', () => {
         for (const testCase of toPrimitiveCases) {
             it(successfully(testCase), () => {
@@ -217,7 +216,6 @@ export default () => describe('const convert', () => {
             });
         }
     });
-
     describe('function toBoolean', () => {
         for (const testCase of toBooleanCases) {
             switch (testCase.kind) {
@@ -247,7 +245,6 @@ export default () => describe('const convert', () => {
             }
         }
     });
-
     describe('function tryToBoolean', () => {
         for (const testCase of toBooleanCases.filter(c => c.defaultValue === undefined)) {
             switch (testCase.kind) {
@@ -278,7 +275,6 @@ export default () => describe('const convert', () => {
             }
         }
     });
-
     describe('function toNumber', () => {
         for (const testCase of toNumberCases) {
             switch (testCase.kind) {
@@ -312,7 +308,6 @@ export default () => describe('const convert', () => {
             }
         }
     });
-
     describe('function tryToNumber', () => {
         for (const testCase of toNumberCases.filter(c => c.defaultValue === undefined)) {
             switch (testCase.kind) {
@@ -347,7 +342,6 @@ export default () => describe('const convert', () => {
             }
         }
     });
-
     describe('function toArray', () => {
         for (const testCase of toArrayCases) {
             switch (testCase.kind) {
@@ -377,7 +371,6 @@ export default () => describe('const convert', () => {
             }
         }
     });
-
     describe('function tryToArray', () => {
         for (const testCase of toArrayCases.filter(c => c.defaultValue === undefined)) {
             switch (testCase.kind) {
@@ -408,7 +401,6 @@ export default () => describe('const convert', () => {
             }
         }
     });
-
     describe('function toCollection', () => {
         type MethodTest = [SubtagResult[], SubtagResult[]];
         const tests: Array<{ input: SubtagResult, start?: MethodTest, end?: MethodTest, include?: MethodTest }> = [
@@ -458,4 +450,4 @@ export default () => describe('const convert', () => {
             });
         }
     });
-});
+};
