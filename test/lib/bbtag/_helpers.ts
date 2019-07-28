@@ -1,4 +1,5 @@
-import { ISubtagError, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../../lib/bbtag/types';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../../lib/bbtag/types';
+import { TokenRange } from '../../../lib/util/range';
 
 export const typeMappingTestData: Array<{ input: SubtagResult, type: SubtagResultType }> = [
     { input: 'aaaaa', type: 'string' },
@@ -31,4 +32,16 @@ export function array(contents: SubtagPrimitiveResult[], name?: string): SubtagR
     const result = contents as SubtagResultArray;
     result.name = name;
     return result;
+}
+
+export function stringToken(format: string, range: string, ...subtags: ISubtagToken[]): IStringToken {
+    return { format, subtags, range: range as any };
+}
+
+export function subtagToken(range: string, name: IStringToken, ...args: IStringToken[]): ISubtagToken {
+    return { name, args, range: range as any };
+}
+
+export function tokenRange(start: [number, number, number], end: [number, number, number]): TokenRange {
+    return `[${start.join(':')}]:[${end.join(':')}]` as TokenRange;
 }

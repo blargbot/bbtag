@@ -13,7 +13,7 @@ const completeHandler: SwitchHandlers<true> = {
     string: () => true
 };
 
-export default () => describe('function ' + switchType.name, () => {
+export default () => describe('function switchType', () => {
     for (const { input, type } of typeMappingTestData) {
         it(`should successfully switch on ${JSON.stringify(input)} when the ${type} handler does exist`, () => {
             // arrange

@@ -1,0 +1,10 @@
+{
+    "name": "notes.bbtag",
+    "kind": "success",
+    "input": "",
+    "expected": {
+        "format": "",
+        "subtags": [],
+        "range": "[0:0:0]:[0:0:0]"
+    }
+}

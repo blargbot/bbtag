@@ -3,6 +3,7 @@ import check from './check.test';
 import conditions from './conditions.test';
 import convert from './convert.test';
 import getType from './getType.test';
+import parse from './parse.test';
 import switchType from './switchType.test';
 
 describe('const bbtag', () => {
@@ -11,5 +12,6 @@ describe('const bbtag', () => {
     conditions();
     convert();
     getType();
+    parse();
     switchType();
 });
