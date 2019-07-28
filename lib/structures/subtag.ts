@@ -1,5 +1,5 @@
-import bbtag, { ISubtagToken, SubtagResult } from '../bbtag';
-import { Awaitable, conditionParsers, Constructor, Enumerable, functions, SubtagCondition, SubtagConditionFunc, SubtagConditionParser } from '../util';
+import bbtag, { ISubtagToken, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbtag';
+import { Awaitable, Constructor, Enumerable, functions } from '../util';
 import { argumentBuilder, SubtagArgumentDefinition } from './argumentBuilder';
 import { ArgumentCollection } from './argumentCollection';
 import { OptimizationContext, SubtagContext } from './context';
@@ -37,8 +37,6 @@ export interface ISubtagArgs<TContext extends SubtagContext> {
 }
 
 export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
-    protected static readonly conditionParseHandlers: SubtagConditionParser[] = conditionParsers;
-
     public readonly context: Constructor<T>;
     public readonly name: string;
     public readonly category: string;
@@ -132,17 +130,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
             return asNumber;
         }
 
-        for (const { regex, parser } of Subtag.conditionParseHandlers) {
-            regex.lastIndex = 0;
-            const match = regex.exec(condition);
-            if (match !== null) {
-                const parsed = parser(match);
-                if (parsed !== undefined) {
-                    return parsed;
-                }
-            }
-        }
-        throw new Error(`Unable to parse condition '${condition}'`);
+        return bbtag.conditions.parse(condition);
     }
 }
 

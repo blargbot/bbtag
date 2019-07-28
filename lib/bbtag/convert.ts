@@ -1,6 +1,5 @@
 import { functions, Try } from '../util';
 import check from './check';
-import serializers from './serialize';
 import switchType from './switchType';
 import { ISubtagError, ISubtagResultCollection, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SwitchHandlers } from './types';
 
@@ -19,25 +18,30 @@ const util = {
             return r.success ? r.value : f(t);
         };
     },
-    error<T>(noFallback: (error: ISubtagError) => T, handleFallback: SwitchHandlers<T>): (error: ISubtagError) => T {
+    error<T>(handleFallback: SwitchHandlers<T>, noFallback: (error: ISubtagError) => T): (error: ISubtagError) => T {
         return (target: ISubtagError) => {
-            if (target.context === undefined) { return noFallback(target); }
-            if (check.null(target.context.fallback)) { return noFallback(target); }
-            const result = switchType(target.context.fallback, handleFallback);
-            if (result === undefined) { return noFallback(target); }
-            return result;
+            if (check.null(target.context.fallback)) {
+                return noFallback(target);
+            }
+            return switchType(target.context.fallback, handleFallback, () => noFallback(target));
         };
     },
     errorToString(error: ISubtagError): string {
         return `\`${error.message}\``;
+    },
+    isRawArray(value: any): value is ({ n?: string, v: any[] }) {
+        return typeof value === 'object' &&
+            value !== null &&
+            Array.isArray(value.v) &&
+            (typeof value.n === 'undefined' || typeof value.n === 'string');
     }
 };
 
 const toStringSwitch: SwitchHandlers<string> = {
     string: functions.identity,
-    boolean: serializers.boolean.serialize,
-    number: serializers.number.serialize,
-    array: serializers.array.serialize,
+    boolean: functions.toString,
+    number: functions.toString,
+    array: arr => JSON.stringify(arr.name === undefined ? arr : { v: arr, n: arr.name }),
     null: () => ''
 };
 
@@ -50,25 +54,55 @@ const toPrimitiveSwitch: SwitchHandlers<SubtagPrimitiveResult> = {
 };
 
 const tryToBooleanSwitch: SwitchHandlers<Try.Result<boolean>> = {
-    string: serializers.boolean.tryDeserialize,
+    string: str => {
+        const match = /^(?:(true|yes|t|y)|(false|no|f|n))$/i.exec(str);
+        if (match !== null) {
+            return Try.success(!!match[1]);
+        }
+        return Try.failed;
+    },
     boolean: Try.success
 };
 
 const tryToNumberSwitch: SwitchHandlers<Try.Result<number>> = {
-    string: serializers.number.tryDeserialize,
+    string: str => {
+        str = str.replace(/[,\.](?=\d*?[,\.])/g, '').replace(',', '.');
+        let result = Number(str);
+        if (isNaN(result)) {
+            const isInfinity = /^([-+]?)\s*infinity$/i.exec(str);
+            if (isInfinity) {
+                result = isInfinity[1] === '-' ? -Infinity : Infinity;
+            } else if (!/^nan$/i.test(str)) {
+                return Try.failed;
+            }
+        }
+        return Try.success(result);
+    },
     number: Try.success
 };
 
 const tryToArraySwitch: SwitchHandlers<Try.Result<SubtagResultArray>> = {
-    string: serializers.array.tryDeserialize,
+    string: str => {
+        try {
+            const obj = JSON.parse(str);
+            const arr = Array.isArray(obj) ? { v: obj } : util.isRawArray(obj) ? obj : undefined;
+            if (arr !== undefined) {
+                const result = arr.v.map(convert.toPrimitive) as SubtagResultArray;
+                result.name = arr.n;
+                return Try.success(result);
+            }
+
+        } catch { }
+        return Try.failed;
+    },
     array: Try.success
 };
 
-toStringSwitch.error = util.error(util.errorToString, toStringSwitch);
-toPrimitiveSwitch.error = util.error(util.errorToString, toPrimitiveSwitch);
-tryToBooleanSwitch.error = util.error(Try.failure, tryToBooleanSwitch);
-tryToNumberSwitch.error = util.error(Try.failure, tryToNumberSwitch);
-tryToArraySwitch.error = util.error(Try.failure, tryToArraySwitch);
+toStringSwitch.error = util.error(toStringSwitch, util.errorToString);
+toPrimitiveSwitch.error = util.error(toPrimitiveSwitch, util.errorToString);
+tryToBooleanSwitch.error = util.error(tryToBooleanSwitch, Try.failure);
+tryToNumberSwitch.error = util.error(tryToNumberSwitch, Try.failure);
+tryToArraySwitch.error = util.error(tryToArraySwitch, Try.failure);
 
 class ArrayCollectionWrapper implements ISubtagResultCollection {
     private readonly _source: SubtagResultArray;

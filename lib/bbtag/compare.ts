@@ -77,8 +77,6 @@ function* toStringOrNumber(values: SubtagPrimitiveResult[]): IterableIterator<st
     }
 }
 
-const _isNaN = isNaN as (v: any) => boolean;
-
 function compareIterable<T extends string | number>(left: Source<T>, right: Source<T>): -1 | 0 | 1 {
     const [le, re] = [left, right].map(Enumerable.from).map(e => e.getEnumerator());
 
@@ -86,16 +84,14 @@ function compareIterable<T extends string | number>(left: Source<T>, right: Sour
     while ((lc = le.moveNext()) && re.moveNext()) {
         const [l, r] = [le, re].map(e => e.current);
 
-        if (typeof l !== typeof r) {
-            return typeof l === 'number' ? -1 : 1;
-        } else if (typeof l === 'number') { // We know that both r and l are numbers here, typescript just doesnt realise it
-            if (_isNaN(l) && _isNaN(r)) { continue; }
-            if (_isNaN(l)) { return 1; }
-            if (_isNaN(r)) { return -1; }
+        let result: -1 | 0 | 1;
+        switch (typeof l + typeof r) {
+            case 'numbernumber': result = compareAsNumber(l as number, r as number);
+            case 'stringstring': result = l < r ? -1 : r < l ? 1 : 0;
+            default: result = typeof l === 'number' ? -1 : 1;
         }
 
-        if (l < r) { return -1; }
-        if (l > r) { return 1; }
+        if (result) { return result; }
     }
 
     return lc ? 1 : re.moveNext() ? -1 : 0;

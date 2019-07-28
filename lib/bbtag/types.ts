@@ -1,4 +1,3 @@
-import { SubtagContext } from '../structures';
 import { TokenRange, Try } from '../util';
 
 export type SubtagPrimitiveResult = null | undefined | void | string | number | boolean;
@@ -6,6 +5,8 @@ export type SubtagResult = SubtagPrimitiveResult | SubtagResultArray | ISubtagEr
 export type SubtagResultArray = SubtagPrimitiveResult[] & { name?: string };
 export type SubtagResultType = keyof SubtagResultTypeMap;
 export type SwitchHandlers<T> = { [K in keyof SubtagResultTypeMap]?: (value: SubtagResultTypeMap[K]) => T };
+export type SubtagConditionFunc = (args: readonly IStringToken[]) => boolean;
+export type SubtagCondition = SubtagConditionFunc | string | number;
 
 // tslint:disable-next-line: interface-over-type-literal
 export type SubtagResultTypeMap = {
@@ -37,7 +38,7 @@ export interface ISubtagToken {
 export interface ISubtagError {
     readonly message: string;
     readonly token: IStringToken | ISubtagToken;
-    readonly context: SubtagContext;
+    readonly context: { fallback: SubtagResult };
 }
 
 export interface ISerializer<T> {
@@ -50,4 +51,9 @@ export interface ISubtagResultCollection {
     startsWith(target: SubtagResult): boolean;
     endsWith(target: SubtagResult): boolean;
     includes(target: SubtagResult): boolean;
+}
+
+export interface ISubtagConditionPattern {
+    regex: RegExp;
+    parser: (match: RegExpExecArray) => SubtagConditionFunc | undefined;
 }

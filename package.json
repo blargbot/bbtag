@@ -2,6 +2,20 @@
     "name": "bbtag",
     "version": "1.0.0",
     "description": "The engine behind blargbots custom commands",
+    "license": "AGPL-3.0",
+    "author": "blargbot",
+    "homepage": "https://www.github.com/blargbot/bbtag",
+    "repository": {
+        "type": "git",
+        "url": "https://www.github.com/blargbot/bbtag"
+    },
+    "bugs": {
+        "url": "https://github.com/blargbot/bbtag/issues"
+    },
+    "contributors": [
+        "Stupid Cat (https://github.com/Ratismal)",
+        "Titansmasher (https://github.com/Titansmasher)"
+    ],
     "scripts": {
         "lint-fix": "tslint --project tsconfig.json --format stylish --fix",
         "lint": "tslint --project tsconfig.json --format stylish",
@@ -13,12 +27,6 @@
         "coverage": "nyc npm test",
         "pack": "npm run rebuild && npm pack"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://www.github.com/blargbot/bbtag"
-    },
-    "author": "blargbot",
-    "license": "AGPL-3.0",
     "dependencies": {
         "moment-timezone": "^0.5.25"
     },

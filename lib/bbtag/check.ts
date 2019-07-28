@@ -25,7 +25,7 @@ const check: { [K in keyof SubtagResultTypeMap]: (target: SubtagResult) => targe
             return false;
         }
 
-        return errorKeys.isSetEqual(Object.keys(target));
+        return errorKeys.isDataEqual(Object.keys(target));
     }
 };
 

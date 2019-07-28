@@ -27,15 +27,15 @@ export namespace Try {
     }
 
     export function failure(): IFailure<undefined>;
-    export function failure<R>(reason: R): IFailure<R>;
-    export function failure<R>(reason: R = undefined!): IFailure<R> {
+    export function failure<T>(reason: T): IFailure<T>;
+    export function failure<T>(reason: T = undefined!): IFailure<T> {
         return from(false, reason);
     }
 
     export function success(): ISuccess<undefined>;
-    export function success<R>(reason: R): ISuccess<R>;
-    export function success<R>(reason: R = undefined!): ISuccess<R> {
-        return from(true, reason);
+    export function success<T>(value: T): ISuccess<T>;
+    export function success<T>(value: T = undefined!): ISuccess<T> {
+        return from(true, value);
     }
 
     export const failed = failure();
