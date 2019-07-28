@@ -160,7 +160,7 @@ const toArrayCases: Array<TestCase<SubtagResultArray, true>> = [
     { kind: 'success', input: error('test', 'asdfgh'), defaultValue: () => [1, 2, 3], expected: array([1, 2, 3]) },
     { kind: 'success', input: undefined, defaultValue: () => [1, 2, 3], expected: array([1, 2, 3]) },
     { kind: 'success', input: null, defaultValue: () => [1, 2, 3], expected: array([1, 2, 3]) },
-    { kind: 'fail', input: '{"v":[],"n":12345}', expected: '"{"v\\":[],\\"n\\":12345}" is not convertable to array' },
+    { kind: 'fail', input: '{"v":[],"n":12345}', expected: '"{\\"v\\":[],\\"n\\":12345}" is not convertable to array' },
     { kind: 'fail', input: 'aaaaaa', expected: '"aaaaaa" is not convertable to array' },
     { kind: 'fail', input: error('test', 12345), expected: '12345 is not convertable to array' },
     { kind: 'fail', input: 23456, expected: '23456 is not convertable to array' },

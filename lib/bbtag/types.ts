@@ -55,5 +55,5 @@ export interface ISubtagResultCollection {
 
 export interface ISubtagConditionPattern {
     regex: RegExp;
-    parser: (match: RegExpExecArray) => SubtagConditionFunc | undefined;
+    parse: (match: RegExpExecArray) => SubtagConditionFunc;
 }

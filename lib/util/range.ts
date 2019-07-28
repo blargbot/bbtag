@@ -29,6 +29,7 @@ export class Range {
 }
 
 export type TokenRange = string & { ['PhantomType:TokenRange']: never };
+
 interface ITokenRangeGuard {
     from(value: string): TokenRange;
     from(start: Position, end: Position): TokenRange;

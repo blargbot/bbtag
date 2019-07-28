@@ -108,7 +108,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
         switch (typeof condition) {
             case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
-            case 'string': return this.whenArgs(this.parseCondition(condition), handler, autoResolve);
+            case 'string': return this.whenArgs(bbtag.conditions.parse(condition), handler, autoResolve);
         }
 
         this._conditionals.push({
@@ -122,15 +122,6 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
 
     protected default(handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
         return this.whenArgs(functions.true, handler, autoResolve);
-    }
-
-    protected parseCondition(condition: string): Exclude<SubtagCondition, string> {
-        const asNumber = Number(condition);
-        if (!isNaN(asNumber)) {
-            return asNumber;
-        }
-
-        return bbtag.conditions.parse(condition);
     }
 }
 

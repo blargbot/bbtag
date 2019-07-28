@@ -4,14 +4,11 @@ import { ISubtagConditionPattern, SubtagConditionFunc } from './types';
 export const conditions = {
     patterns: [] as ISubtagConditionPattern[],
     parse(condition: string): SubtagConditionFunc {
-        for (const { regex, parser } of conditions.patterns) {
+        for (const { regex, parse } of conditions.patterns) {
             regex.lastIndex = 0;
             const match = regex.exec(condition);
             if (match !== null) {
-                const parsed = parser(match);
-                if (parsed !== undefined) {
-                    return parsed;
-                }
+                return parse(match);
             }
         }
         throw new Error(`Unable to parse condition '${condition}'`);
@@ -20,10 +17,16 @@ export const conditions = {
 
 conditions.patterns.push(
     {
-        regex: /^\s*?(<=?|>=?|={1,3}|!={0,2})\s*?(\d+)\s*?$/, //
-        parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
+        regex: /^\s*(\d+)\s*$/, // matches anything which is just a number
+        parse(match: RegExpExecArray): SubtagConditionFunc {
+            const num = convert.toNumber(match[1]);
+            return args => args.length === num;
+        }
+    }, {
+        regex: /^\s*?(<=?|>=?|={1,3}|!={0,2})\s*?(\d+)\s*?$/, // matches anything of the form '<=5' (less than or equal to 5) using any of the js comparison operators
+        parse(match: RegExpExecArray): SubtagConditionFunc {
             const num = convert.toNumber(match[2]);
-            switch (match[1]) {
+            switch (match[1] as '>' | '>=' | '<' | '<=' | '!' | '!=' | '!==' | '=' | '==' | '===') {
                 case '>': return args => args.length > num;
                 case '>=': return args => args.length >= num;
                 case '<': return args => args.length < num;
@@ -38,23 +41,19 @@ conditions.patterns.push(
         }
     }, {
         regex: /^\s*?(\d+)(!?)\s*?-\s*?(\d+)(!?)\s*?$/, // Matches anything of the form '1!-5!' (1 to 5 exclusive) or '1-5' (1 to 5 inclusive)
-        parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            let from = convert.toNumber(match[1]);
-            let to = convert.toNumber(match[3]);
+        parse(match: RegExpExecArray): SubtagConditionFunc {
+            const [from, to] = [match[1], match[3]].map(convert.toNumber).sort();
             const includeFrom = !match[2];
             const includeTo = !match[4];
-            if (from > to) {
-                from = [to, to = from][0];
-            }
 
             const [compFrom, compTo] = [lt_(includeFrom), lt_(includeTo)];
             return args => compFrom(from, args.length) && compTo(args.length, to);
         }
     }, {
         regex: /^\s*?\d+(?:\s*?,\s*?\d+)+\s*?$/, // Matches anything of the form '1, 2, 3, 4' etc
-        parser(match: RegExpExecArray): SubtagConditionFunc | undefined {
-            const counts: number[] = Array.from(match[0].match(/\d+/g) || [], convert.toNumber);
-            return args => counts.indexOf(args.length) !== -1;
+        parse(match: RegExpExecArray): SubtagConditionFunc {
+            const counts = Array.from(match[0].match(/\d+/g)!, convert.toNumber);
+            return args => counts.includes(args.length);
         }
     }
 );
