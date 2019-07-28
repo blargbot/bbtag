@@ -24,7 +24,7 @@ function cast(file: Promise<{ kind: string, input: string, name: string, expecte
 }
 
 const testCases = Promise.all([
-    cast(import('./parse test data/notes.json')),
+    cast(import('../../test data/notes.json')),
     { kind: 'fail', input: 'this is} a test', expected: 'Unpaired \'}\'' },
     { kind: 'fail', input: 'this {is;{a;test}', expected: 'Unpaired \'{\'' },
     {
