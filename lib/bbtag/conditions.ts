@@ -1,8 +1,8 @@
 import convert from './convert';
-import { ISubtagConditionPattern, SubtagConditionFunc } from './types';
+import { IBBTagConditionParser, SubtagConditionFunc } from './types';
 
-export const conditions = {
-    patterns: [] as ISubtagConditionPattern[],
+export const conditions: IBBTagConditionParser = {
+    patterns: [],
     parse(condition: string): SubtagConditionFunc {
         for (const { regex, parse } of conditions.patterns) {
             regex.lastIndex = 0;

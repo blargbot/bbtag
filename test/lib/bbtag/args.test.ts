@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import args, { IHandlerArgumentValue } from '../../../lib/bbtag/args';
+import args from '../../../lib/bbtag/args';
+import { IHandlerArgumentValue } from '../../../lib/bbtag/types';
 import { Enumerable, IEnumerable } from '../../../lib/util/linq';
 
 type TestCaseInput = [string, boolean] | [string, boolean, string] | [string, boolean, boolean, string?];

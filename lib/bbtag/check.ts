@@ -1,10 +1,10 @@
 import { Enumerable } from '../util';
-import { ISubtagError, SubtagResult, SubtagResultTypeMap } from './types';
+import { IBBTagTypeChecker, ISubtagError, SubtagResult, SubtagResultTypeMap } from './types';
 
 const sampleError: ISubtagError = { message: undefined!, context: undefined!, token: undefined! };
 const errorKeys = Enumerable.from(Object.keys(sampleError));
 
-const check: { [K in keyof SubtagResultTypeMap]: (target: SubtagResult) => target is SubtagResultTypeMap[K] } = {
+const check: IBBTagTypeChecker = {
     string(target: SubtagResult): target is SubtagResultTypeMap['string'] {
         return typeof target === 'string';
     },

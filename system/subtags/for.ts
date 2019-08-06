@@ -1,4 +1,4 @@
-import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult } from '../../lib';
+import { ArgumentCollection, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 import { default as bool } from './bool';
 
@@ -7,7 +7,7 @@ export class ForSubtag extends SystemSubtag {
         super({
             name: 'for',
             category: 'system',
-            arguments: [A.r('variable'), A.r('initial'), A.r('comparison'), A.r('limit'), A.o('increment'), A.r('code')],
+            arguments: a => [a.r('variable'), a.r('initial'), a.r('comparison'), a.r('limit'), a.o('increment'), a.r('code')],
             description:
                 'To start, `variable` is set to `initial`. Then, the tag will loop, ' +
                 'first checking `variable` against `limit` using `comparison`. ' +
@@ -20,22 +20,22 @@ export class ForSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0-4', bbtag.errors.notEnoughArgs)
+        this.whenArgs('0-4', this.bbtag.errors.notEnoughArgs)
             .whenArgs('5', this.run, [0, 1, 2, 3])
             .whenArgs('6', this.run, [0, 1, 2, 3, 4])
-            .default(bbtag.errors.tooManyArgs);
+            .default(this.bbtag.errors.tooManyArgs);
     }
 
     public async run(args: ArgumentCollection): Promise<SubtagResult> {
         const result: SubtagResult[] = [];
-        const [varName, operator] = args.get(0, 2).select(n => bbtag.convert.toString(n));
-        const [initial, limit] = args.get(1, 3).select(n => bbtag.convert.toNumber(n, NaN));
+        const [varName, operator] = args.get(0, 2).select(n => this.bbtag.convert.toString(n));
+        const [initial, limit] = args.get(1, 3).select(n => this.bbtag.convert.toNumber(n, NaN));
         const code = args.getRaw(args.length - 1)!;
-        const increment = args.length === 5 ? 1 : bbtag.convert.toNumber(args.get(4), NaN);
+        const increment = args.length === 5 ? 1 : this.bbtag.convert.toNumber(args.get(4), NaN);
 
         const nanIndex = [0, initial, 0, limit, increment].findIndex(isNaN);
         if (nanIndex !== -1) {
-            return bbtag.errors.types.notNumber(args, args.getRaw(nanIndex));
+            return this.bbtag.errors.types.notNumber(args, args.getRaw(nanIndex));
         }
 
         // TODO: implement limits
@@ -43,9 +43,9 @@ export class ForSubtag extends SystemSubtag {
         for (let i = initial; bool.check(i, operator, limit); i += increment) {
             await args.context.variables.set(varName, i);
             result.push(await args.context.execute(code));
-            const next = bbtag.convert.tryToNumber(await args.context.variables.get(varName));
+            const next = this.bbtag.convert.tryToNumber(await args.context.variables.get(varName));
             if (!next.success) {
-                result.push(bbtag.errors.types.notNumber(args));
+                result.push(this.bbtag.errors.types.notNumber(args));
                 break;
             }
             i = next.value;
@@ -54,7 +54,7 @@ export class ForSubtag extends SystemSubtag {
         }
 
         args.context.variables.rollback(varName);
-        return result.map(bbtag.convert.toString).join('');
+        return result.map(this.bbtag.convert.toString).join('');
     }
 }
 

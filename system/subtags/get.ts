@@ -1,4 +1,4 @@
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../../lib';
+import { ArgumentCollection, Awaitable, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class GetSubtag extends SystemSubtag {
@@ -6,7 +6,7 @@ export class GetSubtag extends SystemSubtag {
         super({
             name: 'get',
             category: 'system',
-            arguments: [A.r('name'), A.o('index')],
+            arguments: a => [a.r('name'), a.o('index')],
             description: ctx =>
                 'Returns the stored variable `varName`, or an index within it if it is a stored array. ' +
                 'You can use a character prefix to determine the scope of your variable.\n' +
@@ -28,29 +28,29 @@ export class GetSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0', bbtag.errors.notEnoughArgs)
+        this.whenArgs('0', this.bbtag.errors.notEnoughArgs)
             .whenArgs('1', this.getKey, true)
             .whenArgs('2', this.getIndex, true)
-            .default(bbtag.errors.tooManyArgs);
+            .default(this.bbtag.errors.tooManyArgs);
     }
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
         const key = args.get(0);
-        return args.context.variables.get(bbtag.convert.toString(key));
+        return args.context.variables.get(this.bbtag.convert.toString(key));
     }
 
     public async getIndex(args: ArgumentCollection): Promise<SubtagResult> {
         const [key, index] = args.get(0, 1);
-        const value = await args.context.variables.get(bbtag.convert.toString(key));
-        const asArray = bbtag.convert.tryToArray(value);
-        const indexAsNumber = bbtag.convert.tryToNumber(index);
+        const value = await args.context.variables.get(this.bbtag.convert.toString(key));
+        const asArray = this.bbtag.convert.tryToArray(value);
+        const indexAsNumber = this.bbtag.convert.tryToNumber(index);
 
         if (!asArray.success) {
             return value;
         } else if (!indexAsNumber.success) {
-            return bbtag.errors.types.notNumber(args, args.token.args[1]);
+            return this.bbtag.errors.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return bbtag.errors.types.array.outOfBounds(args, args.token);
+            return this.bbtag.errors.types.array.outOfBounds(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

@@ -1,4 +1,3 @@
-import { argumentBuilder as A } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class CommentSubtag extends SystemSubtag {
@@ -7,7 +6,7 @@ export class CommentSubtag extends SystemSubtag {
             name: 'comment',
             aliases: ['//'],
             category: 'system',
-            arguments: [A.o('text', true)],
+            arguments: a => [a.o('text', true)],
             description: 'A subtag that just gets removed. Useful for documenting your code.',
             examples: [
                 { code: '{//;this is a comment!', output: '' }

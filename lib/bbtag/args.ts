@@ -1,18 +1,5 @@
 import { format } from '../util';
-
-export type SubtagArgumentDefinition = IHandlerArgumentGroup | IHandlerArgumentValue;
-
-export interface IHandlerArgumentValue {
-    name: string;
-    required: boolean;
-    many: boolean;
-    type?: string;
-}
-
-export interface IHandlerArgumentGroup {
-    required: boolean;
-    values: SubtagArgumentDefinition[];
-}
+import { IBBTagArgumentBuilder, IHandlerArgumentGroup, IHandlerArgumentValue, SubtagArgumentDefinition } from './types';
 
 function _create(name: string, required: boolean): IHandlerArgumentValue;
 function _create(name: string, required: boolean, many: boolean): IHandlerArgumentValue;
@@ -69,7 +56,7 @@ function _stringify(separator: string, values: SubtagArgumentDefinition[]): stri
     return result.join(separator).trim();
 }
 
-export const argumentBuilder = {
+export const argumentBuilder: IBBTagArgumentBuilder = {
     create: _create,
     c: _create,
     require: _require,

@@ -1,7 +1,7 @@
 import { functions, Try } from '../util';
 import check from './check';
 import switchType from './switchType';
-import { ISubtagError, ISubtagResultCollection, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SwitchHandlers } from './types';
+import { IBBTagTypeConverter, ISubtagError, ISubtagResultCollection, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SwitchHandlers } from './types';
 
 const util = {
     switch<T>(handlers: SwitchHandlers<T>, defaultResult: () => T): (target: SubtagResult) => T {
@@ -144,7 +144,7 @@ class StringCollectionWrapper implements ISubtagResultCollection {
         return this._source.includes(convert.toString(target));
     }
 }
-export const convert = {
+export const convert: IBBTagTypeConverter = {
     toString: util.switch(toStringSwitch, functions.never),
     toPrimitive: util.switch(toPrimitiveSwitch, functions.never),
     toBoolean: util.switchTry(tryToBooleanSwitch, 'boolean'),

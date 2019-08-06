@@ -1,4 +1,4 @@
-import { bbtag, ISubtagToken } from '../../lib';
+import { ISubtagToken } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class SemiSubtag extends SystemSubtag {
@@ -14,7 +14,7 @@ export class SemiSubtag extends SystemSubtag {
         });
 
         this.whenArgs('0', () => ';')
-            .default(bbtag.errors.tooManyArgs);
+            .default(this.bbtag.errors.tooManyArgs);
     }
 
     public optimize(token: ISubtagToken): ISubtagToken | string {

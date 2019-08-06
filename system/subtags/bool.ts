@@ -1,26 +1,26 @@
-import { argumentBuilder as A, ArgumentCollection, bbtag, SubtagResult } from '../../lib';
+import { ArgumentCollection, IBBTagUtilities, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
-type operator = (left: SubtagResult, right: SubtagResult) => boolean;
+type operator = (bbtag: IBBTagUtilities, left: SubtagResult, right: SubtagResult) => boolean;
 
 export class BoolSubtag extends SystemSubtag {
     public static readonly operators: { readonly [key: string]: operator } = {
-        '==': (l, r) => bbtag.compare(l, r) === 0,
-        '!=': (l, r) => bbtag.compare(l, r) !== 0,
-        '>=': (l, r) => bbtag.compare(l, r) >= 0,
-        '>': (l, r) => bbtag.compare(l, r) > 0,
-        '<=': (l, r) => bbtag.compare(l, r) <= 0,
-        '<': (l, r) => bbtag.compare(l, r) < 0,
-        'startswith': (l, r) => bbtag.convert.toCollection(l).startsWith(r),
-        'endswith': (l, r) => bbtag.convert.toCollection(l).endsWith(r),
-        'includes': (l, r) => bbtag.convert.toCollection(l).includes(r)
+        '==': (bbtag, l, r) => bbtag.compare(l, r) === 0,
+        '!=': (bbtag, l, r) => bbtag.compare(l, r) !== 0,
+        '>=': (bbtag, l, r) => bbtag.compare(l, r) >= 0,
+        '>': (bbtag, l, r) => bbtag.compare(l, r) > 0,
+        '<=': (bbtag, l, r) => bbtag.compare(l, r) <= 0,
+        '<': (bbtag, l, r) => bbtag.compare(l, r) < 0,
+        'startswith': (bbtag, l, r) => bbtag.convert.toCollection(l).startsWith(r),
+        'endswith': (bbtag, l, r) => bbtag.convert.toCollection(l).endsWith(r),
+        'includes': (bbtag, l, r) => bbtag.convert.toCollection(l).includes(r)
     };
 
     public constructor() {
         super({
             name: 'bool',
             category: 'system',
-            arguments: [A.r('evaluator'), A.r('arg1'), A.r('arg2')],
+            arguments: a => [a.r('evaluator'), a.r('arg1'), a.r('arg2')],
             description:
                 'Evaluates `arg1` and `arg2` using the `evaluator` and returns `true` or `false`. ' +
                 'Valid evaluators are `' + Object.keys(BoolSubtag.operators).join('`, `') + '`\n' +
@@ -30,9 +30,9 @@ export class BoolSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=2', bbtag.errors.notEnoughArgs)
+        this.whenArgs('<=2', this.bbtag.errors.notEnoughArgs)
             .whenArgs('3', this.run, true) // {bool;RESOLVE;RESOLVE;RESOLVE}
-            .default(bbtag.errors.tooManyArgs);
+            .default(this.bbtag.errors.tooManyArgs);
     }
 
     public run(args: ArgumentCollection): SubtagResult {
@@ -43,16 +43,16 @@ export class BoolSubtag extends SystemSubtag {
     public check(val1: SubtagResult, val2: SubtagResult, val3: SubtagResult): boolean | undefined {
         let left: SubtagResult;
         let right: SubtagResult;
-        let comparer: (left: SubtagResult, right: SubtagResult) => boolean;
+        let comparer: operator;
         let key: string;
 
-        if ((key = bbtag.convert.toString(val2)) in BoolSubtag.operators) {
+        if ((key = this.bbtag.convert.toString(val2)) in BoolSubtag.operators) {
             left = val1;
             right = val3;
-        } else if ((key = bbtag.convert.toString(val1)) in BoolSubtag.operators) {
+        } else if ((key = this.bbtag.convert.toString(val1)) in BoolSubtag.operators) {
             left = val2;
             right = val3;
-        } else if ((key = bbtag.convert.toString(val3)) in BoolSubtag.operators) {
+        } else if ((key = this.bbtag.convert.toString(val3)) in BoolSubtag.operators) {
             left = val1;
             right = val2;
         } else {
@@ -60,7 +60,7 @@ export class BoolSubtag extends SystemSubtag {
         }
 
         comparer = BoolSubtag.operators[key];
-        return comparer(left, right);
+        return comparer(this.bbtag, left, right);
     }
 }
 

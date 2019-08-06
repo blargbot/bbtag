@@ -7,10 +7,11 @@ import errors from './errors';
 import getType from './getType';
 import parse from './parse';
 import switchType from './switchType';
+import { IBBTagUtilities } from './types';
 
 export * from './types';
 
-export const bbtag = {
+export const bbtag: IBBTagUtilities = {
     args,
     check,
     compare,

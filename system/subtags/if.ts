@@ -1,4 +1,4 @@
-import { argumentBuilder as A, ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../../lib';
+import { ArgumentCollection, Awaitable, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 import { BoolSubtag, default as bool } from './bool';
 
@@ -7,11 +7,11 @@ export class IfSubtag extends SystemSubtag {
         super({
             name: 'if',
             category: 'system',
-            arguments: [
-                A.r('value1'),
-                A.g(A.r('evaluator'), A.require('value2')),
-                A.r('then'),
-                A.o('else')
+            arguments: a => [
+                a.r('value1'),
+                a.g(a.r('evaluator'), a.require('value2')),
+                a.r('then'),
+                a.o('else')
             ],
             description:
                 'If `evaluator` and `value2` are provided, `value1` is evaluated against `value2` using `evaluator`. ' +
@@ -23,18 +23,18 @@ export class IfSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=1', bbtag.errors.notEnoughArgs)
+        this.whenArgs('<=1', this.bbtag.errors.notEnoughArgs)
             .whenArgs('2,3', this.runNoComp, [0]) // {if;RESOLVE;DEFER[;DEFER]}
             .whenArgs('4,5', this.runWithComp, [0, 1, 2]) // {if;RESOLVE;RESOLVE;RESOLVE;DEFER[;DEFER]}
-            .default(bbtag.errors.tooManyArgs);
+            .default(this.bbtag.errors.tooManyArgs);
     }
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
         const success = args.get(0);
-        const tryBool = bbtag.convert.tryToBoolean(success);
+        const tryBool = this.bbtag.convert.tryToBoolean(success);
 
         if (!tryBool.success) {
-            return bbtag.errors.types.notBool(args, args.token.args[0]);
+            return this.bbtag.errors.types.notBool(args, args.token.args[0]);
         } else if (tryBool.value) {
             return args.execute(1);
         } else {
@@ -47,7 +47,7 @@ export class IfSubtag extends SystemSubtag {
         const success = bool.check(left, comp, right);
 
         if (success === undefined) {
-            return bbtag.errors.types.notOperator(args);
+            return this.bbtag.errors.types.notOperator(args);
         } else if (success === true) {
             return args.execute(3);
         } else {
