@@ -64,7 +64,7 @@ const testCases = Promise.all([
     }
 ] as Array<Promise<TestCase> | TestCase>);
 
-export default async () => {
+describe('function bbtag.parse', async () => {
     for (const testCase of await testCases) {
         switch (testCase.kind) {
             case 'success':
@@ -91,4 +91,4 @@ export default async () => {
                 break;
         }
     }
-};
+});

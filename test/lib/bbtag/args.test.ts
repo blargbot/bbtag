@@ -37,7 +37,7 @@ function asArgs(input: any[]): string {
     return input.map(i => JSON.stringify(i)).join(', ');
 }
 
-export default () => {
+describe('const bbtag.args', () => {
     describe('function c', () => {
         it('should be the same instance as create', () => {
             // arrange
@@ -181,4 +181,4 @@ export default () => {
             expect(result).to.equal(`[${parts.select(p => p.string).joinString(';')}]`);
         });
     });
-};
+});

@@ -25,7 +25,7 @@ export function toJSON(value: SubtagResult): string {
 }
 
 export function error(message: string, fallback?: SubtagResult): ISubtagError {
-    return { message, token: undefined!, context: { fallback } };
+    return { message, token: undefined!, context: { fallback, error(): never { throw 0; } } };
 }
 
 export function array(contents: SubtagPrimitiveResult[], name?: string): SubtagResultArray {

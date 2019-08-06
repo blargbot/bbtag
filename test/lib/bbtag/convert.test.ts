@@ -185,7 +185,7 @@ function failTo({ input }: { input: SubtagResult, kind: 'fail' }, type: string):
     return `should fail to convert ${toJSON(input)} to ${type}`;
 }
 
-export default () => {
+describe('const bbtag.convert', () => {
     describe('function toString', () => {
         for (const testCase of toStringCases) {
             it(successfully(testCase), () => {
@@ -450,4 +450,4 @@ export default () => {
             });
         }
     });
-};
+});

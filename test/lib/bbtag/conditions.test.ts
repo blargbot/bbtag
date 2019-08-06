@@ -32,7 +32,7 @@ const testCases: TestCase[] = [
     { kind: 'fail', input: '1a2' }
 ];
 
-export default () => {
+describe('const bbtag.conditions', () => {
     describe('function parse', () => {
         for (const testCase of testCases) {
             switch (testCase.kind) {
@@ -61,4 +61,4 @@ export default () => {
             }
         }
     });
-};
+});

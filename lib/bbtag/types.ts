@@ -7,6 +7,13 @@ export type SubtagResultType = keyof SubtagResultTypeMap;
 export type SwitchHandlers<T> = { [K in keyof SubtagResultTypeMap]?: (value: SubtagResultTypeMap[K]) => T };
 export type SubtagConditionFunc = (args: readonly IStringToken[]) => boolean;
 export type SubtagCondition = SubtagConditionFunc | string | number;
+export type ErrorFunc<T extends any[] = []> = ErrorFuncOverload1<T> & ErrorFuncOverload2<T> & ErrorFuncOverload3<T>;
+export type ErrorParams<T extends any[] = []> = Parameters<ErrorFuncOverload1<T> | ErrorFuncOverload2<T> | ErrorFuncOverload3<T>>;
+
+type TokenType = ISubtagToken | IStringToken;
+type ErrorFuncOverload1<T extends any[] = []> = ((args: { context: ISubtagErrorContext, token: TokenType }, ...remainder: T) => ISubtagError);
+type ErrorFuncOverload2<T extends any[] = []> = ((args: { context: ISubtagErrorContext, token?: TokenType }, token: TokenType, ...remainder: T) => ISubtagError);
+type ErrorFuncOverload3<T extends any[] = []> = ((context: ISubtagErrorContext, token: TokenType, ...remainder: T) => ISubtagError);
 
 // tslint:disable-next-line: interface-over-type-literal
 export type SubtagResultTypeMap = {
@@ -38,7 +45,11 @@ export interface ISubtagToken {
 export interface ISubtagError {
     readonly message: string;
     readonly token: IStringToken | ISubtagToken;
-    readonly context: { fallback: SubtagResult };
+    readonly context: ISubtagErrorContext;
+}
+export interface ISubtagErrorContext {
+    fallback: SubtagResult;
+    error(token: IStringToken | ISubtagToken, message: string): ISubtagError;
 }
 
 export interface ISerializer<T> {
