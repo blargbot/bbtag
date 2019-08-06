@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import switchType from '../../../lib/bbtag/switchType';
 import { SwitchHandlers } from '../../../lib/bbtag/types';
 import { functions } from '../../../lib/util';
-import { typeMappingTestData } from './_helpers';
+import { toJSON, typeMappingTestData } from './_helpers';
 
 const completeHandler: SwitchHandlers<true> = {
     array: () => true,
@@ -15,7 +15,7 @@ const completeHandler: SwitchHandlers<true> = {
 
 describe('function bbtag.switchType', () => {
     for (const { input, type } of typeMappingTestData) {
-        it(`should successfully switch on ${JSON.stringify(input)} when the ${type} handler does exist`, () => {
+        it(`should successfully switch on ${toJSON(input)} when the ${type} handler does exist`, () => {
             // arrange
 
             // act
@@ -26,7 +26,7 @@ describe('function bbtag.switchType', () => {
         });
     }
     for (const { input, type } of typeMappingTestData) {
-        it(`should fail to switch on ${JSON.stringify(input)} when the ${type} handler does not exist`, () => {
+        it(`should fail to switch on ${toJSON(input)} when the ${type} handler does not exist`, () => {
             // arrange
 
             // act
@@ -37,7 +37,7 @@ describe('function bbtag.switchType', () => {
         });
     }
     for (const { input, type } of typeMappingTestData) {
-        it(`should successfully switch on ${JSON.stringify(input)} when the ${type} handler does not exist, but a default is given`, () => {
+        it(`should successfully switch on ${toJSON(input)} when the ${type} handler does not exist, but a default is given`, () => {
             // arrange
 
             // act
