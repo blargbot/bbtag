@@ -1,6 +1,6 @@
 import { ArgumentCollection, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
-import { default as bool } from './bool';
+import { BoolSubtag } from './bool';
 
 export class ForSubtag extends SystemSubtag {
     public constructor() {
@@ -27,6 +27,8 @@ export class ForSubtag extends SystemSubtag {
     }
 
     public async run(args: ArgumentCollection): Promise<SubtagResult> {
+        const bool = args.context.subtags.find('bool', BoolSubtag)
+            || this.bbtag.errors.throw.system.unknownSubtag(args, 'bool');
         const result: SubtagResult[] = [];
         const [varName, operator] = args.get(0, 2).select(n => this.bbtag.convert.toString(n));
         const [initial, limit] = args.get(1, 3).select(n => this.bbtag.convert.toNumber(n, NaN));

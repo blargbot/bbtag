@@ -6,7 +6,7 @@ type Validation = typeof basicErrors & { throw: ThrowCollection<typeof basicErro
 type FuncCollection<T> = { [P in keyof T]: FuncCollection<T[P]> | ErrorFunc<any[]> };
 type ThrowCollection<T extends FuncCollection<any> | ErrorFunc> =
     T extends FuncCollection<any> ? { [P in keyof T]: ThrowCollection<T[P]> } :
-    T extends (...args: infer R) => any ? (...args: R) => never :
+    T extends ErrorFunc<infer R> ? ErrorFunc<R, never> :
     never;
 
 function errorBuilder(message: string): ErrorFunc;
@@ -37,7 +37,7 @@ function cloneAndThrow<T extends FuncCollection<T>>(source: T): ThrowCollection<
             case 'function':
                 result[key] = ((...args: any[]) => {
                     throw value(...args);
-                }) as typeof result[typeof key];
+                }) as unknown as typeof result[typeof key];
                 break;
         }
     }

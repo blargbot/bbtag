@@ -1,6 +1,6 @@
 import { ArgumentCollection, Awaitable, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
-import { BoolSubtag, default as bool } from './bool';
+import { BoolSubtag } from './bool';
 
 export class IfSubtag extends SystemSubtag {
     public constructor() {
@@ -43,6 +43,8 @@ export class IfSubtag extends SystemSubtag {
     }
 
     public runWithComp(args: ArgumentCollection): Awaitable<SubtagResult> {
+        const bool = args.context.subtags.find('bool', BoolSubtag)
+            || this.bbtag.errors.throw.system.unknownSubtag(args, 'bool');
         const [left, comp, right] = args.get(0, 1, 2);
         const success = bool.check(left, comp, right);
 

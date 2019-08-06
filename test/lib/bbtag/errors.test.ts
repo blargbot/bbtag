@@ -66,9 +66,10 @@ function positiveTests(message: string | ((...args: any[]) => string), subject: 
     };
 }
 
-function negativeTests(message: string, subject: (...args: any[]) => never): () => void;
-function negativeTests<T extends any[]>(message: ((...args: T) => string), subject: (...args: any[]) => never, argsFactory: () => T): () => void;
-function negativeTests(message: string | ((...args: any[]) => string), subject: (...args: any[]) => never, argsFactory?: () => any[]): () => void {
+// @ts-ignore
+function negativeTests(message: string, subject: ErrorFunc<[], never>): () => void;
+function negativeTests<T extends any[]>(message: ((...args: T) => string), subject: ErrorFunc<T, never>, argsFactory: () => T): () => void;
+function negativeTests(message: string | ((...args: any[]) => string), subject: ErrorFunc<any[], never>, argsFactory?: () => any[]): () => void {
     const af = argsFactory || (() => []);
     const msg = typeof message === 'string' ? () => message : message;
     return () => {

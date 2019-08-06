@@ -30,9 +30,10 @@ export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubta
         return Enumerable.from(this._nameMap).selectMany(([, v]) => v);
     }
 
-    public find(name: string): ISubtag<T> | undefined {
-        return (this._parent && this._parent.find(name)) ||
-            _find(this._nameMap, name) || _find(this._aliasMap, name);
+    public find(name: string): ISubtag<T> | undefined;
+    public find<S extends ISubtag<T>>(name: string, type: Constructor<S>): S | undefined;
+    public find(name: string, type?: Constructor<ISubtag<T>>): ISubtag<T> | undefined {
+        return _findStack(this as SubtagCollection<T>, c => c._parent, c => _find(c._nameMap, name, type) || _find(c._aliasMap, name, type));
     }
 
     public remove<TSubtag extends IsSupertypeOf<TSubtag, T, SubtagContext>>(...subtags: Array<ISubtag<TSubtag>>): this;
@@ -64,11 +65,26 @@ export class SubtagCollection<T extends SubtagContext> extends Enumerable<ISubta
     }
 }
 
-function _find<T>(map: Map<string, T[]>, key: string): T | undefined {
+function _findStack<T, R>(current: T | undefined, next: (current: T) => T | undefined, action: (current: T) => R | undefined): R | undefined {
+    while (current !== undefined) {
+        const result = action(current);
+        if (result !== undefined) { return result; }
+        current = next(current);
+    }
+}
+
+function _find<T>(map: Map<string, T[]>, key: string, type?: Constructor<T>): T | undefined {
     key = key.toLowerCase();
     const match = map.get(key);
     if (match !== undefined && match.length > 0) {
-        return match[match.length - 1];
+        if (type === undefined) {
+            return match[match.length - 1];
+        }
+        for (let i = match.length; i > 0;) {
+            if (match[--i] instanceof type) {
+                return match[i];
+            }
+        }
     }
 }
 

@@ -8,15 +8,15 @@ export type SubtagResultType = keyof SubtagResultTypeMap;
 export type SwitchHandlers<T> = { [K in keyof SubtagResultTypeMap]?: (value: SubtagResultTypeMap[K]) => T };
 export type SubtagConditionFunc = (args: readonly IStringToken[]) => boolean;
 export type SubtagCondition = SubtagConditionFunc | string | number;
-export type ErrorFunc<T extends any[] = []> = ErrorFuncOverload1<T> & ErrorFuncOverload2<T> & ErrorFuncOverload3<T>;
+export type ErrorFunc<T extends any[] = [], R = ISubtagError> = ErrorFuncOverload1<T, R> & ErrorFuncOverload2<T, R> & ErrorFuncOverload3<T, R>;
 export type ErrorParams<T extends any[] = []> = Parameters<ErrorFuncOverload1<T> | ErrorFuncOverload2<T> | ErrorFuncOverload3<T>>;
 export type SubtagArgumentDefinition = IHandlerArgumentGroup | IHandlerArgumentValue;
 export type IBBTagTypeChecker = { [K in keyof SubtagResultTypeMap]: (target: SubtagResult) => target is SubtagResultTypeMap[K] };
 
 type TokenType = ISubtagToken | IStringToken;
-type ErrorFuncOverload1<T extends any[] = []> = ((args: { context: ISubtagErrorContext, token: TokenType }, ...remainder: T) => ISubtagError);
-type ErrorFuncOverload2<T extends any[] = []> = ((args: { context: ISubtagErrorContext, token?: TokenType }, token: TokenType, ...remainder: T) => ISubtagError);
-type ErrorFuncOverload3<T extends any[] = []> = ((context: ISubtagErrorContext, token: TokenType, ...remainder: T) => ISubtagError);
+type ErrorFuncOverload1<T extends any[] = [], R = ISubtagError> = ((args: { context: ISubtagErrorContext, token: TokenType }, ...remainder: T) => R);
+type ErrorFuncOverload2<T extends any[] = [], R = ISubtagError> = ((args: { context: ISubtagErrorContext, token?: TokenType }, token: TokenType, ...remainder: T) => R);
+type ErrorFuncOverload3<T extends any[] = [], R = ISubtagError> = ((context: ISubtagErrorContext, token: TokenType, ...remainder: T) => R);
 
 // tslint:disable-next-line: interface-over-type-literal
 export type SubtagResultTypeMap = {
