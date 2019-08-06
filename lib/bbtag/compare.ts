@@ -86,9 +86,9 @@ function compareIterable<T extends string | number>(left: Source<T>, right: Sour
 
         let result: -1 | 0 | 1;
         switch (typeof l + typeof r) {
-            case 'numbernumber': result = compareAsNumber(l as number, r as number);
-            case 'stringstring': result = l < r ? -1 : r < l ? 1 : 0;
-            default: result = typeof l === 'number' ? -1 : 1;
+            case 'numbernumber': result = compareAsNumber(l as number, r as number); break;
+            case 'stringstring': result = l < r ? -1 : r < l ? 1 : 0; break;
+            default: result = typeof l === 'number' ? -1 : 1; break;
         }
 
         if (result) { return result; }

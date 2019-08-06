@@ -1,9 +1,10 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import { bbtag, SubtagResult } from '../../../lib';
-import { ctx, err, str } from '../../testUtils';
+import compare from '../../../lib/bbtag/compare';
+import { SubtagResult } from '../../../lib/bbtag/types';
+import { error, toJSON } from './_helpers';
 
-describe('function compare', () => {
+describe('function bbtag.compare', () => {
     const testCases: Array<{ left: SubtagResult, right: SubtagResult, expected: -1 | 0 | 1 }> = [
         // number to number
         { left: 0, right: 0, expected: 0 },
@@ -36,6 +37,12 @@ describe('function compare', () => {
         { left: 'abcd', right: 'abc', expected: 1 },
         { left: 'ab', right: 'abc', expected: -1 },
 
+        // boolean to boolean
+        { left: true, right: true, expected: 0 },
+        { left: false, right: false, expected: 0 },
+        { left: true, right: false, expected: 1 },
+        { left: false, right: true, expected: -1 },
+
         // array to array
         { left: [1, undefined, '2', 3], right: [1, undefined, '2', 3], expected: 0 },
         { left: [1, undefined, '2', 3], right: [1, undefined, '3', 3], expected: -1 },
@@ -56,9 +63,9 @@ describe('function compare', () => {
         { left: null, right: null, expected: 0 },
 
         // error to error
-        { left: err('message', str('test'), ctx()), right: err('message', str('test'), ctx()), expected: 0 },
-        { left: err('message1', str('test'), ctx()), right: err('message', str('test'), ctx()), expected: 1 },
-        { left: err('message', str('test'), ctx()), right: err('message1', str('test'), ctx()), expected: -1 },
+        { left: error('message'), right: error('message'), expected: 0 },
+        { left: error('message1'), right: error('message'), expected: 1 },
+        { left: error('message'), right: error('message1'), expected: -1 },
 
         // cross type compare
         { left: 0, right: 'abc', expected: -1 },
@@ -67,11 +74,11 @@ describe('function compare', () => {
     ];
 
     for (const { left, right, expected } of testCases) {
-        it(`should correctly compare '${left}' with '${right}' as ${expected}`, () => {
+        it(`should correctly compare ${toJSON(left)} with ${toJSON(left)} as ${expected}`, () => {
             // arrange
 
             // act
-            const result = bbtag.compare(left, right);
+            const result = compare(left, right);
 
             // assert
             expect(result).to.equal(expected);

@@ -20,6 +20,7 @@ export const typeMappingTestData: Array<{ input: SubtagResult, type: SubtagResul
 export function toJSON(value: SubtagResult): string {
     switch (typeof value) {
         case 'number': return '' + value;
+        case 'object': if (value !== null && !Array.isArray(value)) { return `ERROR: \`${value.message}\``; }
         default: return JSON.stringify(value);
     }
 }
