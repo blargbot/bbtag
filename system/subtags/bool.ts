@@ -1,4 +1,4 @@
-import { ArgumentCollection, IBBTagUtilities, SubtagResult } from '../../lib';
+import { ArgumentCollection, bbtag, IBBTagUtilities, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 type operator = (bbtag: IBBTagUtilities, left: SubtagResult, right: SubtagResult) => boolean;
@@ -30,9 +30,9 @@ export class BoolSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=2', this.bbtag.errors.notEnoughArgs)
+        this.whenArgs('<=2', bbtag.errors.notEnoughArgs)
             .whenArgs('3', this.run, true) // {bool;RESOLVE;RESOLVE;RESOLVE}
-            .default(this.bbtag.errors.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public run(args: ArgumentCollection): SubtagResult {
@@ -46,13 +46,13 @@ export class BoolSubtag extends SystemSubtag {
         let comparer: operator;
         let key: string;
 
-        if ((key = this.bbtag.convert.toString(val2)) in BoolSubtag.operators) {
+        if ((key = bbtag.convert.toString(val2)) in BoolSubtag.operators) {
             left = val1;
             right = val3;
-        } else if ((key = this.bbtag.convert.toString(val1)) in BoolSubtag.operators) {
+        } else if ((key = bbtag.convert.toString(val1)) in BoolSubtag.operators) {
             left = val2;
             right = val3;
-        } else if ((key = this.bbtag.convert.toString(val3)) in BoolSubtag.operators) {
+        } else if ((key = bbtag.convert.toString(val3)) in BoolSubtag.operators) {
             left = val1;
             right = val2;
         } else {
@@ -60,7 +60,7 @@ export class BoolSubtag extends SystemSubtag {
         }
 
         comparer = BoolSubtag.operators[key];
-        return comparer(this.bbtag, left, right);
+        return comparer(bbtag, left, right);
     }
 }
 

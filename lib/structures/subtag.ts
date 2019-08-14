@@ -1,4 +1,4 @@
-import bbtag, { IBBTagArgumentBuilder, IBBTagUtilities, ISubtagToken, SubtagArgumentDefinition, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbtag';
+import bbtag, { IBBTagArgumentBuilder, ISubtagToken, SubtagArgumentDefinition, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbtag';
 import { Awaitable, Constructor, Enumerable, functions } from '../util';
 import { ArgumentCollection } from './argumentCollection';
 import { OptimizationContext, SubtagContext } from './context';
@@ -44,19 +44,17 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
     public readonly arguments: SubtagArgumentDefinition[];
     public readonly examples?: IUsageExample[];
     public readonly arraySupport: boolean;
-    protected bbtag: IBBTagUtilities;
 
     private readonly _conditionals: Array<ISubtagConditionalHandler<T, this>>;
     private _defaultHandler?: ISubtagConditionalHandler<T, this>;
 
     protected constructor(context: Constructor<T>, args: ISubtagArgs<T>) {
-        this.bbtag = bbtag;
         this.context = context;
         this.name = args.name;
         this.category = args.category;
         this.aliases = new Set(args.aliases || []);
         this.description = typeof args.description === 'string' ? () => args.description as string : args.description;
-        this.arguments = [...typeof args.arguments === 'function' ? args.arguments(this.bbtag.args) : args.arguments];
+        this.arguments = [...typeof args.arguments === 'function' ? args.arguments(bbtag.args) : args.arguments];
         this.examples = [...args.examples || []];
         this.arraySupport = args.arraySupport || false;
 
@@ -85,7 +83,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         }
 
         if (action === undefined) {
-            return this.bbtag.errors.system.unknownHandler(context, token, this);
+            return bbtag.errors.system.unknownHandler(context, token, this);
         }
 
         const args = new ArgumentCollection(context, token);
@@ -103,13 +101,13 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         if (this.arguments.length === 0) {
             return `{${this.name}}`;
         }
-        return `{${this.name};${this.bbtag.args.stringify(';', this.arguments)}}`;
+        return `{${this.name};${bbtag.args.stringify(';', this.arguments)}}`;
     }
 
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
         switch (typeof condition) {
             case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
-            case 'string': return this.whenArgs(this.bbtag.conditions.parse(condition), handler, autoResolve);
+            case 'string': return this.whenArgs(bbtag.conditions.parse(condition), handler, autoResolve);
         }
 
         this._conditionals.push({

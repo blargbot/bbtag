@@ -1,4 +1,4 @@
-import { ArgumentCollection, Awaitable, SubtagResult } from '../../lib';
+import { ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class GetSubtag extends SystemSubtag {
@@ -28,29 +28,29 @@ export class GetSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0', this.bbtag.errors.notEnoughArgs)
+        this.whenArgs('0', bbtag.errors.notEnoughArgs)
             .whenArgs('1', this.getKey, true)
             .whenArgs('2', this.getIndex, true)
-            .default(this.bbtag.errors.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
         const key = args.get(0);
-        return args.context.variables.get(this.bbtag.convert.toString(key));
+        return args.context.variables.get(bbtag.convert.toString(key));
     }
 
     public async getIndex(args: ArgumentCollection): Promise<SubtagResult> {
         const [key, index] = args.get(0, 1);
-        const value = await args.context.variables.get(this.bbtag.convert.toString(key));
-        const asArray = this.bbtag.convert.tryToArray(value);
-        const indexAsNumber = this.bbtag.convert.tryToNumber(index);
+        const value = await args.context.variables.get(bbtag.convert.toString(key));
+        const asArray = bbtag.convert.tryToArray(value);
+        const indexAsNumber = bbtag.convert.tryToNumber(index);
 
         if (!asArray.success) {
             return value;
         } else if (!indexAsNumber.success) {
-            return this.bbtag.errors.types.notNumber(args, args.token.args[1]);
+            return bbtag.errors.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return this.bbtag.errors.types.array.outOfBounds(args, args.token);
+            return bbtag.errors.types.array.outOfBounds(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

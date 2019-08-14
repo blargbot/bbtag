@@ -1,4 +1,4 @@
-import { ArgumentCollection, SubtagResult } from '../../lib';
+import { ArgumentCollection, bbtag, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 import { BoolSubtag } from './bool';
 
@@ -20,24 +20,24 @@ export class ForSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0-4', this.bbtag.errors.notEnoughArgs)
+        this.whenArgs('0-4', bbtag.errors.notEnoughArgs)
             .whenArgs('5', this.run, [0, 1, 2, 3])
             .whenArgs('6', this.run, [0, 1, 2, 3, 4])
-            .default(this.bbtag.errors.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public async run(args: ArgumentCollection): Promise<SubtagResult> {
         const bool = args.context.subtags.find('bool', BoolSubtag)
-            || this.bbtag.errors.throw.system.unknownSubtag(args, 'bool');
+            || bbtag.errors.throw.system.unknownSubtag(args, 'bool');
         const result: SubtagResult[] = [];
-        const [varName, operator] = args.get(0, 2).select(n => this.bbtag.convert.toString(n));
-        const [initial, limit] = args.get(1, 3).select(n => this.bbtag.convert.toNumber(n, NaN));
+        const [varName, operator] = args.get(0, 2).select(n => bbtag.convert.toString(n));
+        const [initial, limit] = args.get(1, 3).select(n => bbtag.convert.toNumber(n, NaN));
         const code = args.getRaw(args.length - 1)!;
-        const increment = args.length === 5 ? 1 : this.bbtag.convert.toNumber(args.get(4), NaN);
+        const increment = args.length === 5 ? 1 : bbtag.convert.toNumber(args.get(4), NaN);
 
         const nanIndex = [0, initial, 0, limit, increment].findIndex(isNaN);
         if (nanIndex !== -1) {
-            return this.bbtag.errors.types.notNumber(args, args.getRaw(nanIndex));
+            return bbtag.errors.types.notNumber(args, args.getRaw(nanIndex));
         }
 
         // TODO: implement limits
@@ -45,9 +45,9 @@ export class ForSubtag extends SystemSubtag {
         for (let i = initial; bool.check(i, operator, limit); i += increment) {
             await args.context.variables.set(varName, i);
             result.push(await args.context.execute(code));
-            const next = this.bbtag.convert.tryToNumber(await args.context.variables.get(varName));
+            const next = bbtag.convert.tryToNumber(await args.context.variables.get(varName));
             if (!next.success) {
-                result.push(this.bbtag.errors.types.notNumber(args));
+                result.push(bbtag.errors.types.notNumber(args));
                 break;
             }
             i = next.value;
@@ -56,7 +56,7 @@ export class ForSubtag extends SystemSubtag {
         }
 
         args.context.variables.rollback(varName);
-        return result.map(this.bbtag.convert.toString).join('');
+        return result.map(bbtag.convert.toString).join('');
     }
 }
 

@@ -1,4 +1,4 @@
-import { ArgumentCollection, Awaitable, SubtagResult } from '../../lib';
+import { ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 import { BoolSubtag } from './bool';
 
@@ -23,18 +23,18 @@ export class IfSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=1', this.bbtag.errors.notEnoughArgs)
+        this.whenArgs('<=1', bbtag.errors.notEnoughArgs)
             .whenArgs('2,3', this.runNoComp, [0]) // {if;RESOLVE;DEFER[;DEFER]}
             .whenArgs('4,5', this.runWithComp, [0, 1, 2]) // {if;RESOLVE;RESOLVE;RESOLVE;DEFER[;DEFER]}
-            .default(this.bbtag.errors.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 
     public runNoComp(args: ArgumentCollection): Awaitable<SubtagResult> {
         const success = args.get(0);
-        const tryBool = this.bbtag.convert.tryToBoolean(success);
+        const tryBool = bbtag.convert.tryToBoolean(success);
 
         if (!tryBool.success) {
-            return this.bbtag.errors.types.notBool(args, args.token.args[0]);
+            return bbtag.errors.types.notBool(args, args.token.args[0]);
         } else if (tryBool.value) {
             return args.execute(1);
         } else {
@@ -44,12 +44,12 @@ export class IfSubtag extends SystemSubtag {
 
     public runWithComp(args: ArgumentCollection): Awaitable<SubtagResult> {
         const bool = args.context.subtags.find('bool', BoolSubtag)
-            || this.bbtag.errors.throw.system.unknownSubtag(args, 'bool');
+            || bbtag.errors.throw.system.unknownSubtag(args, 'bool');
         const [left, comp, right] = args.get(0, 1, 2);
         const success = bool.check(left, comp, right);
 
         if (success === undefined) {
-            return this.bbtag.errors.types.notOperator(args);
+            return bbtag.errors.types.notOperator(args);
         } else if (success === true) {
             return args.execute(3);
         } else {

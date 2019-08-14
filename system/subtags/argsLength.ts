@@ -1,3 +1,4 @@
+import { bbtag } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class ArgsLengthSubtag extends SystemSubtag {
@@ -13,7 +14,7 @@ export class ArgsLengthSubtag extends SystemSubtag {
         });
 
         this.whenArgs(0, args => args.context.arguments.length)
-            .default(this.bbtag.errors.tooManyArgs);
+            .default(bbtag.errors.tooManyArgs);
     }
 }
 
