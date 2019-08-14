@@ -18,6 +18,12 @@ export interface IAttachmentData {
     readonly file: string | Buffer;
 }
 
+export interface ISendPayload {
+    content?: string;
+    embed?: IEmbed;
+    files?: IAttachmentData[];
+}
+
 // Generics
 
 export interface IChannel extends IEntity {
@@ -43,6 +49,7 @@ export interface IDMChannel extends IChannel {
 export interface IMessageChannel extends IChannel {
     readonly type: MessageChannel['type'];
 
+    send(payload: ISendPayload): Promise<Snowflake>;
     send(content?: string, embed?: IEmbed, files?: IAttachmentData[]): Promise<Snowflake>;
     slowmode(moderator: IUser, rateLimit: number | false, reason?: string): Promise<ModerationResult>;
 }
