@@ -1,4 +1,4 @@
-import { ISubtagError } from '../bbtag';
+import { ISubtagError } from '../bbUtil';
 import { Awaitable, Constructor, Enumerable } from '../util';
 import { SubtagContext } from './context';
 import { DatabaseValue } from './database';

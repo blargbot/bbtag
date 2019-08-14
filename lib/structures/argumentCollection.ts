@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagToken, SubtagResult } from '../bbtag';
+import { IStringToken, ISubtagToken, SubtagResult } from '../bbUtil';
 import { ArrayLikeEnumerable, Awaitable, Enumerable, IEnumerable } from '../util';
 import { AsyncCache } from './asyncCache';
 import { SubtagContext } from './context';

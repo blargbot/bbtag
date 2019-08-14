@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../../lib/bbtag/types';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult, SubtagResultArray, SubtagResultType } from '../../../lib/bbUtil/types';
 import { TokenRange } from '../../../lib/util/range';
 
 export const typeMappingTestData: Array<{ input: SubtagResult, type: SubtagResultType }> = [

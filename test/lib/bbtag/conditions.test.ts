@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import conditions from '../../../lib/bbtag/conditions';
-import { IStringToken } from '../../../lib/bbtag/types';
+import conditions from '../../../lib/bbUtil/conditions';
+import { IStringToken } from '../../../lib/bbUtil/types';
 
 type TestCase =
     | { kind: 'success', input: string, expect: IStringToken[][], reject: IStringToken[][] }

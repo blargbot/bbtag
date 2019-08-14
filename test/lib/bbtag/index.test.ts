@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-import args from '../../../lib/bbtag/args';
-import check from '../../../lib/bbtag/check';
-import compare from '../../../lib/bbtag/compare';
-import conditions from '../../../lib/bbtag/conditions';
-import convert from '../../../lib/bbtag/convert';
-import errors from '../../../lib/bbtag/errors';
-import getType from '../../../lib/bbtag/getType';
-import bbUtil from '../../../lib/bbtag/index';
-import parse from '../../../lib/bbtag/parse';
-import switchType from '../../../lib/bbtag/switchType';
+import args from '../../../lib/bbUtil/args';
+import check from '../../../lib/bbUtil/check';
+import compare from '../../../lib/bbUtil/compare';
+import conditions from '../../../lib/bbUtil/conditions';
+import convert from '../../../lib/bbUtil/convert';
+import errors from '../../../lib/bbUtil/errors';
+import getType from '../../../lib/bbUtil/getType';
+import bbUtil from '../../../lib/bbUtil/index';
+import parse from '../../../lib/bbUtil/parse';
+import switchType from '../../../lib/bbUtil/switchType';
 
 describe('const bbtag', () => {
     it('should correctly import all components', () => {

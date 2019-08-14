@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import convert from '../../../lib/bbtag/convert';
-import { SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../../../lib/bbtag/types';
+import convert from '../../../lib/bbUtil/convert';
+import { SubtagPrimitiveResult, SubtagResult, SubtagResultArray } from '../../../lib/bbUtil/types';
 import { array, error, toJSON } from './_helpers';
 
 type Default<T> = T | ((value: SubtagResult) => T);

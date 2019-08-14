@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import getType from '../../../lib/bbtag/getType';
+import getType from '../../../lib/bbUtil/getType';
 import { typeMappingTestData } from './_helpers';
 
 describe('function bbtag.getType', () => {

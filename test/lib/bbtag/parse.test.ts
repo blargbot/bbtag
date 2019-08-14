@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import parse from '../../../lib/bbtag/parse';
-import { IStringToken } from '../../../lib/bbtag/types';
+import parse from '../../../lib/bbUtil/parse';
+import { IStringToken } from '../../../lib/bbUtil/types';
 import { stringToken as str, subtagToken as tag } from './_helpers';
 
 type TestCase =

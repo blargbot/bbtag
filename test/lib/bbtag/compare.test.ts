@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { expect } from 'chai';
-import compare from '../../../lib/bbtag/compare';
-import { SubtagResult } from '../../../lib/bbtag/types';
+import compare from '../../../lib/bbUtil/compare';
+import { SubtagResult } from '../../../lib/bbUtil/types';
 import { error, toJSON } from './_helpers';
 
 describe('function bbtag.compare', () => {

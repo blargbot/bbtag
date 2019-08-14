@@ -1,4 +1,4 @@
-import bbUtil, { IBBTag, IStringToken, ISubtagToken, SubtagResult } from './bbtag';
+import bbUtil, { IBBTag, IStringToken, ISubtagToken, SubtagResult } from './bbUtil';
 import { optimizeStringToken } from './optimizer';
 import { EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
 import { IDatabase } from './structures/database';

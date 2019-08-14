@@ -1,4 +1,4 @@
-import bbUtil, { IBBTagArgumentBuilder, ISubtagToken, SubtagArgumentDefinition, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbtag';
+import bbUtil, { IBBTagArgumentBuilder, ISubtagToken, SubtagArgumentDefinition, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbUtil';
 import { Awaitable, Constructor, Enumerable, functions } from '../util';
 import { ArgumentCollection } from './argumentCollection';
 import { OptimizationContext, SubtagContext } from './context';

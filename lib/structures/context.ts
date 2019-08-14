@@ -1,4 +1,4 @@
-import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult } from '../bbtag';
+import { IStringToken, ISubtagError, ISubtagToken, SubtagPrimitiveResult, SubtagResult } from '../bbUtil';
 import { Engine } from '../engine';
 import { Awaitable } from '../util';
 import { SubtagCollection } from './subtagCollection';

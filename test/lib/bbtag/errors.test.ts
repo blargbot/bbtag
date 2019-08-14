@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import errors from '../../../lib/bbtag/errors';
-import { ErrorFunc, IStringToken, ISubtagError, ISubtagErrorContext, ISubtagToken } from '../../../lib/bbtag/types';
+import errors from '../../../lib/bbUtil/errors';
+import { ErrorFunc, IStringToken, ISubtagError, ISubtagErrorContext, ISubtagToken } from '../../../lib/bbUtil/types';
 import { ISubtag } from '../../../lib/structures/subtag';
 
 function mockContext(expectedToken: IStringToken | ISubtagToken, expectedMessage: string, callback: (error: ISubtagError) => void): ISubtagErrorContext {

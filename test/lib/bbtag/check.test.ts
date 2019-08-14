@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import check from '../../../lib/bbtag/check';
+import check from '../../../lib/bbUtil/check';
 import { typeMappingTestData } from './_helpers';
 
 describe('const bbtag.check', () => {

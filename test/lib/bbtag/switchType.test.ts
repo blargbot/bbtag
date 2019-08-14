@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import switchType from '../../../lib/bbtag/switchType';
-import { SwitchHandlers } from '../../../lib/bbtag/types';
+import switchType from '../../../lib/bbUtil/switchType';
+import { SwitchHandlers } from '../../../lib/bbUtil/types';
 import { functions } from '../../../lib/util';
 import { toJSON, typeMappingTestData } from './_helpers';
 
