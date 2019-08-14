@@ -1,19 +1,19 @@
-import { ArgumentCollection, bbtag, IBBTagUtilities, SubtagResult } from '../../lib';
+import { ArgumentCollection, bbtag, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
-type operator = (bbtag: IBBTagUtilities, left: SubtagResult, right: SubtagResult) => boolean;
+type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
 export class BoolSubtag extends SystemSubtag {
     public static readonly operators: { readonly [key: string]: operator } = {
-        '==': (bbtag, l, r) => bbtag.compare(l, r) === 0,
-        '!=': (bbtag, l, r) => bbtag.compare(l, r) !== 0,
-        '>=': (bbtag, l, r) => bbtag.compare(l, r) >= 0,
-        '>': (bbtag, l, r) => bbtag.compare(l, r) > 0,
-        '<=': (bbtag, l, r) => bbtag.compare(l, r) <= 0,
-        '<': (bbtag, l, r) => bbtag.compare(l, r) < 0,
-        'startswith': (bbtag, l, r) => bbtag.convert.toCollection(l).startsWith(r),
-        'endswith': (bbtag, l, r) => bbtag.convert.toCollection(l).endsWith(r),
-        'includes': (bbtag, l, r) => bbtag.convert.toCollection(l).includes(r)
+        '==': (l, r) => bbtag.compare(l, r) === 0,
+        '!=': (l, r) => bbtag.compare(l, r) !== 0,
+        '>=': (l, r) => bbtag.compare(l, r) >= 0,
+        '>': (l, r) => bbtag.compare(l, r) > 0,
+        '<=': (l, r) => bbtag.compare(l, r) <= 0,
+        '<': (l, r) => bbtag.compare(l, r) < 0,
+        'startswith': (l, r) => bbtag.convert.toCollection(l).startsWith(r),
+        'endswith': (l, r) => bbtag.convert.toCollection(l).endsWith(r),
+        'includes': (l, r) => bbtag.convert.toCollection(l).includes(r)
     };
 
     public constructor() {
@@ -60,7 +60,7 @@ export class BoolSubtag extends SystemSubtag {
         }
 
         comparer = BoolSubtag.operators[key];
-        return comparer(bbtag, left, right);
+        return comparer(left, right);
     }
 }
 
