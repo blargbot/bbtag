@@ -1,4 +1,4 @@
-import { ArgumentCollection, Awaitable, bbtag, SubtagResult } from '../../lib';
+import { ArgumentCollection, Awaitable, bbUtil, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class GetSubtag extends SystemSubtag {
@@ -28,29 +28,29 @@ export class GetSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('0', bbtag.errors.notEnoughArgs)
+        this.whenArgs('0', bbUtil.errors.notEnoughArgs)
             .whenArgs('1', this.getKey, true)
             .whenArgs('2', this.getIndex, true)
-            .default(bbtag.errors.tooManyArgs);
+            .default(bbUtil.errors.tooManyArgs);
     }
 
     public getKey(args: ArgumentCollection): Awaitable<SubtagResult> {
         const key = args.get(0);
-        return args.context.variables.get(bbtag.convert.toString(key));
+        return args.context.variables.get(bbUtil.convert.toString(key));
     }
 
     public async getIndex(args: ArgumentCollection): Promise<SubtagResult> {
         const [key, index] = args.get(0, 1);
-        const value = await args.context.variables.get(bbtag.convert.toString(key));
-        const asArray = bbtag.convert.tryToArray(value);
-        const indexAsNumber = bbtag.convert.tryToNumber(index);
+        const value = await args.context.variables.get(bbUtil.convert.toString(key));
+        const asArray = bbUtil.convert.tryToArray(value);
+        const indexAsNumber = bbUtil.convert.tryToNumber(index);
 
         if (!asArray.success) {
             return value;
         } else if (!indexAsNumber.success) {
-            return bbtag.errors.types.notNumber(args, args.token.args[1]);
+            return bbUtil.errors.types.notNumber(args, args.token.args[1]);
         } else if (asArray.value.length <= indexAsNumber.value) {
-            return bbtag.errors.types.array.outOfBounds(args, args.token);
+            return bbUtil.errors.types.array.outOfBounds(args, args.token);
         }
 
         return asArray.value[indexAsNumber.value];

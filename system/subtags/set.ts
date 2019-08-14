@@ -1,4 +1,4 @@
-import { ArgumentCollection, Awaitable, bbtag } from '../../lib';
+import { ArgumentCollection, Awaitable, bbUtil } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 export class SetSubtag extends SystemSubtag {
@@ -29,19 +29,19 @@ export class SetSubtag extends SystemSubtag {
             arraySupport: true
         });
 
-        this.whenArgs('0', bbtag.errors.notEnoughArgs)
+        this.whenArgs('0', bbUtil.errors.notEnoughArgs)
             .whenArgs('1', this.clearKey, true)
             .default(this.setKey, true);
     }
 
     public clearKey(args: ArgumentCollection): Awaitable<void> {
         const key = args.get(0);
-        return args.context.variables.delete(bbtag.convert.toString(key));
+        return args.context.variables.delete(bbUtil.convert.toString(key));
     }
 
     public setKey(args: ArgumentCollection): Awaitable<void> {
         const [key, ...values] = args.getAll();
-        return args.context.variables.set(bbtag.convert.toString(key), values.map(bbtag.convert.toPrimitive));
+        return args.context.variables.set(bbUtil.convert.toString(key), values.map(bbUtil.convert.toPrimitive));
     }
 }
 

@@ -1,4 +1,4 @@
-import bbtag, { IBBTagArgumentBuilder, ISubtagToken, SubtagArgumentDefinition, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbtag';
+import bbUtil, { IBBTagArgumentBuilder, ISubtagToken, SubtagArgumentDefinition, SubtagCondition, SubtagConditionFunc, SubtagResult } from '../bbtag';
 import { Awaitable, Constructor, Enumerable, functions } from '../util';
 import { ArgumentCollection } from './argumentCollection';
 import { OptimizationContext, SubtagContext } from './context';
@@ -54,7 +54,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         this.category = args.category;
         this.aliases = new Set(args.aliases || []);
         this.description = typeof args.description === 'string' ? () => args.description as string : args.description;
-        this.arguments = [...typeof args.arguments === 'function' ? args.arguments(bbtag.args) : args.arguments];
+        this.arguments = [...typeof args.arguments === 'function' ? args.arguments(bbUtil.args) : args.arguments];
         this.examples = [...args.examples || []];
         this.arraySupport = args.arraySupport || false;
 
@@ -83,7 +83,7 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         }
 
         if (action === undefined) {
-            return bbtag.errors.system.unknownHandler(context, token, this);
+            return bbUtil.errors.system.unknownHandler(context, token, this);
         }
 
         const args = new ArgumentCollection(context, token);
@@ -101,13 +101,13 @@ export abstract class Subtag<T extends SubtagContext> implements ISubtag<T> {
         if (this.arguments.length === 0) {
             return `{${this.name}}`;
         }
-        return `{${this.name};${bbtag.args.stringify(';', this.arguments)}}`;
+        return `{${this.name};${bbUtil.args.stringify(';', this.arguments)}}`;
     }
 
     protected whenArgs(condition: SubtagCondition, handler: SubtagHandler<T, this>, autoResolve?: AutoResolvable<T>): this {
         switch (typeof condition) {
             case 'number': return this.whenArgs(args => args.length === condition, handler, autoResolve);
-            case 'string': return this.whenArgs(bbtag.conditions.parse(condition), handler, autoResolve);
+            case 'string': return this.whenArgs(bbUtil.conditions.parse(condition), handler, autoResolve);
         }
 
         this._conditionals.push({

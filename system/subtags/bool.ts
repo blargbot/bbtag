@@ -1,19 +1,19 @@
-import { ArgumentCollection, bbtag, SubtagResult } from '../../lib';
+import { ArgumentCollection, bbUtil, SubtagResult } from '../../lib';
 import { SystemSubtag } from '../subtag';
 
 type operator = (left: SubtagResult, right: SubtagResult) => boolean;
 
 export class BoolSubtag extends SystemSubtag {
     public static readonly operators: { readonly [key: string]: operator } = {
-        '==': (l, r) => bbtag.compare(l, r) === 0,
-        '!=': (l, r) => bbtag.compare(l, r) !== 0,
-        '>=': (l, r) => bbtag.compare(l, r) >= 0,
-        '>': (l, r) => bbtag.compare(l, r) > 0,
-        '<=': (l, r) => bbtag.compare(l, r) <= 0,
-        '<': (l, r) => bbtag.compare(l, r) < 0,
-        'startswith': (l, r) => bbtag.convert.toCollection(l).startsWith(r),
-        'endswith': (l, r) => bbtag.convert.toCollection(l).endsWith(r),
-        'includes': (l, r) => bbtag.convert.toCollection(l).includes(r)
+        '==': (l, r) => bbUtil.compare(l, r) === 0,
+        '!=': (l, r) => bbUtil.compare(l, r) !== 0,
+        '>=': (l, r) => bbUtil.compare(l, r) >= 0,
+        '>': (l, r) => bbUtil.compare(l, r) > 0,
+        '<=': (l, r) => bbUtil.compare(l, r) <= 0,
+        '<': (l, r) => bbUtil.compare(l, r) < 0,
+        'startswith': (l, r) => bbUtil.convert.toCollection(l).startsWith(r),
+        'endswith': (l, r) => bbUtil.convert.toCollection(l).endsWith(r),
+        'includes': (l, r) => bbUtil.convert.toCollection(l).includes(r)
     };
 
     public constructor() {
@@ -30,9 +30,9 @@ export class BoolSubtag extends SystemSubtag {
             ]
         });
 
-        this.whenArgs('<=2', bbtag.errors.notEnoughArgs)
+        this.whenArgs('<=2', bbUtil.errors.notEnoughArgs)
             .whenArgs('3', this.run, true) // {bool;RESOLVE;RESOLVE;RESOLVE}
-            .default(bbtag.errors.tooManyArgs);
+            .default(bbUtil.errors.tooManyArgs);
     }
 
     public run(args: ArgumentCollection): SubtagResult {
@@ -46,13 +46,13 @@ export class BoolSubtag extends SystemSubtag {
         let comparer: operator;
         let key: string;
 
-        if ((key = bbtag.convert.toString(val2)) in BoolSubtag.operators) {
+        if ((key = bbUtil.convert.toString(val2)) in BoolSubtag.operators) {
             left = val1;
             right = val3;
-        } else if ((key = bbtag.convert.toString(val1)) in BoolSubtag.operators) {
+        } else if ((key = bbUtil.convert.toString(val1)) in BoolSubtag.operators) {
             left = val2;
             right = val3;
-        } else if ((key = bbtag.convert.toString(val3)) in BoolSubtag.operators) {
+        } else if ((key = bbUtil.convert.toString(val3)) in BoolSubtag.operators) {
             left = val1;
             right = val2;
         } else {

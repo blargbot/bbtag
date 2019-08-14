@@ -6,7 +6,7 @@ import conditions from '../../../lib/bbtag/conditions';
 import convert from '../../../lib/bbtag/convert';
 import errors from '../../../lib/bbtag/errors';
 import getType from '../../../lib/bbtag/getType';
-import bbtag from '../../../lib/bbtag/index';
+import bbUtil from '../../../lib/bbtag/index';
 import parse from '../../../lib/bbtag/parse';
 import switchType from '../../../lib/bbtag/switchType';
 
@@ -17,15 +17,15 @@ describe('const bbtag', () => {
         // act
 
         // assert
-        expect(bbtag).to.not.be.undefined;
-        expect(bbtag.args).to.equal(args);
-        expect(bbtag.check).to.equal(check);
-        expect(bbtag.compare).to.equal(compare);
-        expect(bbtag.conditions).to.equal(conditions);
-        expect(bbtag.convert).to.equal(convert);
-        expect(bbtag.errors).to.equal(errors);
-        expect(bbtag.getType).to.equal(getType);
-        expect(bbtag.parse).to.equal(parse);
-        expect(bbtag.switchType).to.equal(switchType);
+        expect(bbUtil).to.not.be.undefined;
+        expect(bbUtil.args).to.equal(args);
+        expect(bbUtil.check).to.equal(check);
+        expect(bbUtil.compare).to.equal(compare);
+        expect(bbUtil.conditions).to.equal(conditions);
+        expect(bbUtil.convert).to.equal(convert);
+        expect(bbUtil.errors).to.equal(errors);
+        expect(bbUtil.getType).to.equal(getType);
+        expect(bbUtil.parse).to.equal(parse);
+        expect(bbUtil.switchType).to.equal(switchType);
     });
 });

@@ -11,7 +11,7 @@ import { IBBTagUtilities } from './types';
 
 export * from './types';
 
-export const bbtag: IBBTagUtilities = {
+export const bbUtil: IBBTagUtilities = {
     args,
     check,
     compare,
@@ -23,4 +23,4 @@ export const bbtag: IBBTagUtilities = {
     switchType
 };
 
-export default bbtag;
+export default bbUtil;

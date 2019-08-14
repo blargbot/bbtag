@@ -1,4 +1,4 @@
-import bbtag, { IBBTag, IStringToken, ISubtagToken, SubtagResult } from './bbtag';
+import bbUtil, { IBBTag, IStringToken, ISubtagToken, SubtagResult } from './bbtag';
 import { optimizeStringToken } from './optimizer';
 import { EventManager, OptimizationContext, SubtagCollection, SubtagContext, VariableScopeCollection } from './structures';
 import { IDatabase } from './structures/database';
@@ -31,11 +31,11 @@ export class Engine<T extends SubtagContext> {
         const parts = await Promise.all(token.subtags.map(t => this.executeSubtag(t, context)));
         context.stackTrace.pop();
 
-        return token.format === '{0}' ? parts[0] : format(token.format, parts.map(bbtag.convert.toString));
+        return token.format === '{0}' ? parts[0] : format(token.format, parts.map(bbUtil.convert.toString));
     }
 
     public process(source: string, context: T): IBBTag {
-        const root = bbtag.parse(source);
+        const root = bbUtil.parse(source);
         return {
             source,
             root: optimizeStringToken(root, new OptimizationContext(context))
@@ -47,19 +47,19 @@ export class Engine<T extends SubtagContext> {
 
         await Promise.all(this.events.raise('before-execute', token, context));
         context.stackTrace.push(token);
-        const name = bbtag.convert.toString(await this.execute(token.name, context));
+        const name = bbUtil.convert.toString(await this.execute(token.name, context));
         const executor = context.subtags.find(name);
 
         let result: SubtagResult;
 
         if (executor === undefined) {
-            result = bbtag.errors.system.unknownSubtag(context, token, name);
+            result = bbUtil.errors.system.unknownSubtag(context, token, name);
         } else {
             try {
                 result = await executor.execute(token, context);
             } catch (ex) {
                 await this.events.raise('subtag-error', token, context, ex);
-                result = bbtag.check.error(ex) ? ex : bbtag.errors.system.internal(context, token);
+                result = bbUtil.check.error(ex) ? ex : bbUtil.errors.system.internal(context, token);
             }
         }
 
